@@ -4,6 +4,8 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  // Use relative asset URLs so the build works on GitHub Pages project URLs.
+  base: './',
   plugins: [
     react(),
     tailwindcss(),
@@ -19,7 +21,7 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
-            src: '/logo.png',
+            src: 'logo.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',
@@ -28,6 +30,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       },
     }),
   ],

@@ -52,16 +52,6 @@ input[type="range"]::-moz-range-thumb {
   border-radius: 0;
 }
 
-/* Beat pulse animation */
-@keyframes beat-pulse {
-  0% { transform: scale(1.25); }
-  100% { transform: scale(1); }
-}
-
-.beat-active {
-  animation: beat-pulse 0.15s ease-out;
-}
-
 /* Number input hide spinners */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {

@@ -14,24 +14,28 @@ export default function AppShell() {
   const audio = useAudioEngine()
 
   const engine = audio.engine()
-  const accents = engine?.accents || ['STRONG', 'NORMAL', 'NORMAL', 'NORMAL']
-  const beatsPerBar = engine?.beatsPerBar || 4
-  const beatUnit = engine?.beatUnit || 4
-  const subdivision = engine?.subdivision || 1
-  const volume = engine?.volume ?? 1
-  const soundIndex = engine?.soundIndex ?? 0
 
-  // Gap training state
-  const gapEnabled = engine?.gapEnabled || false
-  const gapClickBars = engine?.gapClickBars || 2
-  const gapSilentBars = engine?.gapSilentBars || 2
+  // Track engine-derived values in React state instead of reading mutable props
+  const [settings, setSettings] = useState({
+    accents: ['STRONG', 'NORMAL', 'NORMAL', 'NORMAL'],
+    beatsPerBar: 4,
+    beatUnit: 4,
+    subdivision: 1,
+    volume: 1,
+    soundIndex: 0,
+    gapEnabled: false,
+    gapClickBars: 2,
+    gapSilentBars: 2,
+    tempoEnabled: false,
+    tempoStartBpm: 80,
+    tempoTargetBpm: 120,
+    tempoIncrement: 5,
+    tempoEveryBars: 4,
+  })
 
-  // Tempo trainer state
-  const tempoEnabled = engine?.tempoTrainerEnabled || false
-  const tempoStartBpm = engine?.tempoStartBpm || 80
-  const tempoTargetBpm = engine?.tempoTargetBpm || 120
-  const tempoIncrement = engine?.tempoIncrement || 5
-  const tempoEveryBars = engine?.tempoEveryBars || 4
+  const { accents, beatsPerBar, beatUnit, subdivision, volume, soundIndex } = settings
+  const { gapEnabled, gapClickBars, gapSilentBars } = settings
+  const { tempoEnabled, tempoStartBpm, tempoTargetBpm, tempoIncrement, tempoEveryBars } = settings
 
   const [showMoreTimeSigs, setShowMoreTimeSigs] = useState(false)
 
@@ -44,8 +48,27 @@ export default function AppShell() {
     songs: [],
   })
 
-  const [, forceUpdate] = useState(0)
-  const rerender = () => forceUpdate((n) => n + 1)
+  // Sync React state from engine snapshot
+  const syncFromEngine = useCallback(() => {
+    const e = audio.engine()
+    if (!e) return
+    setSettings({
+      accents: [...e.accents],
+      beatsPerBar: e.beatsPerBar,
+      beatUnit: e.beatUnit,
+      subdivision: e.subdivision,
+      volume: e.volume,
+      soundIndex: e.soundIndex,
+      gapEnabled: e.gapEnabled,
+      gapClickBars: e.gapClickBars,
+      gapSilentBars: e.gapSilentBars,
+      tempoEnabled: e.tempoTrainerEnabled,
+      tempoStartBpm: e.tempoStartBpm,
+      tempoTargetBpm: e.tempoTargetBpm,
+      tempoIncrement: e.tempoIncrement,
+      tempoEveryBars: e.tempoEveryBars,
+    })
+  }, [audio])
 
   // Restore settings on mount
   useEffect(() => {
@@ -60,7 +83,7 @@ export default function AppShell() {
         saved.accents.forEach((a, i) => engine.setAccent(i, a))
       }
       if (saved.showMoreTimeSigs !== undefined) setShowMoreTimeSigs(saved.showMoreTimeSigs)
-      rerender()
+      syncFromEngine()
     }
   // Only run once on mount
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,48 +110,43 @@ export default function AppShell() {
   // Handlers
   const handleCycleAccent = (beatIndex) => {
     audio.cycleAccent(beatIndex)
-    rerender()
+    syncFromEngine()
   }
 
   const handleTimeSignatureChange = (beats, unit) => {
     audio.setTimeSignature(beats, unit)
-    rerender()
+    syncFromEngine()
   }
 
   const handleSubdivisionChange = (type) => {
     audio.setSubdivision(type)
-    rerender()
+    syncFromEngine()
   }
 
   const handleVolumeChange = (v) => {
     audio.setVolume(v)
-    rerender()
+    syncFromEngine()
   }
 
   const handleSoundChange = (index) => {
     audio.setSound(index)
-    rerender()
+    syncFromEngine()
   }
 
   const handleSoundPreview = useCallback(async (index) => {
     const e = audio.engine()
     if (!e) return
-    await e.init()
-    const buffer = e.soundBank.getBuffer(index)
-    const source = e.ctx.createBufferSource()
-    source.buffer = buffer
-    source.connect(e._gainNode)
-    source.start()
+    await e.preview(index)
   }, [audio])
 
   const handleGapChange = (enabled, clickBars, silentBars) => {
     audio.setGapTraining(enabled, clickBars, silentBars)
-    rerender()
+    syncFromEngine()
   }
 
   const handleTempoChange = (enabled, start, target, inc, bars) => {
     audio.setTempoTrainer(enabled, start, target, inc, bars)
-    rerender()
+    syncFromEngine()
   }
 
   // Load a song's settings into the metronome
@@ -141,7 +159,7 @@ export default function AppShell() {
     if (song.accents) {
       song.accents.forEach((a, i) => engine.setAccent(i, a))
     }
-    rerender()
+    syncFromEngine()
   }, [audio, engine])
 
   // Enter performance mode

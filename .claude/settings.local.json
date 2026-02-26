@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -lh /c/Users/deand/OneDrive/Desktop/drum-only-metronome/*.png)"
+    ]
+  }
+}

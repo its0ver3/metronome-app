@@ -1,12 +1,4 @@
-import { SUBDIVISION_TYPES } from '../../audio/constants'
-
-const options = [
-  { type: SUBDIVISION_TYPES.QUARTER, label: '♩', desc: 'Quarter' },
-  { type: SUBDIVISION_TYPES.EIGHTH, label: '♪♪', desc: '8th' },
-  { type: SUBDIVISION_TYPES.TRIPLET, label: '♪♪♪', desc: 'Triplet' },
-  { type: SUBDIVISION_TYPES.SIXTEENTH, label: '♬♬', desc: '16th' },
-  { type: SUBDIVISION_TYPES.QUINTUPLET, label: '5', desc: 'Quintuplet' },
-]
+import { SUBDIVISION_OPTIONS } from '../../audio/constants'
 
 export default function SubdivisionPicker({ subdivision, onChange }) {
   return (
@@ -15,7 +7,7 @@ export default function SubdivisionPicker({ subdivision, onChange }) {
         Subdivision
       </span>
       <div className="flex gap-2 justify-center">
-        {options.map((opt) => (
+        {SUBDIVISION_OPTIONS.map((opt) => (
           <button
             key={opt.type}
             onClick={() => onChange(opt.type)}

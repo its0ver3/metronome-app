@@ -8,6 +8,8 @@ import {
   MAX_BPM,
   ACCENT_LEVELS,
   SUBDIVISION_TYPES,
+  cycleAccentLevel,
+  buildDefaultAccents,
 } from './constants'
 import SoundBank from './SoundBank'
 
@@ -26,7 +28,7 @@ export default class AudioEngine {
     this.soundIndex = 0
 
     // Accent pattern — one entry per beat in the bar
-    this.accents = this._defaultAccents(DEFAULT_BEATS_PER_BAR)
+    this.accents = buildDefaultAccents(DEFAULT_BEATS_PER_BAR)
 
     // Scheduler state
     this._nextNoteTime = 0
@@ -137,10 +139,19 @@ export default class AudioEngine {
     this.soundIndex = index
   }
 
+  async preview(soundIndex) {
+    await this.init()
+    const buffer = this.soundBank.getBuffer(soundIndex)
+    const source = this.ctx.createBufferSource()
+    source.buffer = buffer
+    source.connect(this._gainNode)
+    source.start()
+  }
+
   setTimeSignature(beatsPerBar, beatUnit) {
     this.beatsPerBar = beatsPerBar
     this.beatUnit = beatUnit
-    this.accents = this._defaultAccents(beatsPerBar)
+    this.accents = buildDefaultAccents(beatsPerBar)
   }
 
   setSubdivision(type) {
@@ -154,10 +165,7 @@ export default class AudioEngine {
   }
 
   cycleAccent(beatIndex) {
-    const order = ['STRONG', 'MEDIUM', 'NORMAL', 'GHOST', 'SILENT']
-    const current = this.accents[beatIndex]
-    const idx = order.indexOf(current)
-    this.accents[beatIndex] = order[(idx + 1) % order.length]
+    this.accents[beatIndex] = cycleAccentLevel(this.accents[beatIndex])
     return this.accents[beatIndex]
   }
 
@@ -282,12 +290,6 @@ export default class AudioEngine {
         }
       }
     }
-  }
-
-  _defaultAccents(beatsPerBar) {
-    const accents = new Array(beatsPerBar).fill('NORMAL')
-    accents[0] = 'STRONG'
-    return accents
   }
 
   // --- State snapshot for UI ---

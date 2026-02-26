@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { MIN_BPM, MAX_BPM } from '../../audio/constants'
 
 export default function BpmDisplay({ bpm, onBpmChange }) {
   const [editing, setEditing] = useState(false)
@@ -22,8 +23,8 @@ export default function BpmDisplay({ bpm, onBpmChange }) {
           ref={inputRef}
           type="number"
           defaultValue={bpm}
-          min={10}
-          max={400}
+          min={MIN_BPM}
+          max={MAX_BPM}
           className="w-40 text-center font-heading text-8xl bg-transparent border-b-2 border-primary text-dark outline-none"
           onBlur={handleSubmit}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}

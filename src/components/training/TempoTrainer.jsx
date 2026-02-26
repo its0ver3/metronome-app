@@ -1,22 +1,13 @@
-import { useState } from 'react'
+import { MIN_BPM, MAX_BPM } from '../../audio/constants'
 
 export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, everyBars, onChange }) {
-  const [localStart, setLocalStart] = useState(startBpm)
-  const [localTarget, setLocalTarget] = useState(targetBpm)
-  const [localIncrement, setLocalIncrement] = useState(increment)
-  const [localInterval, setLocalInterval] = useState(everyBars)
-
   const handleToggle = () => {
-    onChange(!enabled, localStart, localTarget, localIncrement, localInterval)
+    onChange(!enabled, startBpm, targetBpm, increment, everyBars)
   }
 
-  const update = (setter, key, val) => {
-    setter(val)
-    if (enabled) {
-      const vals = { startBpm: localStart, targetBpm: localTarget, increment: localIncrement, everyBars: localInterval }
-      vals[key] = val
-      onChange(true, vals.startBpm, vals.targetBpm, vals.increment, vals.everyBars)
-    }
+  const update = (key, val) => {
+    const vals = { startBpm, targetBpm, increment, everyBars, [key]: val }
+    onChange(enabled, vals.startBpm, vals.targetBpm, vals.increment, vals.everyBars)
   }
 
   return (
@@ -46,10 +37,10 @@ export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, 
             <label className="text-xs text-dark/50 font-semibold block mb-1">Start BPM</label>
             <input
               type="number"
-              min={10}
-              max={400}
-              value={localStart}
-              onChange={(e) => update(setLocalStart, 'startBpm', Math.max(10, Math.min(400, parseInt(e.target.value) || 10)))}
+              min={MIN_BPM}
+              max={MAX_BPM}
+              value={startBpm}
+              onChange={(e) => update('startBpm', Math.max(MIN_BPM, Math.min(MAX_BPM, parseInt(e.target.value) || MIN_BPM)))}
               className="w-full h-10 text-center rounded-lg bg-secondary text-dark font-semibold"
             />
           </div>
@@ -57,10 +48,10 @@ export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, 
             <label className="text-xs text-dark/50 font-semibold block mb-1">Target BPM</label>
             <input
               type="number"
-              min={10}
-              max={400}
-              value={localTarget}
-              onChange={(e) => update(setLocalTarget, 'targetBpm', Math.max(10, Math.min(400, parseInt(e.target.value) || 10)))}
+              min={MIN_BPM}
+              max={MAX_BPM}
+              value={targetBpm}
+              onChange={(e) => update('targetBpm', Math.max(MIN_BPM, Math.min(MAX_BPM, parseInt(e.target.value) || MIN_BPM)))}
               className="w-full h-10 text-center rounded-lg bg-secondary text-dark font-semibold"
             />
           </div>
@@ -72,8 +63,8 @@ export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, 
               type="number"
               min={1}
               max={20}
-              value={localIncrement}
-              onChange={(e) => update(setLocalIncrement, 'increment', Math.max(1, Math.min(20, parseInt(e.target.value) || 1)))}
+              value={increment}
+              onChange={(e) => update('increment', Math.max(1, Math.min(20, parseInt(e.target.value) || 1)))}
               className="w-full h-10 text-center rounded-lg bg-secondary text-dark font-semibold"
             />
           </div>
@@ -83,8 +74,8 @@ export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, 
               type="number"
               min={1}
               max={32}
-              value={localInterval}
-              onChange={(e) => update(setLocalInterval, 'everyBars', Math.max(1, Math.min(32, parseInt(e.target.value) || 1)))}
+              value={everyBars}
+              onChange={(e) => update('everyBars', Math.max(1, Math.min(32, parseInt(e.target.value) || 1)))}
               className="w-full h-10 text-center rounded-lg bg-secondary text-dark font-semibold"
             />
           </div>

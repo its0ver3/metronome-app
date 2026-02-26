@@ -1,40 +1,14 @@
 import { useState } from 'react'
-import { SOUND_NAMES, SUBDIVISION_TYPES, ACCENT_ORDER } from '../../audio/constants'
-
-const SUBDIVISION_OPTIONS = [
-  { type: SUBDIVISION_TYPES.QUARTER, label: '♩', desc: 'Quarter' },
-  { type: SUBDIVISION_TYPES.EIGHTH, label: '♪♪', desc: '8th' },
-  { type: SUBDIVISION_TYPES.TRIPLET, label: '♪♪♪', desc: 'Triplet' },
-  { type: SUBDIVISION_TYPES.SIXTEENTH, label: '♬♬', desc: '16th' },
-  { type: SUBDIVISION_TYPES.QUINTUPLET, label: '5', desc: 'Quintuplet' },
-]
-
-const TIME_SIG_PRESETS = [
-  { beats: 2, unit: 4, label: '2/4' },
-  { beats: 3, unit: 4, label: '3/4' },
-  { beats: 4, unit: 4, label: '4/4' },
-  { beats: 5, unit: 4, label: '5/4' },
-  { beats: 6, unit: 4, label: '6/4' },
-  { beats: 7, unit: 4, label: '7/4' },
-  { beats: 6, unit: 8, label: '6/8' },
-  { beats: 7, unit: 8, label: '7/8' },
-  { beats: 9, unit: 8, label: '9/8' },
-  { beats: 12, unit: 8, label: '12/8' },
-]
-
-const accentStyles = {
-  STRONG: 'w-5 h-5 bg-primary',
-  MEDIUM: 'w-4 h-4 bg-primary/70',
-  NORMAL: 'w-3.5 h-3.5 bg-dark/40',
-  GHOST: 'w-3 h-3 bg-dark/20',
-  SILENT: 'w-3 h-3 bg-transparent border-2 border-dark/20',
-}
-
-function buildDefaultAccents(beatsPerBar) {
-  const accents = Array(beatsPerBar).fill('NORMAL')
-  accents[0] = 'STRONG'
-  return accents
-}
+import {
+  SOUND_NAMES,
+  SUBDIVISION_OPTIONS,
+  ALL_TIME_SIG_PRESETS,
+  ACCENT_STYLES,
+  MIN_BPM,
+  MAX_BPM,
+  cycleAccentLevel,
+  buildDefaultAccents,
+} from '../../audio/constants'
 
 export default function SongEditor({ song, onSave, onDelete, onCancel }) {
   const isEditing = !!song?.id
@@ -61,11 +35,8 @@ export default function SongEditor({ song, onSave, onDelete, onCancel }) {
   }
 
   const cycleAccent = (index) => {
-    const current = accents[index]
-    const currentIdx = ACCENT_ORDER.indexOf(current)
-    const next = ACCENT_ORDER[(currentIdx + 1) % ACCENT_ORDER.length]
     const newAccents = [...accents]
-    newAccents[index] = next
+    newAccents[index] = cycleAccentLevel(accents[index])
     setAccents(newAccents)
   }
 
@@ -126,21 +97,21 @@ export default function SongEditor({ song, onSave, onDelete, onCancel }) {
           </label>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setBpm(Math.max(20, bpm - 1))}
+              onClick={() => setBpm(Math.max(MIN_BPM, bpm - 1))}
               className="w-12 h-12 rounded-full bg-secondary text-dark text-2xl font-bold flex items-center justify-center active:bg-secondary/70"
             >
               −
             </button>
             <input
               type="number"
-              min={20}
-              max={240}
+              min={MIN_BPM}
+              max={MAX_BPM}
               value={bpm}
-              onChange={(e) => setBpm(Math.max(20, Math.min(240, parseInt(e.target.value) || 20)))}
+              onChange={(e) => setBpm(Math.max(MIN_BPM, Math.min(MAX_BPM, parseInt(e.target.value) || MIN_BPM)))}
               className="w-20 h-12 text-center rounded-lg bg-secondary text-dark font-heading text-3xl"
             />
             <button
-              onClick={() => setBpm(Math.min(240, bpm + 1))}
+              onClick={() => setBpm(Math.min(MAX_BPM, bpm + 1))}
               className="w-12 h-12 rounded-full bg-secondary text-dark text-2xl font-bold flex items-center justify-center active:bg-secondary/70"
             >
               +
@@ -155,7 +126,7 @@ export default function SongEditor({ song, onSave, onDelete, onCancel }) {
             <span className="font-heading text-2xl text-dark">{beatsPerBar}/{beatUnit}</span>
           </div>
           <div className="flex flex-wrap gap-2 justify-center">
-            {TIME_SIG_PRESETS.map((p) => (
+            {ALL_TIME_SIG_PRESETS.map((p) => (
               <button
                 key={p.label}
                 onClick={() => handleTimeSigChange(p.beats, p.unit)}
@@ -226,7 +197,7 @@ export default function SongEditor({ song, onSave, onDelete, onCancel }) {
               <button
                 key={i}
                 onClick={() => cycleAccent(i)}
-                className={`rounded-full flex-shrink-0 ${accentStyles[accent]}`}
+                className={`rounded-full flex-shrink-0 ${ACCENT_STYLES[accent]}`}
                 title={`Beat ${i + 1}: ${accent}`}
               />
             ))}

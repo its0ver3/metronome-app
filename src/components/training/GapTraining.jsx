@@ -1,23 +1,16 @@
-import { useState } from 'react'
-
 export default function GapTraining({ enabled, clickBars, silentBars, onChange }) {
-  const [localClick, setLocalClick] = useState(clickBars)
-  const [localSilent, setLocalSilent] = useState(silentBars)
-
   const handleToggle = () => {
-    onChange(!enabled, localClick, localSilent)
+    onChange(!enabled, clickBars, silentBars)
   }
 
   const handleClickBars = (val) => {
     const v = Math.max(1, Math.min(16, val))
-    setLocalClick(v)
-    if (enabled) onChange(true, v, localSilent)
+    onChange(enabled, v, silentBars)
   }
 
   const handleSilentBars = (val) => {
     const v = Math.max(1, Math.min(16, val))
-    setLocalSilent(v)
-    if (enabled) onChange(true, localClick, v)
+    onChange(enabled, clickBars, v)
   }
 
   return (
@@ -46,14 +39,14 @@ export default function GapTraining({ enabled, clickBars, silentBars, onChange }
           <label className="text-xs text-dark/50 font-semibold block mb-1">Click Bars</label>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => handleClickBars(localClick - 1)}
+              onClick={() => handleClickBars(clickBars - 1)}
               className="w-9 h-9 rounded-lg bg-secondary text-dark font-bold flex items-center justify-center"
             >
               −
             </button>
-            <span className="font-heading text-2xl text-dark w-8 text-center">{localClick}</span>
+            <span className="font-heading text-2xl text-dark w-8 text-center">{clickBars}</span>
             <button
-              onClick={() => handleClickBars(localClick + 1)}
+              onClick={() => handleClickBars(clickBars + 1)}
               className="w-9 h-9 rounded-lg bg-secondary text-dark font-bold flex items-center justify-center"
             >
               +
@@ -64,14 +57,14 @@ export default function GapTraining({ enabled, clickBars, silentBars, onChange }
           <label className="text-xs text-dark/50 font-semibold block mb-1">Silent Bars</label>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => handleSilentBars(localSilent - 1)}
+              onClick={() => handleSilentBars(silentBars - 1)}
               className="w-9 h-9 rounded-lg bg-secondary text-dark font-bold flex items-center justify-center"
             >
               −
             </button>
-            <span className="font-heading text-2xl text-dark w-8 text-center">{localSilent}</span>
+            <span className="font-heading text-2xl text-dark w-8 text-center">{silentBars}</span>
             <button
-              onClick={() => handleSilentBars(localSilent + 1)}
+              onClick={() => handleSilentBars(silentBars + 1)}
               className="w-9 h-9 rounded-lg bg-secondary text-dark font-bold flex items-center justify-center"
             >
               +

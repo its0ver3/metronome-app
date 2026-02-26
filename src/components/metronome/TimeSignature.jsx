@@ -1,33 +1,5 @@
 import { useState } from 'react'
-
-const BASIC_PRESETS = [
-  { beats: 3, unit: 4, label: '3/4' },
-  { beats: 4, unit: 4, label: '4/4' },
-  { beats: 5, unit: 4, label: '5/4' },
-  { beats: 7, unit: 4, label: '7/4' },
-]
-
-const EXTENDED_PRESETS = [
-  { beats: 2, unit: 4, label: '2/4' },
-  { beats: 6, unit: 4, label: '6/4' },
-  { beats: 6, unit: 8, label: '6/8' },
-  { beats: 7, unit: 8, label: '7/8' },
-  { beats: 9, unit: 8, label: '9/8' },
-  { beats: 12, unit: 8, label: '12/8' },
-]
-
-const ALL_PRESETS = [
-  { beats: 2, unit: 4, label: '2/4' },
-  { beats: 3, unit: 4, label: '3/4' },
-  { beats: 4, unit: 4, label: '4/4' },
-  { beats: 5, unit: 4, label: '5/4' },
-  { beats: 6, unit: 4, label: '6/4' },
-  { beats: 7, unit: 4, label: '7/4' },
-  { beats: 6, unit: 8, label: '6/8' },
-  { beats: 7, unit: 8, label: '7/8' },
-  { beats: 9, unit: 8, label: '9/8' },
-  { beats: 12, unit: 8, label: '12/8' },
-]
+import { BASIC_TIME_SIG_PRESETS, ALL_TIME_SIG_PRESETS } from '../../audio/constants'
 
 export default function TimeSignature({ beatsPerBar, beatUnit, onChange, showMore = false }) {
   const [showCustom, setShowCustom] = useState(false)
@@ -35,8 +7,8 @@ export default function TimeSignature({ beatsPerBar, beatUnit, onChange, showMor
   const [customUnit, setCustomUnit] = useState(beatUnit)
 
   const currentLabel = `${beatsPerBar}/${beatUnit}`
-  const presets = showMore ? ALL_PRESETS : BASIC_PRESETS
-  const isPreset = ALL_PRESETS.some((p) => p.beats === beatsPerBar && p.unit === beatUnit)
+  const presets = showMore ? ALL_TIME_SIG_PRESETS : BASIC_TIME_SIG_PRESETS
+  const isPreset = ALL_TIME_SIG_PRESETS.some((p) => p.beats === beatsPerBar && p.unit === beatUnit)
 
   const handlePreset = (beats, unit) => {
     onChange(beats, unit)
