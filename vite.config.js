@@ -4,8 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  // Use relative asset URLs so the build works on GitHub Pages project URLs.
-  base: './',
+  // GitHub Pages project site path: https://its0ver3.github.io/metronome-app/
+  // Absolute base avoids mobile URL resolution issues (e.g. missing trailing slash).
+  base: '/metronome-app/',
   plugins: [
     react(),
     tailwindcss(),
@@ -31,6 +32,9 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
       },
     }),
   ],
