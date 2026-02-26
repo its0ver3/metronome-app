@@ -62,10 +62,25 @@ export default class AudioEngine {
 
     // Gain node
     this._gainNode = null
+    this._audioSessionConfigured = false
+  }
+
+  _configureAudioSession() {
+    if (this._audioSessionConfigured) return
+    this._audioSessionConfigured = true
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.audioSession) {
+        navigator.audioSession.type = 'playback'
+      }
+    } catch {
+      // Ignore unsupported or restricted audioSession assignments.
+    }
   }
 
   _ensureContext() {
     if (this.ctx) return true
+    this._configureAudioSession()
 
     const AudioCtx = window.AudioContext || window.webkitAudioContext
     if (!AudioCtx) return false
