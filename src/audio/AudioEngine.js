@@ -64,15 +64,38 @@ export default class AudioEngine {
     this._gainNode = null
   }
 
-  async init() {
-    if (this.ctx) return
-    this.ctx = new (window.AudioContext || window.webkitAudioContext)()
+  _ensureContext() {
+    if (this.ctx) return true
+
+    const AudioCtx = window.AudioContext || window.webkitAudioContext
+    if (!AudioCtx) return false
+
+    this.ctx = new AudioCtx()
     this._gainNode = this.ctx.createGain()
     this._gainNode.gain.value = this.volume
     this._gainNode.connect(this.ctx.destination)
-
     this.soundBank = new SoundBank(this.ctx)
-    await this.soundBank.init()
+    return true
+  }
+
+  async init() {
+    if (!this._ensureContext()) return false
+    if (!this.soundBank.ready) {
+      await this.soundBank.init()
+    }
+    return true
+  }
+
+  async _unlockAudio() {
+    if (!this._ensureContext()) return false
+    if (this.ctx.state === 'suspended') {
+      try {
+        await this.ctx.resume()
+      } catch {
+        return false
+      }
+    }
+    return this.ctx.state === 'running'
   }
 
   // --- Callbacks ---
@@ -84,10 +107,15 @@ export default class AudioEngine {
 
   // --- Controls ---
   async start() {
-    await this.init()
-    if (this.ctx.state === 'suspended') {
-      await this.ctx.resume()
+    if (!this._ensureContext()) return
+    if (!(await this._unlockAudio())) return
+    if (!(await this.init())) return
+
+    if (this.ctx.state === 'interrupted') {
+      await this.ctx.resume().catch(() => {})
+      if (this.ctx.state !== 'running') return
     }
+
     if (this.isPlaying) return
 
     this.isPlaying = true
@@ -120,7 +148,7 @@ export default class AudioEngine {
 
   toggle() {
     if (this.isPlaying) this.stop()
-    else this.start()
+    else this.start().catch(() => {})
   }
 
   setBpm(bpm) {
@@ -140,7 +168,9 @@ export default class AudioEngine {
   }
 
   async preview(soundIndex) {
-    await this.init()
+    if (!(await this._unlockAudio())) return
+    if (!(await this.init())) return
+
     const buffer = this.soundBank.getBuffer(soundIndex)
     const source = this.ctx.createBufferSource()
     source.buffer = buffer
