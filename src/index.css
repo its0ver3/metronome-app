@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #FAF6F0;
+  --color-secondary: #8C1A1E;
+  --color-dark: #FAF6F0;
+  --color-light: #B82025;
+  --color-muted: #6B1518;
+
+  --font-heading: 'Bebas Neue', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  background-color: #7A1A1E;
+  font-family: var(--font-body);
+  color: var(--color-dark);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Range input styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--color-secondary);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 43px;
+  height: 34px;
+  background: url('/blue-olive-badge.png') no-repeat center;
+  background-size: contain;
+  cursor: pointer;
+  border: none;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 43px;
+  height: 34px;
+  background: url('/blue-olive-badge.png') no-repeat center;
+  background-size: contain;
+  cursor: pointer;
+  border: none;
+  border-radius: 0;
+}
+
+/* Beat pulse animation */
+@keyframes beat-pulse {
+  0% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+.beat-active {
+  animation: beat-pulse 0.15s ease-out;
+}
+
+/* Number input hide spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
