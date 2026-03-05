@@ -64,14 +64,11 @@ export default function MetronomeScreen({
         <PlayStopButton isPlaying={isPlaying} onToggle={onToggle} />
       </div>
 
-      {/* Beats */}
-      <BeatsPicker beatsPerBar={beatsPerBar} onChange={onBeatsChange} />
-
-      {/* Subdivision */}
-      <SubdivisionPicker
-        subdivision={subdivision}
-        onChange={onSubdivisionChange}
-      />
+      {/* Beats & Subdivision */}
+      <div className="flex gap-4 px-4 w-full">
+        <BeatsPicker beatsPerBar={beatsPerBar} onChange={onBeatsChange} />
+        <SubdivisionPicker subdivision={subdivision} onChange={onSubdivisionChange} />
+      </div>
     </div>
   )
 }

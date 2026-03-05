@@ -62,8 +62,7 @@ export function buildDefaultSubdivisionAccents(beatsPerBar, subdivision) {
   const total = beatsPerBar * subdivision
   const accents = new Array(total).fill('ON')
   for (let beat = 0; beat < beatsPerBar; beat++) {
-    const idx = beat * subdivision
-    accents[idx] = beat === 0 ? 'ACCENT' : 'ON'
+    accents[beat * subdivision] = 'ACCENT'
   }
   return accents
 }
