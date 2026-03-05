@@ -1,6 +1,31 @@
-import { MIN_BPM, MAX_BPM } from '../../audio/constants'
+import { useState, useEffect } from 'react'
+import { MIN_BPM, EXTENDED_MAX_BPM } from '../../audio/constants'
 
 export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, everyBars, onChange }) {
+  const [localStartBpm, setLocalStartBpm] = useState(String(startBpm))
+  const [localTargetBpm, setLocalTargetBpm] = useState(String(targetBpm))
+  const [localIncrement, setLocalIncrement] = useState(String(increment))
+  const [localEveryBars, setLocalEveryBars] = useState(String(everyBars))
+
+  useEffect(() => { setLocalStartBpm(String(startBpm)) }, [startBpm])
+  useEffect(() => { setLocalTargetBpm(String(targetBpm)) }, [targetBpm])
+  useEffect(() => { setLocalIncrement(String(increment)) }, [increment])
+  useEffect(() => { setLocalEveryBars(String(everyBars)) }, [everyBars])
+
+  const handleBlur = (key, localValue, setLocal, min, max) => {
+    const parsed = parseInt(localValue)
+    let clamped
+    if (isNaN(parsed) || parsed < min) {
+      clamped = min
+    } else if (parsed > max) {
+      clamped = max
+    } else {
+      clamped = parsed
+    }
+    setLocal(String(clamped))
+    update(key, clamped)
+  }
+
   const handleToggle = () => {
     onChange(!enabled, startBpm, targetBpm, increment, everyBars)
   }
@@ -38,9 +63,10 @@ export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, 
             <input
               type="number"
               min={MIN_BPM}
-              max={MAX_BPM}
-              value={startBpm}
-              onChange={(e) => update('startBpm', Math.max(MIN_BPM, Math.min(MAX_BPM, parseInt(e.target.value) || MIN_BPM)))}
+              max={EXTENDED_MAX_BPM}
+              value={localStartBpm}
+              onChange={(e) => setLocalStartBpm(e.target.value)}
+              onBlur={() => handleBlur('startBpm', localStartBpm, setLocalStartBpm, MIN_BPM, EXTENDED_MAX_BPM)}
               className="w-full h-10 text-center rounded-lg bg-secondary text-dark font-semibold"
             />
           </div>
@@ -49,9 +75,10 @@ export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, 
             <input
               type="number"
               min={MIN_BPM}
-              max={MAX_BPM}
-              value={targetBpm}
-              onChange={(e) => update('targetBpm', Math.max(MIN_BPM, Math.min(MAX_BPM, parseInt(e.target.value) || MIN_BPM)))}
+              max={EXTENDED_MAX_BPM}
+              value={localTargetBpm}
+              onChange={(e) => setLocalTargetBpm(e.target.value)}
+              onBlur={() => handleBlur('targetBpm', localTargetBpm, setLocalTargetBpm, MIN_BPM, EXTENDED_MAX_BPM)}
               className="w-full h-10 text-center rounded-lg bg-secondary text-dark font-semibold"
             />
           </div>
@@ -63,8 +90,9 @@ export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, 
               type="number"
               min={1}
               max={20}
-              value={increment}
-              onChange={(e) => update('increment', Math.max(1, Math.min(20, parseInt(e.target.value) || 1)))}
+              value={localIncrement}
+              onChange={(e) => setLocalIncrement(e.target.value)}
+              onBlur={() => handleBlur('increment', localIncrement, setLocalIncrement, 1, 20)}
               className="w-full h-10 text-center rounded-lg bg-secondary text-dark font-semibold"
             />
           </div>
@@ -74,8 +102,9 @@ export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, 
               type="number"
               min={1}
               max={32}
-              value={everyBars}
-              onChange={(e) => update('everyBars', Math.max(1, Math.min(32, parseInt(e.target.value) || 1)))}
+              value={localEveryBars}
+              onChange={(e) => setLocalEveryBars(e.target.value)}
+              onBlur={() => handleBlur('everyBars', localEveryBars, setLocalEveryBars, 1, 32)}
               className="w-full h-10 text-center rounded-lg bg-secondary text-dark font-semibold"
             />
           </div>
