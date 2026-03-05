@@ -6,6 +6,7 @@ export default function useAudioEngine() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [bpm, setBpm] = useState(120)
   const [currentBeat, setCurrentBeat] = useState(-1)
+  const [currentSubdivision, setCurrentSubdivision] = useState(-1)
   const [currentBar, setCurrentBar] = useState(1)
   const [inGap, setInGap] = useState(false)
   const [beatAccent, setBeatAccent] = useState('ON')
@@ -18,8 +19,9 @@ export default function useAudioEngine() {
     engine.onBpmChange((newBpm) => setBpm(newBpm))
     engine.onBarChange((bar) => setCurrentBar(bar))
     engine.onGapChange((gap) => setInGap(gap))
-    engine.onBeat(({ beat, accent }) => {
+    engine.onBeat(({ beat, subdivision, accent }) => {
       setCurrentBeat(beat)
+      setCurrentSubdivision(subdivision)
       setBeatAccent(accent)
     })
 
@@ -46,8 +48,8 @@ export default function useAudioEngine() {
     engineRef.current?.setSound(index)
   }, [])
 
-  const setTimeSignature = useCallback((beats, unit) => {
-    engineRef.current?.setTimeSignature(beats, unit)
+  const setBeatsPerBar = useCallback((beats) => {
+    engineRef.current?.setBeatsPerBar(beats)
   }, [])
 
   const setSubdivision = useCallback((type) => {
@@ -56,6 +58,10 @@ export default function useAudioEngine() {
 
   const cycleAccent = useCallback((beatIndex) => {
     return engineRef.current?.cycleAccent(beatIndex)
+  }, [])
+
+  const cycleSubdivisionAccent = useCallback((index) => {
+    return engineRef.current?.cycleSubdivisionAccent(index)
   }, [])
 
   const setGapTraining = useCallback((enabled, clickBars, silentBars) => {
@@ -71,6 +77,7 @@ export default function useAudioEngine() {
     isPlaying,
     bpm,
     currentBeat,
+    currentSubdivision,
     currentBar,
     inGap,
     beatAccent,
@@ -80,9 +87,10 @@ export default function useAudioEngine() {
     changeBpm,
     setVolume,
     setSound,
-    setTimeSignature,
+    setBeatsPerBar,
     setSubdivision,
     cycleAccent,
+    cycleSubdivisionAccent,
     setGapTraining,
     setTempoTrainer,
   }

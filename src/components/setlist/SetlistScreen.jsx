@@ -25,10 +25,9 @@ export default function SetlistScreen({ currentSettings, onPlaySetlist }) {
       name: '',
       bpm: currentSettings.bpm,
       beatsPerBar: currentSettings.beatsPerBar,
-      beatUnit: currentSettings.beatUnit,
       subdivision: currentSettings.subdivision,
       soundIndex: currentSettings.soundIndex,
-      accents: [...currentSettings.accents],
+      subdivisionAccents: [...currentSettings.subdivisionAccents],
     })
   }
 

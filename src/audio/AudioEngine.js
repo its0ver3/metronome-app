@@ -3,13 +3,12 @@ import {
   SCHEDULE_AHEAD_S,
   DEFAULT_BPM,
   DEFAULT_BEATS_PER_BAR,
-  DEFAULT_BEAT_UNIT,
   MIN_BPM,
   EXTENDED_MAX_BPM,
   ACCENT_LEVELS,
-  SUBDIVISION_TYPES,
   cycleAccentLevel,
   buildDefaultAccents,
+  buildDefaultSubdivisionAccents,
 } from './constants'
 import SoundBank from './SoundBank'
 
@@ -22,13 +21,14 @@ export default class AudioEngine {
     // Timing state
     this.bpm = DEFAULT_BPM
     this.beatsPerBar = DEFAULT_BEATS_PER_BAR
-    this.beatUnit = DEFAULT_BEAT_UNIT
-    this.subdivision = SUBDIVISION_TYPES.QUARTER
+    this.subdivision = 1
     this.volume = 1.0
     this.soundIndex = 0
 
     // Accent pattern — one entry per beat in the bar
     this.accents = buildDefaultAccents(DEFAULT_BEATS_PER_BAR)
+    // Subdivision accent pattern — one entry per click (beatsPerBar * subdivision)
+    this.subdivisionAccents = buildDefaultSubdivisionAccents(DEFAULT_BEATS_PER_BAR, 1)
 
     // Scheduler state
     this._nextNoteTime = 0
@@ -193,14 +193,15 @@ export default class AudioEngine {
     source.start()
   }
 
-  setTimeSignature(beatsPerBar, beatUnit) {
+  setBeatsPerBar(beatsPerBar) {
     this.beatsPerBar = beatsPerBar
-    this.beatUnit = beatUnit
     this.accents = buildDefaultAccents(beatsPerBar)
+    this.subdivisionAccents = buildDefaultSubdivisionAccents(beatsPerBar, this.subdivision)
   }
 
   setSubdivision(type) {
     this.subdivision = type
+    this.subdivisionAccents = buildDefaultSubdivisionAccents(this.beatsPerBar, type)
   }
 
   setAccent(beatIndex, level) {
@@ -212,6 +213,19 @@ export default class AudioEngine {
   cycleAccent(beatIndex) {
     this.accents[beatIndex] = cycleAccentLevel(this.accents[beatIndex])
     return this.accents[beatIndex]
+  }
+
+  setSubdivisionAccent(index, level) {
+    if (index >= 0 && index < this.subdivisionAccents.length) {
+      this.subdivisionAccents[index] = level
+    }
+  }
+
+  cycleSubdivisionAccent(index) {
+    if (index >= 0 && index < this.subdivisionAccents.length) {
+      this.subdivisionAccents[index] = cycleAccentLevel(this.subdivisionAccents[index])
+      return this.subdivisionAccents[index]
+    }
   }
 
   // Gap training config
@@ -242,7 +256,10 @@ export default class AudioEngine {
     const beatIndex = this._currentBeat
     const subIndex = this._currentSubdivision
     const isMainBeat = subIndex === 0
-    const accentLevel = this.accents[beatIndex]
+
+    // Look up per-click accent from subdivisionAccents
+    const flatIndex = beatIndex * this.subdivision + subIndex
+    const accentLevel = this.subdivisionAccents[flatIndex] || 'ON'
     const accentVolume = ACCENT_LEVELS[accentLevel]?.volume ?? 0.5
 
     // Determine if in gap
@@ -253,20 +270,20 @@ export default class AudioEngine {
       if (isMainBeat) {
         this._playSound(this.soundBank.getBuffer(this.soundIndex), time, accentVolume)
       } else {
-        // Subdivision click — quieter
+        // Subdivision click — use subdivision buffer, apply 0.5 multiplier for sound distinction
         this._playSound(this.soundBank.getSubdivisionBuffer(this.soundIndex), time, accentVolume * 0.5)
       }
     }
 
-    if (isMainBeat) {
-      this._onBeat?.({
-        beat: beatIndex,
-        bar: this._currentBar,
-        time,
-        accent: accentLevel,
-        inGap,
-      })
-    }
+    // Notify UI of every click (not just main beats)
+    this._onBeat?.({
+      beat: beatIndex,
+      subdivision: subIndex,
+      bar: this._currentBar,
+      time,
+      accent: accentLevel,
+      inGap,
+    })
   }
 
   _playSound(buffer, time, volume) {
@@ -343,11 +360,11 @@ export default class AudioEngine {
       isPlaying: this.isPlaying,
       bpm: this.bpm,
       beatsPerBar: this.beatsPerBar,
-      beatUnit: this.beatUnit,
       subdivision: this.subdivision,
       volume: this.volume,
       soundIndex: this.soundIndex,
       accents: [...this.accents],
+      subdivisionAccents: [...this.subdivisionAccents],
       gapEnabled: this.gapEnabled,
       gapClickBars: this.gapClickBars,
       gapSilentBars: this.gapSilentBars,

@@ -2,13 +2,11 @@ import { useState } from 'react'
 import {
   SOUND_NAMES,
   SUBDIVISION_OPTIONS,
-  SUBDIVISION_TYPES,
-  ALL_TIME_SIG_PRESETS,
   ACCENT_STYLES,
   MIN_BPM,
   MAX_BPM,
   cycleAccentLevel,
-  buildDefaultAccents,
+  buildDefaultSubdivisionAccents,
 } from '../../audio/constants'
 
 export default function SongEditor({ song, onSave, onDelete, onCancel }) {
@@ -17,28 +15,27 @@ export default function SongEditor({ song, onSave, onDelete, onCancel }) {
   const [name, setName] = useState(song?.name || '')
   const [bpm, setBpm] = useState(song?.bpm || 120)
   const [beatsPerBar, setBeatsPerBar] = useState(song?.beatsPerBar || 4)
-  const [beatUnit, setBeatUnit] = useState(song?.beatUnit || 4)
-  const [subdivision, setSubdivision] = useState(song?.subdivision || SUBDIVISION_TYPES.QUARTER)
+  const [subdivision, setSubdivision] = useState(song?.subdivision || 1)
   const [soundIndex, setSoundIndex] = useState(song?.soundIndex ?? 0)
-  const [accents, setAccents] = useState(song?.accents || buildDefaultAccents(4))
+  const [subdivisionAccents, setSubdivisionAccents] = useState(
+    song?.subdivisionAccents || buildDefaultSubdivisionAccents(song?.beatsPerBar || 4, song?.subdivision || 1)
+  )
   const [showDelete, setShowDelete] = useState(false)
 
-  const handleTimeSigChange = (beats, unit) => {
+  const handleBeatsChange = (beats) => {
     setBeatsPerBar(beats)
-    setBeatUnit(unit)
-    // Resize accents array
-    const newAccents = Array(beats).fill('ON')
-    newAccents[0] = 'ACCENT'
-    for (let i = 0; i < Math.min(accents.length, beats); i++) {
-      newAccents[i] = accents[i]
-    }
-    setAccents(newAccents)
+    setSubdivisionAccents(buildDefaultSubdivisionAccents(beats, subdivision))
   }
 
-  const cycleAccent = (index) => {
-    const newAccents = [...accents]
-    newAccents[index] = cycleAccentLevel(accents[index])
-    setAccents(newAccents)
+  const handleSubdivisionChange = (sub) => {
+    setSubdivision(sub)
+    setSubdivisionAccents(buildDefaultSubdivisionAccents(beatsPerBar, sub))
+  }
+
+  const cycleSubAccent = (index) => {
+    const newAccents = [...subdivisionAccents]
+    newAccents[index] = cycleAccentLevel(subdivisionAccents[index])
+    setSubdivisionAccents(newAccents)
   }
 
   const handleSave = () => {
@@ -48,12 +45,15 @@ export default function SongEditor({ song, onSave, onDelete, onCancel }) {
       name: name.trim(),
       bpm,
       beatsPerBar,
-      beatUnit,
       subdivision,
       soundIndex,
-      accents,
+      subdivisionAccents,
     })
   }
+
+  // Build beat groups for dot display
+  const totalDots = beatsPerBar * subdivision
+  const useStacked = totalDots > 16
 
   return (
     <div className="absolute inset-0 z-50 bg-light flex flex-col">
@@ -120,24 +120,23 @@ export default function SongEditor({ song, onSave, onDelete, onCancel }) {
           </div>
         </div>
 
-        {/* Time Signature */}
+        {/* Beats */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide">Time Sig</span>
-            <span className="font-heading text-2xl text-dark">{beatsPerBar}/{beatUnit}</span>
-          </div>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {ALL_TIME_SIG_PRESETS.map((p) => (
+          <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide block mb-2">
+            Beats
+          </span>
+          <div className="flex gap-1.5 overflow-x-auto pb-1">
+            {Array.from({ length: 16 }, (_, i) => i + 1).map((n) => (
               <button
-                key={p.label}
-                onClick={() => handleTimeSigChange(p.beats, p.unit)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                  beatsPerBar === p.beats && beatUnit === p.unit
+                key={n}
+                onClick={() => handleBeatsChange(n)}
+                className={`min-w-[2.25rem] h-9 rounded-lg text-sm font-semibold transition-colors flex-shrink-0 ${
+                  beatsPerBar === n
                     ? 'bg-primary text-light'
                     : 'bg-secondary text-dark active:bg-secondary/70'
                 }`}
               >
-                {p.label}
+                {n}
               </button>
             ))}
           </div>
@@ -148,19 +147,18 @@ export default function SongEditor({ song, onSave, onDelete, onCancel }) {
           <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide block mb-2">
             Subdivision
           </span>
-          <div className="flex gap-2 justify-center">
+          <div className="flex gap-1.5 overflow-x-auto pb-1">
             {SUBDIVISION_OPTIONS.map((opt) => (
               <button
                 key={opt.type}
-                onClick={() => setSubdivision(opt.type)}
-                className={`flex-1 py-2 rounded-lg text-center transition-colors ${
+                onClick={() => handleSubdivisionChange(opt.type)}
+                className={`min-w-[2.75rem] h-9 px-2 rounded-lg text-center text-sm font-semibold transition-colors flex-shrink-0 ${
                   subdivision === opt.type
                     ? 'bg-primary text-light'
                     : 'bg-secondary text-dark active:bg-secondary/70'
                 }`}
               >
-                <span className="block text-lg leading-none">{opt.label}</span>
-                <span className="block text-xs mt-0.5 opacity-70">{opt.desc}</span>
+                {opt.label}
               </button>
             ))}
           </div>
@@ -193,16 +191,64 @@ export default function SongEditor({ song, onSave, onDelete, onCancel }) {
           <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide block mb-2">
             Accent Pattern
           </span>
-          <div className="flex items-center justify-center gap-3 flex-wrap">
-            {accents.map((accent, i) => (
-              <button
-                key={i}
-                onClick={() => cycleAccent(i)}
-                className={`rounded-full flex-shrink-0 ${ACCENT_STYLES[accent]}`}
-                title={`Beat ${i + 1}: ${accent}`}
-              />
-            ))}
-          </div>
+          {useStacked ? (
+            <div className="flex flex-col gap-2">
+              {Array.from({ length: beatsPerBar }, (_, beat) => (
+                <div key={beat} className="flex items-center gap-1">
+                  <span className="text-xs text-dark/30 w-5 text-right mr-1 flex-shrink-0">
+                    {beat + 1}
+                  </span>
+                  <div className="flex items-center gap-1 flex-wrap">
+                    {Array.from({ length: subdivision }, (_, sub) => {
+                      const flatIndex = beat * subdivision + sub
+                      const accent = subdivisionAccents[flatIndex] || 'ON'
+                      const isDownbeat = sub === 0
+                      return (
+                        <button
+                          key={flatIndex}
+                          onClick={() => cycleSubAccent(flatIndex)}
+                          className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                          title={`Click ${flatIndex + 1}: ${accent}`}
+                        >
+                          <span
+                            className={`rounded-full block ${ACCENT_STYLES[accent]} ${
+                              isDownbeat ? 'ring-1 ring-dark/20' : ''
+                            }`}
+                          />
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center flex-wrap">
+              {Array.from({ length: beatsPerBar }, (_, beat) => (
+                <div key={beat} className={`flex items-center gap-1 ${beat > 0 ? 'ml-3' : ''}`}>
+                  {Array.from({ length: subdivision }, (_, sub) => {
+                    const flatIndex = beat * subdivision + sub
+                    const accent = subdivisionAccents[flatIndex] || 'ON'
+                    const isDownbeat = sub === 0
+                    return (
+                      <button
+                        key={flatIndex}
+                        onClick={() => cycleSubAccent(flatIndex)}
+                        className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                        title={`Click ${flatIndex + 1}: ${accent}`}
+                      >
+                        <span
+                          className={`rounded-full block ${ACCENT_STYLES[accent]} ${
+                            isDownbeat ? 'ring-1 ring-dark/20' : ''
+                          }`}
+                        />
+                      </button>
+                    )
+                  })}
+                </div>
+              ))}
+            </div>
+          )}
           <p className="text-xs text-dark/40 text-center mt-2">Tap circles to cycle accent level</p>
         </div>
 

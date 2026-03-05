@@ -1,11 +1,8 @@
-import { SUBDIVISION_TYPES } from '../../audio/constants'
+import { SUBDIVISION_OPTIONS } from '../../audio/constants'
 
-const subdivisionLabel = {
-  [SUBDIVISION_TYPES.QUARTER]: '♩',
-  [SUBDIVISION_TYPES.EIGHTH]: '♪♪',
-  [SUBDIVISION_TYPES.TRIPLET]: '♪♪♪',
-  [SUBDIVISION_TYPES.SIXTEENTH]: '♬♬',
-  [SUBDIVISION_TYPES.QUINTUPLET]: '5',
+const subdivisionLabel = {}
+for (const opt of SUBDIVISION_OPTIONS) {
+  subdivisionLabel[opt.type] = opt.label
 }
 
 export default function SongList({ songs, onEdit, onNewSong, onSaveCurrent }) {
@@ -29,11 +26,11 @@ export default function SongList({ songs, onEdit, onNewSong, onSaveCurrent }) {
                 {song.bpm}
               </span>
               <span className="px-2 py-0.5 rounded bg-primary/15 text-primary text-xs font-bold">
-                {song.beatsPerBar}/{song.beatUnit}
+                {song.beatsPerBar} beats
               </span>
-              {song.subdivision && song.subdivision !== SUBDIVISION_TYPES.QUARTER && (
+              {song.subdivision && song.subdivision !== 1 && (
                 <span className="px-2 py-0.5 rounded bg-primary/15 text-primary text-xs font-bold">
-                  {subdivisionLabel[song.subdivision]}
+                  {subdivisionLabel[song.subdivision] || `${song.subdivision}s`}
                 </span>
               )}
             </div>
