@@ -300,11 +300,10 @@ export default class AudioEngine {
   }
 
   _schedulerPoly() {
-    // BPM defines quarter-note speed for the LARGER rhythm.
-    // e.g. 3:4 at 120 BPM → the 4-beat rhythm plays at 120 BPM (one click every 0.5s),
-    // so the full cycle = max(R1,R2) beats at the given BPM.
-    const maxBeats = Math.max(this.polyRhythm1, this.polyRhythm2)
-    const cycleDuration = (60.0 / this.bpm) * maxBeats
+    // BPM defines quarter-note speed for Rhythm 1 (the primary rhythm).
+    // e.g. 3:4 at 120 BPM → R1 plays 3 beats at 120 BPM (cycle = 1.5s),
+    // R2 plays 4 beats evenly across that same 1.5s.
+    const cycleDuration = (60.0 / this.bpm) * this.polyRhythm1
     const now = this.ctx.currentTime + SCHEDULE_AHEAD_S
 
     // Outer loop: handle fast BPMs where multiple cycles fit in one tick
