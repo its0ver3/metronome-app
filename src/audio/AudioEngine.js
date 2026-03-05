@@ -300,7 +300,10 @@ export default class AudioEngine {
   }
 
   _schedulerPoly() {
-    const cycleDuration = 60.0 / this.bpm
+    // BPM defines quarter-note speed for Rhythm 1 (the primary rhythm).
+    // e.g. 3:4 at 120 BPM → R1 plays 3 beats at 120 BPM (cycle = 1.5s),
+    // R2 plays 4 beats evenly across that same 1.5s.
+    const cycleDuration = (60.0 / this.bpm) * this.polyRhythm1
     const now = this.ctx.currentTime + SCHEDULE_AHEAD_S
 
     // Outer loop: handle fast BPMs where multiple cycles fit in one tick
