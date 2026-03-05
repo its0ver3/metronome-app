@@ -1,11 +1,12 @@
 import { useState, useRef } from 'react'
 import { MIN_BPM, MAX_BPM } from '../../audio/constants'
 
-export default function BpmDisplay({ bpm, onBpmChange }) {
+export default function BpmDisplay({ bpm, onBpmChange, disabled }) {
   const [editing, setEditing] = useState(false)
   const inputRef = useRef(null)
 
   const handleClick = () => {
+    if (disabled) return
     setEditing(true)
     setTimeout(() => inputRef.current?.select(), 0)
   }
@@ -31,11 +32,13 @@ export default function BpmDisplay({ bpm, onBpmChange }) {
           autoFocus
         />
       ) : (
-        <span className="font-heading text-8xl text-dark cursor-pointer select-none">
+        <span className={`font-heading text-8xl select-none ${disabled ? 'text-dark/40' : 'text-dark cursor-pointer'}`}>
           {bpm}
         </span>
       )}
-      <p className="text-sm text-dark/50 mt-1 font-body">BPM</p>
+      <p className="text-sm text-dark/50 mt-1 font-body">
+        {disabled ? 'Tempo trainer active' : 'BPM'}
+      </p>
     </div>
   )
 }
