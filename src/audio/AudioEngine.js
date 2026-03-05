@@ -5,7 +5,7 @@ import {
   DEFAULT_BEATS_PER_BAR,
   DEFAULT_BEAT_UNIT,
   MIN_BPM,
-  MAX_BPM,
+  EXTENDED_MAX_BPM,
   ACCENT_LEVELS,
   SUBDIVISION_TYPES,
   cycleAccentLevel,
@@ -167,7 +167,7 @@ export default class AudioEngine {
   }
 
   setBpm(bpm) {
-    this.bpm = Math.max(MIN_BPM, Math.min(MAX_BPM, Math.round(bpm)))
+    this.bpm = Math.max(MIN_BPM, Math.min(EXTENDED_MAX_BPM, Math.round(bpm)))
     this._onBpmChange?.(this.bpm)
   }
 

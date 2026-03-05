@@ -2,19 +2,18 @@ export const LOOKAHEAD_MS = 25
 export const SCHEDULE_AHEAD_S = 0.05
 export const MIN_BPM = 20
 export const MAX_BPM = 240
+export const EXTENDED_MAX_BPM = 600
 export const DEFAULT_BPM = 120
 export const DEFAULT_BEATS_PER_BAR = 4
 export const DEFAULT_BEAT_UNIT = 4
 
 export const ACCENT_LEVELS = {
-  STRONG: { name: 'Strong', volume: 1.0 },
-  MEDIUM: { name: 'Medium', volume: 0.7 },
-  NORMAL: { name: 'Normal', volume: 0.5 },
-  GHOST: { name: 'Ghost', volume: 0.2 },
-  SILENT: { name: 'Silent', volume: 0.0 },
+  ACCENT: { name: 'Accent', volume: 1.0 },
+  ON: { name: 'On', volume: 0.5 },
+  OFF: { name: 'Off', volume: 0.0 },
 }
 
-export const ACCENT_ORDER = ['STRONG', 'MEDIUM', 'NORMAL', 'GHOST', 'SILENT']
+export const ACCENT_ORDER = ['ACCENT', 'ON', 'OFF']
 
 export const SUBDIVISION_TYPES = {
   QUARTER: 1,
@@ -36,11 +35,9 @@ export const SOUND_NAMES = [
 ]
 
 export const ACCENT_STYLES = {
-  STRONG: 'w-5 h-5 bg-primary',
-  MEDIUM: 'w-4 h-4 bg-primary/70',
-  NORMAL: 'w-3.5 h-3.5 bg-dark/40',
-  GHOST: 'w-3 h-3 bg-dark/20',
-  SILENT: 'w-3 h-3 bg-transparent border-2 border-dark/20',
+  ACCENT: 'w-5 h-5 bg-primary',
+  ON: 'w-3.5 h-3.5 bg-dark/40',
+  OFF: 'w-3 h-3 bg-transparent border-2 border-dark/20',
 }
 
 export const SUBDIVISION_OPTIONS = [
@@ -77,7 +74,7 @@ export function cycleAccentLevel(current) {
 }
 
 export function buildDefaultAccents(beatsPerBar) {
-  const accents = new Array(beatsPerBar).fill('NORMAL')
-  accents[0] = 'STRONG'
+  const accents = new Array(beatsPerBar).fill('ON')
+  accents[0] = 'ACCENT'
   return accents
 }

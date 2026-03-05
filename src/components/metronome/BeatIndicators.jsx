@@ -11,7 +11,7 @@ export default function BeatIndicators({
   return (
     <div className="flex items-center justify-center gap-3 flex-wrap px-4">
       {Array.from({ length: beatsPerBar }, (_, i) => {
-        const accent = accents[i] || 'NORMAL'
+        const accent = accents[i] || 'ON'
         const isActive = isPlaying && currentBeat === i
         const baseStyle = ACCENT_STYLES[accent]
 

@@ -8,7 +8,7 @@ export default function useAudioEngine() {
   const [currentBeat, setCurrentBeat] = useState(-1)
   const [currentBar, setCurrentBar] = useState(1)
   const [inGap, setInGap] = useState(false)
-  const [beatAccent, setBeatAccent] = useState('NORMAL')
+  const [beatAccent, setBeatAccent] = useState('ON')
 
   useEffect(() => {
     const engine = new AudioEngine()

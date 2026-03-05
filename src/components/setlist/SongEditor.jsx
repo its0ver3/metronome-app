@@ -2,6 +2,7 @@ import { useState } from 'react'
 import {
   SOUND_NAMES,
   SUBDIVISION_OPTIONS,
+  SUBDIVISION_TYPES,
   ALL_TIME_SIG_PRESETS,
   ACCENT_STYLES,
   MIN_BPM,
@@ -26,8 +27,8 @@ export default function SongEditor({ song, onSave, onDelete, onCancel }) {
     setBeatsPerBar(beats)
     setBeatUnit(unit)
     // Resize accents array
-    const newAccents = Array(beats).fill('NORMAL')
-    newAccents[0] = 'STRONG'
+    const newAccents = Array(beats).fill('ON')
+    newAccents[0] = 'ACCENT'
     for (let i = 0; i < Math.min(accents.length, beats); i++) {
       newAccents[i] = accents[i]
     }
