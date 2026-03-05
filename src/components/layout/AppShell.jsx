@@ -263,6 +263,7 @@ export default function AppShell() {
               onTimeSignatureChange={handleTimeSignatureChange}
               onSubdivisionChange={handleSubdivisionChange}
               showMoreTimeSigs={showMoreTimeSigs}
+              tempoEnabled={tempoEnabled}
             />
           </>
         )}

@@ -24,6 +24,7 @@ export default function MetronomeScreen({
   onTimeSignatureChange,
   onSubdivisionChange,
   showMoreTimeSigs,
+  tempoEnabled,
 }) {
   const tapRef = useRef(null)
 
@@ -33,15 +34,15 @@ export default function MetronomeScreen({
 
   useKeyboard({
     onToggle,
-    onBpmUp: () => onBpmChange(bpm + 1),
-    onBpmDown: () => onBpmChange(bpm - 1),
-    onTap: handleTap,
+    onBpmUp: tempoEnabled ? undefined : () => onBpmChange(bpm + 1),
+    onBpmDown: tempoEnabled ? undefined : () => onBpmChange(bpm - 1),
+    onTap: tempoEnabled ? undefined : handleTap,
   })
 
   return (
     <div className="flex-1 flex flex-col items-center py-4 px-2 overflow-y-auto gap-4">
       {/* BPM Display */}
-      <BpmDisplay bpm={bpm} onBpmChange={onBpmChange} />
+      <BpmDisplay bpm={bpm} onBpmChange={onBpmChange} disabled={tempoEnabled} />
 
       {/* Beat indicators */}
       <BeatIndicators
@@ -54,7 +55,7 @@ export default function MetronomeScreen({
       />
 
       {/* BPM Controls */}
-      <BpmControls bpm={bpm} onBpmChange={onBpmChange} />
+      <BpmControls bpm={bpm} onBpmChange={onBpmChange} disabled={tempoEnabled} />
 
       {/* Play + Tap */}
       <div className="flex items-center gap-4">

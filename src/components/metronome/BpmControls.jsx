@@ -1,21 +1,23 @@
 import { useState } from 'react'
 import { MAX_BPM, EXTENDED_MAX_BPM } from '../../audio/constants'
 
-export default function BpmControls({ bpm, onBpmChange }) {
+export default function BpmControls({ bpm, onBpmChange, disabled }) {
   const [extendedRange, setExtendedRange] = useState(false)
   const currentMax = extendedRange ? EXTENDED_MAX_BPM : MAX_BPM
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full px-6">
+    <div className={`flex flex-col items-center gap-4 w-full px-6 ${disabled ? 'opacity-40 pointer-events-none' : ''}`}>
       <div className="flex items-center gap-6">
         <button
           onClick={() => onBpmChange(bpm - 1)}
+          disabled={disabled}
           className="w-14 h-14 rounded-full bg-secondary text-dark text-2xl font-bold flex items-center justify-center active:bg-secondary/70 transition-colors"
         >
           −
         </button>
         <button
           onClick={() => onBpmChange(bpm + 1)}
+          disabled={disabled}
           className="w-14 h-14 rounded-full bg-secondary text-dark text-2xl font-bold flex items-center justify-center active:bg-secondary/70 transition-colors"
         >
           +
@@ -28,10 +30,12 @@ export default function BpmControls({ bpm, onBpmChange }) {
           max={currentMax}
           value={bpm}
           onChange={(e) => onBpmChange(parseInt(e.target.value))}
+          disabled={disabled}
           className="flex-1 h-2 rounded-full appearance-none cursor-pointer accent-primary bg-secondary"
         />
         <button
           onClick={() => setExtendedRange(!extendedRange)}
+          disabled={disabled}
           className={`text-xs font-bold px-2.5 py-1 rounded-full transition-all whitespace-nowrap border ${
             extendedRange
               ? 'border-primary text-primary shadow-[0_0_8px_rgba(250,246,240,0.4)]'
