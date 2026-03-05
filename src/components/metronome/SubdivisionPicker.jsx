@@ -6,19 +6,18 @@ export default function SubdivisionPicker({ subdivision, onChange }) {
       <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide block mb-2">
         Subdivision
       </span>
-      <div className="flex gap-2 justify-center">
+      <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
         {SUBDIVISION_OPTIONS.map((opt) => (
           <button
             key={opt.type}
             onClick={() => onChange(opt.type)}
-            className={`flex-1 py-2 rounded-lg text-center transition-colors ${
+            className={`min-w-[2.75rem] h-9 px-2 rounded-lg text-center text-sm font-semibold transition-colors flex-shrink-0 ${
               subdivision === opt.type
                 ? 'bg-primary text-light'
                 : 'bg-secondary text-dark active:bg-secondary/70'
             }`}
           >
-            <span className="block text-lg leading-none">{opt.label}</span>
-            <span className="block text-xs mt-0.5 opacity-70">{opt.desc}</span>
+            {opt.label}
           </button>
         ))}
       </div>

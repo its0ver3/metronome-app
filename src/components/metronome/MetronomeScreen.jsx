@@ -4,7 +4,7 @@ import BpmControls from './BpmControls'
 import PlayStopButton from './PlayStopButton'
 import TapTempoButton from './TapTempoButton'
 import BeatIndicators from './BeatIndicators'
-import TimeSignature from './TimeSignature'
+import BeatsPicker from './BeatsPicker'
 import SubdivisionPicker from './SubdivisionPicker'
 import useKeyboard from '../../hooks/useKeyboard'
 
@@ -12,18 +12,17 @@ export default function MetronomeScreen({
   bpm,
   isPlaying,
   currentBeat,
+  currentSubdivision,
   currentBar,
   inGap,
   beatsPerBar,
-  beatUnit,
   subdivision,
-  accents,
+  subdivisionAccents,
   onBpmChange,
   onToggle,
-  onCycleAccent,
-  onTimeSignatureChange,
+  onCycleSubdivisionAccent,
+  onBeatsChange,
   onSubdivisionChange,
-  showMoreTimeSigs,
   tempoEnabled,
 }) {
   const tapRef = useRef(null)
@@ -47,9 +46,11 @@ export default function MetronomeScreen({
       {/* Beat indicators */}
       <BeatIndicators
         beatsPerBar={beatsPerBar}
+        subdivision={subdivision}
+        subdivisionAccents={subdivisionAccents}
         currentBeat={currentBeat}
-        accents={accents}
-        onCycleAccent={onCycleAccent}
+        currentSubdivision={currentSubdivision}
+        onCycleSubdivisionAccent={onCycleSubdivisionAccent}
         isPlaying={isPlaying}
         inGap={inGap}
       />
@@ -63,13 +64,8 @@ export default function MetronomeScreen({
         <PlayStopButton isPlaying={isPlaying} onToggle={onToggle} />
       </div>
 
-      {/* Time signature */}
-      <TimeSignature
-        beatsPerBar={beatsPerBar}
-        beatUnit={beatUnit}
-        onChange={onTimeSignatureChange}
-        showMore={showMoreTimeSigs}
-      />
+      {/* Beats */}
+      <BeatsPicker beatsPerBar={beatsPerBar} onChange={onBeatsChange} />
 
       {/* Subdivision */}
       <SubdivisionPicker

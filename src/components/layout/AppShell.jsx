@@ -17,9 +17,9 @@ export default function AppShell() {
 
   // Track engine-derived values in React state instead of reading mutable props
   const [settings, setSettings] = useState({
-    accents: ['STRONG', 'NORMAL', 'NORMAL', 'NORMAL'],
+    accents: ['ACCENT', 'ON', 'ON', 'ON'],
+    subdivisionAccents: ['ACCENT', 'ON', 'ON', 'ON'],
     beatsPerBar: 4,
-    beatUnit: 4,
     subdivision: 1,
     volume: 1,
     soundIndex: 0,
@@ -33,11 +33,9 @@ export default function AppShell() {
     tempoEveryBars: 4,
   })
 
-  const { accents, beatsPerBar, beatUnit, subdivision, volume, soundIndex } = settings
+  const { accents, subdivisionAccents, beatsPerBar, subdivision, volume, soundIndex } = settings
   const { gapEnabled, gapClickBars, gapSilentBars } = settings
   const { tempoEnabled, tempoStartBpm, tempoTargetBpm, tempoIncrement, tempoEveryBars } = settings
-
-  const [showMoreTimeSigs, setShowMoreTimeSigs] = useState(false)
 
   // Performance mode state
   const [performanceMode, setPerformanceMode] = useState({
@@ -54,8 +52,8 @@ export default function AppShell() {
     if (!e) return
     setSettings({
       accents: [...e.accents],
+      subdivisionAccents: [...e.subdivisionAccents],
       beatsPerBar: e.beatsPerBar,
-      beatUnit: e.beatUnit,
       subdivision: e.subdivision,
       volume: e.volume,
       soundIndex: e.soundIndex,
@@ -77,12 +75,11 @@ export default function AppShell() {
       if (saved.bpm) audio.changeBpm(saved.bpm)
       if (saved.soundIndex !== undefined) audio.setSound(saved.soundIndex)
       if (saved.volume !== undefined) audio.setVolume(saved.volume)
-      if (saved.beatsPerBar && saved.beatUnit) audio.setTimeSignature(saved.beatsPerBar, saved.beatUnit)
+      if (saved.beatsPerBar) audio.setBeatsPerBar(saved.beatsPerBar)
       if (saved.subdivision) audio.setSubdivision(saved.subdivision)
-      if (saved.accents) {
-        saved.accents.forEach((a, i) => engine.setAccent(i, a))
+      if (saved.subdivisionAccents) {
+        saved.subdivisionAccents.forEach((a, i) => engine.setSubdivisionAccent(i, a))
       }
-      if (saved.showMoreTimeSigs !== undefined) setShowMoreTimeSigs(saved.showMoreTimeSigs)
       syncFromEngine()
     }
   // Only run once on mount
@@ -98,23 +95,21 @@ export default function AppShell() {
         soundIndex: engine.soundIndex,
         volume: engine.volume,
         beatsPerBar: engine.beatsPerBar,
-        beatUnit: engine.beatUnit,
         subdivision: engine.subdivision,
-        accents: [...engine.accents],
-        showMoreTimeSigs,
+        subdivisionAccents: [...engine.subdivisionAccents],
       })
     }, 500)
     return () => clearTimeout(timer)
-  }, [audio.bpm, soundIndex, volume, beatsPerBar, beatUnit, subdivision, accents, engine, showMoreTimeSigs])
+  }, [audio.bpm, soundIndex, volume, beatsPerBar, subdivision, subdivisionAccents, engine])
 
   // Handlers
-  const handleCycleAccent = (beatIndex) => {
-    audio.cycleAccent(beatIndex)
+  const handleCycleSubdivisionAccent = (index) => {
+    audio.cycleSubdivisionAccent(index)
     syncFromEngine()
   }
 
-  const handleTimeSignatureChange = (beats, unit) => {
-    audio.setTimeSignature(beats, unit)
+  const handleBeatsChange = (beats) => {
+    audio.setBeatsPerBar(beats)
     syncFromEngine()
   }
 
@@ -153,14 +148,14 @@ export default function AppShell() {
   const loadSongIntoMetronome = useCallback((song) => {
     if (!song || !engine) return
     audio.changeBpm(song.bpm)
-    audio.setTimeSignature(song.beatsPerBar, song.beatUnit)
+    audio.setBeatsPerBar(song.beatsPerBar)
     audio.setSubdivision(song.subdivision || 1)
     audio.setSound(song.soundIndex ?? 0)
-    if (song.accents) {
-      song.accents.forEach((a, i) => engine.setAccent(i, a))
+    if (song.subdivisionAccents) {
+      song.subdivisionAccents.forEach((a, i) => engine.setSubdivisionAccent(i, a))
     }
     syncFromEngine()
-  }, [audio, engine])
+  }, [audio, engine, syncFromEngine])
 
   // Enter performance mode
   const handlePlaySetlist = useCallback(async (setlistId) => {
@@ -226,10 +221,9 @@ export default function AppShell() {
   const currentSettings = {
     bpm: audio.bpm,
     beatsPerBar,
-    beatUnit,
     subdivision,
     soundIndex,
-    accents: [...accents],
+    subdivisionAccents: [...subdivisionAccents],
   }
 
   return (
@@ -251,18 +245,17 @@ export default function AppShell() {
               bpm={audio.bpm}
               isPlaying={audio.isPlaying}
               currentBeat={audio.currentBeat}
+              currentSubdivision={audio.currentSubdivision}
               currentBar={audio.currentBar}
               inGap={audio.inGap}
               beatsPerBar={beatsPerBar}
-              beatUnit={beatUnit}
               subdivision={subdivision}
-              accents={accents}
+              subdivisionAccents={subdivisionAccents}
               onBpmChange={audio.changeBpm}
               onToggle={audio.toggle}
-              onCycleAccent={handleCycleAccent}
-              onTimeSignatureChange={handleTimeSignatureChange}
+              onCycleSubdivisionAccent={handleCycleSubdivisionAccent}
+              onBeatsChange={handleBeatsChange}
               onSubdivisionChange={handleSubdivisionChange}
-              showMoreTimeSigs={showMoreTimeSigs}
               tempoEnabled={tempoEnabled}
             />
           </>
@@ -291,11 +284,9 @@ export default function AppShell() {
           <SettingsScreen
             soundIndex={soundIndex}
             volume={volume}
-            showMoreTimeSigs={showMoreTimeSigs}
             onSoundChange={handleSoundChange}
             onSoundPreview={handleSoundPreview}
             onVolumeChange={handleVolumeChange}
-            onShowMoreTimeSigsChange={setShowMoreTimeSigs}
           />
         )}
       </div>
