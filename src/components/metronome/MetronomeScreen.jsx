@@ -65,7 +65,7 @@ export default function MetronomeScreen({
       </div>
 
       {/* Beats & Subdivision */}
-      <div className="flex gap-4 px-4 w-full">
+      <div className="flex gap-4 px-4 w-full justify-start">
         <BeatsPicker beatsPerBar={beatsPerBar} onChange={onBeatsChange} />
         <SubdivisionPicker subdivision={subdivision} onChange={onSubdivisionChange} />
       </div>

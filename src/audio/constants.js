@@ -15,19 +15,19 @@ export const ACCENT_LEVELS = {
 export const ACCENT_ORDER = ['ACCENT', 'ON', 'OFF']
 
 export const SUBDIVISION_OPTIONS = [
-  { type: 1, label: '♩', desc: 'Quarter' },
-  { type: 2, label: '8ths', desc: '8ths' },
-  { type: 3, label: '3s', desc: 'Triplets' },
-  { type: 4, label: '16ths', desc: '16ths' },
-  { type: 5, label: '5s', desc: '5s' },
-  { type: 6, label: '6s', desc: '6s' },
-  { type: 7, label: '7s', desc: '7s' },
-  { type: 8, label: '8s', desc: '8s' },
-  { type: 9, label: '9s', desc: '9s' },
-  { type: 10, label: '10s', desc: '10s' },
-  { type: 11, label: '11s', desc: '11s' },
-  { type: 12, label: '12s', desc: '12s' },
-  { type: 13, label: '13s', desc: '13s' },
+  { type: 1, label: '1', desc: '1' },
+  { type: 2, label: '2', desc: '2' },
+  { type: 3, label: '3', desc: '3' },
+  { type: 4, label: '4', desc: '4' },
+  { type: 5, label: '5', desc: '5' },
+  { type: 6, label: '6', desc: '6' },
+  { type: 7, label: '7', desc: '7' },
+  { type: 8, label: '8', desc: '8' },
+  { type: 9, label: '9', desc: '9' },
+  { type: 10, label: '10', desc: '10' },
+  { type: 11, label: '11', desc: '11' },
+  { type: 12, label: '12', desc: '12' },
+  { type: 13, label: '13', desc: '13' },
 ]
 
 export const SOUND_NAMES = [
