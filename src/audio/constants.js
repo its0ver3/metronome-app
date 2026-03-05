@@ -41,6 +41,8 @@ export const SOUND_NAMES = [
   'Stick Click',
 ]
 
+export const POLYRHYTHM_MAX = 16
+
 export const ACCENT_STYLES = {
   ACCENT: 'w-5 h-5 bg-primary',
   ON: 'w-3.5 h-3.5 bg-dark/40',

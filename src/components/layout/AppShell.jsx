@@ -31,11 +31,17 @@ export default function AppShell() {
     tempoTargetBpm: 120,
     tempoIncrement: 5,
     tempoEveryBars: 4,
+    polyrhythmMode: false,
+    polyRhythm1: 3,
+    polyRhythm2: 4,
+    polySoundIndex1: 0,
+    polySoundIndex2: 1,
   })
 
   const { accents, subdivisionAccents, beatsPerBar, subdivision, volume, soundIndex } = settings
   const { gapEnabled, gapClickBars, gapSilentBars } = settings
   const { tempoEnabled, tempoStartBpm, tempoTargetBpm, tempoIncrement, tempoEveryBars } = settings
+  const { polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2 } = settings
 
   // Performance mode state
   const [performanceMode, setPerformanceMode] = useState({
@@ -65,6 +71,11 @@ export default function AppShell() {
       tempoTargetBpm: e.tempoTargetBpm,
       tempoIncrement: e.tempoIncrement,
       tempoEveryBars: e.tempoEveryBars,
+      polyrhythmMode: e.polyrhythmMode,
+      polyRhythm1: e.polyRhythm1,
+      polyRhythm2: e.polyRhythm2,
+      polySoundIndex1: e.polySoundIndex1,
+      polySoundIndex2: e.polySoundIndex2,
     })
   }, [audio])
 
@@ -80,6 +91,11 @@ export default function AppShell() {
       if (saved.subdivisionAccents) {
         saved.subdivisionAccents.forEach((a, i) => engine.setSubdivisionAccent(i, a))
       }
+      if (saved.polyrhythmMode !== undefined) engine.setPolyrhythmMode(saved.polyrhythmMode)
+      if (saved.polyRhythm1) engine.setPolyRhythm1(saved.polyRhythm1)
+      if (saved.polyRhythm2) engine.setPolyRhythm2(saved.polyRhythm2)
+      if (saved.polySoundIndex1 !== undefined) engine.setPolySoundIndex1(saved.polySoundIndex1)
+      if (saved.polySoundIndex2 !== undefined) engine.setPolySoundIndex2(saved.polySoundIndex2)
       syncFromEngine()
     }
   // Only run once on mount
@@ -97,10 +113,15 @@ export default function AppShell() {
         beatsPerBar: engine.beatsPerBar,
         subdivision: engine.subdivision,
         subdivisionAccents: [...engine.subdivisionAccents],
+        polyrhythmMode: engine.polyrhythmMode,
+        polyRhythm1: engine.polyRhythm1,
+        polyRhythm2: engine.polyRhythm2,
+        polySoundIndex1: engine.polySoundIndex1,
+        polySoundIndex2: engine.polySoundIndex2,
       })
     }, 500)
     return () => clearTimeout(timer)
-  }, [audio.bpm, soundIndex, volume, beatsPerBar, subdivision, subdivisionAccents, engine])
+  }, [audio.bpm, soundIndex, volume, beatsPerBar, subdivision, subdivisionAccents, polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2, engine])
 
   // Handlers
   const handleCycleSubdivisionAccent = (index) => {
@@ -144,9 +165,35 @@ export default function AppShell() {
     syncFromEngine()
   }
 
+  const handlePolyrhythmModeToggle = (enabled) => {
+    audio.setPolyrhythmMode(enabled)
+    syncFromEngine()
+  }
+
+  const handlePolyRhythm1Change = (value) => {
+    audio.setPolyRhythm1(value)
+    syncFromEngine()
+  }
+
+  const handlePolyRhythm2Change = (value) => {
+    audio.setPolyRhythm2(value)
+    syncFromEngine()
+  }
+
+  const handlePolySoundIndex1Change = (index) => {
+    audio.setPolySoundIndex1(index)
+    syncFromEngine()
+  }
+
+  const handlePolySoundIndex2Change = (index) => {
+    audio.setPolySoundIndex2(index)
+    syncFromEngine()
+  }
+
   // Load a song's settings into the metronome
   const loadSongIntoMetronome = useCallback((song) => {
     if (!song || !engine) return
+    if (engine.polyrhythmMode) engine.setPolyrhythmMode(false)
     audio.changeBpm(song.bpm)
     audio.setBeatsPerBar(song.beatsPerBar)
     audio.setSubdivision(song.subdivision || 1)
@@ -257,6 +304,19 @@ export default function AppShell() {
               onBeatsChange={handleBeatsChange}
               onSubdivisionChange={handleSubdivisionChange}
               tempoEnabled={tempoEnabled}
+              polyrhythmMode={polyrhythmMode}
+              polyRhythm1={polyRhythm1}
+              polyRhythm2={polyRhythm2}
+              polySoundIndex1={polySoundIndex1}
+              polySoundIndex2={polySoundIndex2}
+              polyBeat1={audio.polyBeat1}
+              polyBeat2={audio.polyBeat2}
+              onPolyrhythmModeToggle={handlePolyrhythmModeToggle}
+              onPolyRhythm1Change={handlePolyRhythm1Change}
+              onPolyRhythm2Change={handlePolyRhythm2Change}
+              onPolySoundIndex1Change={handlePolySoundIndex1Change}
+              onPolySoundIndex2Change={handlePolySoundIndex2Change}
+              onSoundPreview={handleSoundPreview}
             />
           </>
         )}
@@ -272,6 +332,7 @@ export default function AppShell() {
             tempoIncrement={tempoIncrement}
             tempoEveryBars={tempoEveryBars}
             onTempoChange={handleTempoChange}
+            polyrhythmMode={polyrhythmMode}
           />
         )}
         {activeTab === 'setlists' && (
