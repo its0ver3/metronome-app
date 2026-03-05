@@ -126,29 +126,39 @@ export default function SongEditor({ song, onSave, onDelete, onCancel }) {
             <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide">
               Beats
             </span>
-            <select
-              value={beatsPerBar}
-              onChange={(e) => handleBeatsChange(parseInt(e.target.value))}
-              className="h-10 px-3 rounded-lg bg-secondary text-dark font-semibold text-sm appearance-none cursor-pointer"
-            >
-              {Array.from({ length: 16 }, (_, i) => i + 1).map((n) => (
-                <option key={n} value={n}>{n}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={beatsPerBar}
+                onChange={(e) => handleBeatsChange(parseInt(e.target.value))}
+                className="h-10 px-3 pr-8 rounded-lg bg-secondary text-dark font-semibold text-sm appearance-none cursor-pointer w-full"
+              >
+                {Array.from({ length: 16 }, (_, i) => i + 1).map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-dark/40 text-xs">
+                ▼
+              </span>
+            </div>
           </div>
           <div className="flex flex-col gap-1">
             <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide">
               Subdivision
             </span>
-            <select
-              value={subdivision}
-              onChange={(e) => handleSubdivisionChange(parseInt(e.target.value))}
-              className="h-10 px-3 rounded-lg bg-secondary text-dark font-semibold text-sm appearance-none cursor-pointer"
-            >
-              {SUBDIVISION_OPTIONS.map((opt) => (
-                <option key={opt.type} value={opt.type}>{opt.desc}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={subdivision}
+                onChange={(e) => handleSubdivisionChange(parseInt(e.target.value))}
+                className="h-10 px-3 pr-8 rounded-lg bg-secondary text-dark font-semibold text-sm appearance-none cursor-pointer w-full"
+              >
+                {SUBDIVISION_OPTIONS.map((opt) => (
+                  <option key={opt.type} value={opt.type}>{opt.desc}</option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-dark/40 text-xs">
+                ▼
+              </span>
+            </div>
           </div>
         </div>
 

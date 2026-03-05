@@ -4,15 +4,20 @@ export default function BeatsPicker({ beatsPerBar, onChange }) {
       <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide">
         Beats
       </span>
-      <select
-        value={beatsPerBar}
-        onChange={(e) => onChange(parseInt(e.target.value))}
-        className="h-10 px-3 rounded-lg bg-secondary text-dark font-semibold text-sm appearance-none cursor-pointer"
-      >
-        {Array.from({ length: 16 }, (_, i) => i + 1).map((n) => (
-          <option key={n} value={n}>{n}</option>
-        ))}
-      </select>
+      <div className="relative">
+        <select
+          value={beatsPerBar}
+          onChange={(e) => onChange(parseInt(e.target.value))}
+          className="h-10 px-3 pr-8 rounded-lg bg-secondary text-dark font-semibold text-sm appearance-none cursor-pointer w-full"
+        >
+          {Array.from({ length: 16 }, (_, i) => i + 1).map((n) => (
+            <option key={n} value={n}>{n}</option>
+          ))}
+        </select>
+        <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-dark/40 text-xs">
+          ▼
+        </span>
+      </div>
     </div>
   )
 }
