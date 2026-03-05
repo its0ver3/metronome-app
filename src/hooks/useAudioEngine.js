@@ -10,6 +10,8 @@ export default function useAudioEngine() {
   const [currentBar, setCurrentBar] = useState(1)
   const [inGap, setInGap] = useState(false)
   const [beatAccent, setBeatAccent] = useState('ON')
+  const [polyBeat1, setPolyBeat1] = useState(-1)
+  const [polyBeat2, setPolyBeat2] = useState(-1)
 
   useEffect(() => {
     const engine = new AudioEngine()
@@ -19,9 +21,14 @@ export default function useAudioEngine() {
     engine.onBpmChange((newBpm) => setBpm(newBpm))
     engine.onBarChange((bar) => setCurrentBar(bar))
     engine.onGapChange((gap) => setInGap(gap))
-    engine.onBeat(({ beat, subdivision, accent }) => {
-      setCurrentBeat(beat)
-      setCurrentSubdivision(subdivision)
+    engine.onBeat(({ beat, subdivision, accent, rhythm }) => {
+      if (rhythm) {
+        if (rhythm === 1) setPolyBeat1(beat)
+        else setPolyBeat2(beat)
+      } else {
+        setCurrentBeat(beat)
+        setCurrentSubdivision(subdivision)
+      }
       setBeatAccent(accent)
     })
 
@@ -72,6 +79,26 @@ export default function useAudioEngine() {
     engineRef.current?.setTempoTrainer(enabled, startBpm, targetBpm, increment, everyBars)
   }, [])
 
+  const setPolyrhythmMode = useCallback((enabled) => {
+    engineRef.current?.setPolyrhythmMode(enabled)
+  }, [])
+
+  const setPolyRhythm1 = useCallback((v) => {
+    engineRef.current?.setPolyRhythm1(v)
+  }, [])
+
+  const setPolyRhythm2 = useCallback((v) => {
+    engineRef.current?.setPolyRhythm2(v)
+  }, [])
+
+  const setPolySoundIndex1 = useCallback((i) => {
+    engineRef.current?.setPolySoundIndex1(i)
+  }, [])
+
+  const setPolySoundIndex2 = useCallback((i) => {
+    engineRef.current?.setPolySoundIndex2(i)
+  }, [])
+
   return {
     engine: getEngine,
     isPlaying,
@@ -93,5 +120,12 @@ export default function useAudioEngine() {
     cycleSubdivisionAccent,
     setGapTraining,
     setTempoTrainer,
+    polyBeat1,
+    polyBeat2,
+    setPolyrhythmMode,
+    setPolyRhythm1,
+    setPolyRhythm2,
+    setPolySoundIndex1,
+    setPolySoundIndex2,
   }
 }

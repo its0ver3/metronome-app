@@ -53,6 +53,16 @@ export default class AudioEngine {
     this._tempoBarCount = 0
     this._tempoReached = false
 
+    // Polyrhythm mode
+    this.polyrhythmMode = false
+    this.polyRhythm1 = 3
+    this.polyRhythm2 = 4
+    this.polySoundIndex1 = 0
+    this.polySoundIndex2 = 1
+    this._polyBeat1 = 0
+    this._polyBeat2 = 0
+    this._polyCycleStart = 0
+
     // Callbacks
     this._onBeat = null
     this._onBarChange = null
@@ -148,6 +158,11 @@ export default class AudioEngine {
     }
 
     this._nextNoteTime = this.ctx.currentTime + 0.05
+    if (this.polyrhythmMode) {
+      this._polyBeat1 = 0
+      this._polyBeat2 = 0
+      this._polyCycleStart = this.ctx.currentTime + 0.05
+    }
     this._scheduler()
     this._timerId = setInterval(() => this._scheduler(), LOOKAHEAD_MS)
     this._onStateChange?.(true)
@@ -244,12 +259,102 @@ export default class AudioEngine {
     if (everyBars !== undefined) this.tempoEveryBars = everyBars
   }
 
+  // Polyrhythm config
+  setPolyrhythmMode(enabled) {
+    if (this.isPlaying) this.stop()
+    this.polyrhythmMode = enabled
+    if (enabled) {
+      this.gapEnabled = false
+      this.tempoTrainerEnabled = false
+      this._onGapChange?.(false)
+    }
+  }
+
+  setPolyRhythm1(value) {
+    if (this.isPlaying) this.stop()
+    this.polyRhythm1 = Math.max(1, Math.min(16, value))
+  }
+
+  setPolyRhythm2(value) {
+    if (this.isPlaying) this.stop()
+    this.polyRhythm2 = Math.max(1, Math.min(16, value))
+  }
+
+  setPolySoundIndex1(index) { this.polySoundIndex1 = index }
+  setPolySoundIndex2(index) { this.polySoundIndex2 = index }
+
   // --- Scheduler ---
   _scheduler() {
+    if (this.polyrhythmMode) {
+      this._schedulerPoly()
+    } else {
+      this._schedulerStandard()
+    }
+  }
+
+  _schedulerStandard() {
     while (this._nextNoteTime < this.ctx.currentTime + SCHEDULE_AHEAD_S) {
       this._scheduleNote(this._nextNoteTime)
       this._advanceBeat()
     }
+  }
+
+  _schedulerPoly() {
+    const cycleDuration = 60.0 / this.bpm
+    const now = this.ctx.currentTime + SCHEDULE_AHEAD_S
+
+    // Outer loop: handle fast BPMs where multiple cycles fit in one tick
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      let scheduled = false
+
+      // Schedule rhythm 1 beats within lookahead window
+      while (this._polyBeat1 < this.polyRhythm1) {
+        const t = this._polyCycleStart + this._polyBeat1 * (cycleDuration / this.polyRhythm1)
+        if (t >= now) break
+        this._scheduleNotePoly(t, 1, this._polyBeat1)
+        this._polyBeat1++
+        scheduled = true
+      }
+
+      // Schedule rhythm 2 beats within lookahead window
+      while (this._polyBeat2 < this.polyRhythm2) {
+        const t = this._polyCycleStart + this._polyBeat2 * (cycleDuration / this.polyRhythm2)
+        if (t >= now) break
+        this._scheduleNotePoly(t, 2, this._polyBeat2)
+        this._polyBeat2++
+        scheduled = true
+      }
+
+      // Advance cycle only when BOTH rhythms have exhausted their beats
+      if (this._polyBeat1 >= this.polyRhythm1 && this._polyBeat2 >= this.polyRhythm2) {
+        this._polyCycleStart += cycleDuration
+        this._polyBeat1 = 0
+        this._polyBeat2 = 0
+        // Continue outer loop to check if new cycle's beats fall within lookahead
+      } else {
+        break
+      }
+
+      // Safety: if nothing was scheduled this iteration, break to avoid infinite loop
+      if (!scheduled) break
+    }
+  }
+
+  _scheduleNotePoly(time, rhythmIndex, beatIndex) {
+    const soundIdx = rhythmIndex === 1 ? this.polySoundIndex1 : this.polySoundIndex2
+    const vol = beatIndex === 0 ? 1.0 : 0.6
+    this._playSound(this.soundBank.getBuffer(soundIdx), time, vol)
+
+    this._onBeat?.({
+      beat: beatIndex,
+      subdivision: 0,
+      rhythm: rhythmIndex,
+      bar: 1,
+      time,
+      accent: beatIndex === 0 ? 'ACCENT' : 'ON',
+      inGap: false,
+    })
   }
 
   _scheduleNote(time) {
@@ -373,6 +478,11 @@ export default class AudioEngine {
       tempoTargetBpm: this.tempoTargetBpm,
       tempoIncrement: this.tempoIncrement,
       tempoEveryBars: this.tempoEveryBars,
+      polyrhythmMode: this.polyrhythmMode,
+      polyRhythm1: this.polyRhythm1,
+      polyRhythm2: this.polyRhythm2,
+      polySoundIndex1: this.polySoundIndex1,
+      polySoundIndex2: this.polySoundIndex2,
     }
   }
 }
