@@ -1,10 +1,13 @@
-const DOWNBEAT_RING = 'ring-1 ring-dark/20'
+import AccentPie from './AccentPie'
 
 export default function PolyrhythmIndicators({
   rhythm1,
   rhythm2,
   polyBeat1,
   polyBeat2,
+  polyAccents1,
+  polyAccents2,
+  onCyclePolyAccent,
   isPlaying,
 }) {
   return (
@@ -13,23 +16,27 @@ export default function PolyrhythmIndicators({
         label="R1"
         count={rhythm1}
         activeBeat={polyBeat1}
+        accents={polyAccents1}
         isPlaying={isPlaying}
-        dotColor="bg-primary"
+        fillColor="var(--color-primary)"
         ringColor="ring-primary"
+        onCycleAccent={(beatIndex) => onCyclePolyAccent(1, beatIndex)}
       />
       <PolyRow
         label="R2"
         count={rhythm2}
         activeBeat={polyBeat2}
+        accents={polyAccents2}
         isPlaying={isPlaying}
-        dotColor="bg-blue-500"
+        fillColor="#3b82f6"
         ringColor="ring-blue-500"
+        onCycleAccent={(beatIndex) => onCyclePolyAccent(2, beatIndex)}
       />
     </div>
   )
 }
 
-function PolyRow({ label, count, activeBeat, isPlaying, dotColor, ringColor }) {
+function PolyRow({ label, count, activeBeat, accents, isPlaying, fillColor, ringColor, onCycleAccent }) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs text-dark/40 w-6 text-right font-semibold flex-shrink-0">
@@ -39,17 +46,18 @@ function PolyRow({ label, count, activeBeat, isPlaying, dotColor, ringColor }) {
         {Array.from({ length: count }, (_, i) => {
           const isActive = isPlaying && activeBeat === i
           const isDownbeat = i === 0
+          const level = accents?.[i] || 'ON'
 
           return (
-            <span
+            <AccentPie
               key={i}
-              className={`w-5 h-5 rounded-full block transition-all duration-100 ${dotColor} ${
-                isDownbeat ? DOWNBEAT_RING : ''
-              } ${
-                isActive
-                  ? `ring-2 ${ringColor} ring-offset-2 scale-125`
-                  : 'opacity-60'
-              }`}
+              level={level}
+              size={20}
+              isActive={isActive}
+              isDownbeat={isDownbeat}
+              fillColor={fillColor}
+              activeRingClass={ringColor}
+              onClick={() => onCycleAccent(i)}
             />
           )
         })}

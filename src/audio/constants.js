@@ -7,12 +7,15 @@ export const DEFAULT_BPM = 120
 export const DEFAULT_BEATS_PER_BAR = 4
 
 export const ACCENT_LEVELS = {
-  ACCENT: { name: 'Accent', volume: 1.0 },
-  ON: { name: 'On', volume: 0.5 },
+  LOUD: { name: 'Loud', volume: 1.0 },
+  ACCENT: { name: 'Accent', volume: 0.75 },
+  ON: { name: 'On', volume: 0.4 },
   OFF: { name: 'Off', volume: 0.0 },
 }
 
-export const ACCENT_ORDER = ['ACCENT', 'ON', 'OFF']
+export const ACCENT_ORDER = ['OFF', 'ON', 'ACCENT', 'LOUD']
+
+export const ACCENT_WEDGES = { OFF: 0, ON: 1, ACCENT: 2, LOUD: 3 }
 
 export const SUBDIVISION_OPTIONS = [
   { type: 1, label: '1', desc: '1' },
@@ -43,12 +46,6 @@ export const SOUND_NAMES = [
 
 export const POLYRHYTHM_MAX = 16
 
-export const ACCENT_STYLES = {
-  ACCENT: 'w-5 h-5 bg-primary',
-  ON: 'w-3.5 h-3.5 bg-dark/40',
-  OFF: 'w-3 h-3 bg-transparent border-2 border-dark/20',
-}
-
 export function cycleAccentLevel(current) {
   const idx = ACCENT_ORDER.indexOf(current)
   return ACCENT_ORDER[(idx + 1) % ACCENT_ORDER.length]
@@ -56,7 +53,7 @@ export function cycleAccentLevel(current) {
 
 export function buildDefaultAccents(beatsPerBar) {
   const accents = new Array(beatsPerBar).fill('ON')
-  accents[0] = 'ACCENT'
+  accents[0] = 'LOUD'
   return accents
 }
 
@@ -64,7 +61,13 @@ export function buildDefaultSubdivisionAccents(beatsPerBar, subdivision) {
   const total = beatsPerBar * subdivision
   const accents = new Array(total).fill('ON')
   for (let beat = 0; beat < beatsPerBar; beat++) {
-    accents[beat * subdivision] = 'ACCENT'
+    accents[beat * subdivision] = 'LOUD'
   }
+  return accents
+}
+
+export function buildDefaultPolyAccents(count) {
+  const accents = new Array(count).fill('ON')
+  accents[0] = 'LOUD'
   return accents
 }

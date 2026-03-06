@@ -1,6 +1,4 @@
-import { ACCENT_STYLES } from '../../audio/constants'
-
-const DOWNBEAT_RING = 'ring-1 ring-dark/20'
+import AccentPie from './AccentPie'
 
 export default function BeatIndicators({
   beatsPerBar,
@@ -29,6 +27,9 @@ export default function BeatIndicators({
     return { beat, dots }
   })
 
+  const compact = subdivision > 8
+  const dotSize = compact ? 14 : 20
+
   if (useStacked) {
     return (
       <div className="flex flex-col gap-2 px-4 w-full">
@@ -39,13 +40,19 @@ export default function BeatIndicators({
             </span>
             <div className="flex items-center gap-1 flex-wrap">
               {group.dots.map((dot) => (
-                <Dot
+                <div
                   key={dot.flatIndex}
-                  {...dot}
-                  onCycle={onCycleSubdivisionAccent}
-                  inGap={inGap}
-                  compact={subdivision > 8}
-                />
+                  className={`flex items-center justify-center ${compact ? 'w-7 h-7' : 'w-10 h-10'}`}
+                >
+                  <AccentPie
+                    level={dot.accent}
+                    size={dotSize}
+                    isActive={dot.isActive}
+                    isDownbeat={dot.isDownbeat}
+                    inGap={inGap}
+                    onClick={() => onCycleSubdivisionAccent(dot.flatIndex)}
+                  />
+                </div>
               ))}
             </div>
           </div>
@@ -60,42 +67,22 @@ export default function BeatIndicators({
       {groups.map((group, gi) => (
         <div key={group.beat} className={`flex items-center gap-1 ${gi > 0 ? 'ml-3' : ''}`}>
           {group.dots.map((dot) => (
-            <Dot
+            <div
               key={dot.flatIndex}
-              {...dot}
-              onCycle={onCycleSubdivisionAccent}
-              inGap={inGap}
-              compact={false}
-            />
+              className="w-10 h-10 flex items-center justify-center"
+            >
+              <AccentPie
+                level={dot.accent}
+                size={20}
+                isActive={dot.isActive}
+                isDownbeat={dot.isDownbeat}
+                inGap={inGap}
+                onClick={() => onCycleSubdivisionAccent(dot.flatIndex)}
+              />
+            </div>
           ))}
         </div>
       ))}
     </div>
-  )
-}
-
-function Dot({ flatIndex, accent, isActive, isDownbeat, onCycle, inGap, compact }) {
-  const baseStyle = ACCENT_STYLES[accent]
-
-  return (
-    <button
-      onClick={() => onCycle(flatIndex)}
-      className={`rounded-full transition-all duration-100 flex-shrink-0 flex items-center justify-center ${
-        compact ? 'w-7 h-7' : 'w-10 h-10'
-      }`}
-      title={`Click ${flatIndex + 1}: ${accent}`}
-    >
-      <span
-        className={`rounded-full block transition-all duration-100 ${baseStyle} ${
-          isDownbeat ? DOWNBEAT_RING : ''
-        } ${
-          isActive
-            ? inGap
-              ? 'ring-2 ring-dark/20 ring-offset-2 opacity-40'
-              : 'ring-2 ring-primary ring-offset-2 scale-125'
-            : ''
-        }`}
-      />
-    </button>
   )
 }

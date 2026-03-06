@@ -34,6 +34,9 @@ export default function MetronomeScreen({
   polySoundIndex2,
   polyBeat1,
   polyBeat2,
+  polyAccents1,
+  polyAccents2,
+  onCyclePolyAccent,
   onPolyrhythmModeToggle,
   onPolyRhythm1Change,
   onPolyRhythm2Change,
@@ -66,6 +69,9 @@ export default function MetronomeScreen({
           rhythm2={polyRhythm2}
           polyBeat1={polyBeat1}
           polyBeat2={polyBeat2}
+          polyAccents1={polyAccents1}
+          polyAccents2={polyAccents2}
+          onCyclePolyAccent={onCyclePolyAccent}
           isPlaying={isPlaying}
         />
       ) : (

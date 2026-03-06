@@ -99,6 +99,10 @@ export default function useAudioEngine() {
     engineRef.current?.setPolySoundIndex2(i)
   }, [])
 
+  const cyclePolyAccent = useCallback((rhythmIndex, beatIndex) => {
+    return engineRef.current?.cyclePolyAccent(rhythmIndex, beatIndex)
+  }, [])
+
   return {
     engine: getEngine,
     isPlaying,
@@ -127,5 +131,6 @@ export default function useAudioEngine() {
     setPolyRhythm2,
     setPolySoundIndex1,
     setPolySoundIndex2,
+    cyclePolyAccent,
   }
 }
