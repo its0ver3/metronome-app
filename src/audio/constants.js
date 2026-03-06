@@ -8,8 +8,8 @@ export const DEFAULT_BEATS_PER_BAR = 4
 
 export const ACCENT_LEVELS = {
   LOUD: { name: 'Loud', volume: 1.0 },
-  ACCENT: { name: 'Accent', volume: 0.75 },
-  ON: { name: 'On', volume: 0.4 },
+  ACCENT: { name: 'Accent', volume: 0.5 },
+  ON: { name: 'On', volume: 0.25 },
   OFF: { name: 'Off', volume: 0.0 },
 }
 
