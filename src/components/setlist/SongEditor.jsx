@@ -2,12 +2,12 @@ import { useState } from 'react'
 import {
   SOUND_NAMES,
   SUBDIVISION_OPTIONS,
-  ACCENT_STYLES,
   MIN_BPM,
   MAX_BPM,
   cycleAccentLevel,
   buildDefaultSubdivisionAccents,
 } from '../../audio/constants'
+import AccentPie from '../metronome/AccentPie'
 
 export default function SongEditor({ song, onSave, onDelete, onCancel }) {
   const isEditing = !!song?.id
@@ -202,18 +202,14 @@ export default function SongEditor({ song, onSave, onDelete, onCancel }) {
                       const accent = subdivisionAccents[flatIndex] || 'ON'
                       const isDownbeat = sub === 0
                       return (
-                        <button
-                          key={flatIndex}
-                          onClick={() => cycleSubAccent(flatIndex)}
-                          className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-                          title={`Click ${flatIndex + 1}: ${accent}`}
-                        >
-                          <span
-                            className={`rounded-full block ${ACCENT_STYLES[accent]} ${
-                              isDownbeat ? 'ring-1 ring-dark/20' : ''
-                            }`}
+                        <div key={flatIndex} className="w-7 h-7 flex items-center justify-center">
+                          <AccentPie
+                            level={accent}
+                            size={14}
+                            isDownbeat={isDownbeat}
+                            onClick={() => cycleSubAccent(flatIndex)}
                           />
-                        </button>
+                        </div>
                       )
                     })}
                   </div>
@@ -229,18 +225,14 @@ export default function SongEditor({ song, onSave, onDelete, onCancel }) {
                     const accent = subdivisionAccents[flatIndex] || 'ON'
                     const isDownbeat = sub === 0
                     return (
-                      <button
-                        key={flatIndex}
-                        onClick={() => cycleSubAccent(flatIndex)}
-                        className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                        title={`Click ${flatIndex + 1}: ${accent}`}
-                      >
-                        <span
-                          className={`rounded-full block ${ACCENT_STYLES[accent]} ${
-                            isDownbeat ? 'ring-1 ring-dark/20' : ''
-                          }`}
+                      <div key={flatIndex} className="w-10 h-10 flex items-center justify-center">
+                        <AccentPie
+                          level={accent}
+                          size={20}
+                          isDownbeat={isDownbeat}
+                          onClick={() => cycleSubAccent(flatIndex)}
                         />
-                      </button>
+                      </div>
                     )
                   })}
                 </div>

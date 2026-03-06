@@ -9,6 +9,7 @@ import {
   cycleAccentLevel,
   buildDefaultAccents,
   buildDefaultSubdivisionAccents,
+  buildDefaultPolyAccents,
 } from './constants'
 import SoundBank from './SoundBank'
 
@@ -59,6 +60,8 @@ export default class AudioEngine {
     this.polyRhythm2 = 4
     this.polySoundIndex1 = 0
     this.polySoundIndex2 = 1
+    this.polyAccents1 = buildDefaultPolyAccents(3)
+    this.polyAccents2 = buildDefaultPolyAccents(4)
     this._polyBeat1 = 0
     this._polyBeat2 = 0
     this._polyCycleStart = 0
@@ -273,11 +276,24 @@ export default class AudioEngine {
   setPolyRhythm1(value) {
     if (this.isPlaying) this.stop()
     this.polyRhythm1 = Math.max(1, Math.min(16, value))
+    this.polyAccents1 = buildDefaultPolyAccents(this.polyRhythm1)
   }
 
   setPolyRhythm2(value) {
     if (this.isPlaying) this.stop()
     this.polyRhythm2 = Math.max(1, Math.min(16, value))
+    this.polyAccents2 = buildDefaultPolyAccents(this.polyRhythm2)
+  }
+
+  setPolyAccents1(accents) { this.polyAccents1 = accents }
+  setPolyAccents2(accents) { this.polyAccents2 = accents }
+
+  cyclePolyAccent(rhythmIndex, beatIndex) {
+    const arr = rhythmIndex === 1 ? this.polyAccents1 : this.polyAccents2
+    if (beatIndex >= 0 && beatIndex < arr.length) {
+      arr[beatIndex] = cycleAccentLevel(arr[beatIndex])
+      return arr[beatIndex]
+    }
   }
 
   setPolySoundIndex1(index) { this.polySoundIndex1 = index }
@@ -346,8 +362,13 @@ export default class AudioEngine {
 
   _scheduleNotePoly(time, rhythmIndex, beatIndex) {
     const soundIdx = rhythmIndex === 1 ? this.polySoundIndex1 : this.polySoundIndex2
-    const vol = beatIndex === 0 ? 1.0 : 0.6
-    this._playSound(this.soundBank.getBuffer(soundIdx), time, vol)
+    const accentArr = rhythmIndex === 1 ? this.polyAccents1 : this.polyAccents2
+    const accentLevel = accentArr[beatIndex] || 'ON'
+    const vol = ACCENT_LEVELS[accentLevel]?.volume ?? 0.4
+
+    if (vol > 0) {
+      this._playSound(this.soundBank.getBuffer(soundIdx), time, vol)
+    }
 
     this._onBeat?.({
       beat: beatIndex,
@@ -355,7 +376,7 @@ export default class AudioEngine {
       rhythm: rhythmIndex,
       bar: 1,
       time,
-      accent: beatIndex === 0 ? 'ACCENT' : 'ON',
+      accent: accentLevel,
       inGap: false,
     })
   }
@@ -486,6 +507,8 @@ export default class AudioEngine {
       polyRhythm2: this.polyRhythm2,
       polySoundIndex1: this.polySoundIndex1,
       polySoundIndex2: this.polySoundIndex2,
+      polyAccents1: [...this.polyAccents1],
+      polyAccents2: [...this.polyAccents2],
     }
   }
 }
