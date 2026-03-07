@@ -52,6 +52,13 @@ export default function AppShell() {
   const { subdivTrainerEnabled, subdivTrainerSubA, subdivTrainerBarsA, subdivTrainerSubB, subdivTrainerBarsB } = settings
   const { polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2, polyAccents1, polyAccents2 } = settings
 
+  // Track whether metronome has been played at least once (for training mini player)
+  const [hasPlayedOnce, setHasPlayedOnce] = useState(false)
+
+  useEffect(() => {
+    if (audio.isPlaying) setHasPlayedOnce(true)
+  }, [audio.isPlaying])
+
   // Performance mode state
   const [performanceMode, setPerformanceMode] = useState({
     active: false,
@@ -382,6 +389,10 @@ export default function AppShell() {
             subdivTrainerBarsB={subdivTrainerBarsB}
             onSubdivTrainerChange={handleSubdivTrainerChange}
             polyrhythmMode={polyrhythmMode}
+            bpm={audio.bpm}
+            isPlaying={audio.isPlaying}
+            onToggle={audio.toggle}
+            hasPlayedOnce={hasPlayedOnce}
           />
         )}
         {activeTab === 'setlists' && (
