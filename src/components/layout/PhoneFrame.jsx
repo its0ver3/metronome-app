@@ -3,10 +3,11 @@ export default function PhoneFrame({ children }) {
 
   return (
     <div className="min-h-full flex items-center justify-center p-4">
-      <div className="w-full max-w-[430px] h-[calc(100vh-2rem)] max-h-[932px] bg-light rounded-2xl shadow-2xl overflow-hidden flex flex-col relative">
+      <div className="w-full max-w-[430px] h-[calc(100vh-2rem)] max-h-[932px] brick-texture rounded-2xl border border-[#3A3A3A] overflow-hidden flex flex-col relative">
         {/* Header */}
-        <div className="flex items-center justify-center py-2 border-b border-secondary/50">
-          <img src={logoSrc} alt="Drums Only" className="h-14 w-14 rounded" />
+        <div className="flex flex-col items-center justify-center py-2 border-b border-secondary/50">
+          <img src={logoSrc} alt="Drums Only" className="h-28 rounded" />
+          <p className="text-xs text-white/60 tracking-wide" style={{ fontFamily: "'Dancing Script', cursive", fontWeight: 400 }}>by drummers for drummers</p>
         </div>
         {children}
       </div>

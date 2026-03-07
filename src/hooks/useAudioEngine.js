@@ -79,6 +79,10 @@ export default function useAudioEngine() {
     engineRef.current?.setTempoTrainer(enabled, startBpm, targetBpm, increment, everyBars)
   }, [])
 
+  const setSubdivisionTrainer = useCallback((enabled, subA, barsA, subB, barsB) => {
+    engineRef.current?.setSubdivisionTrainer(enabled, subA, barsA, subB, barsB)
+  }, [])
+
   const setPolyrhythmMode = useCallback((enabled) => {
     engineRef.current?.setPolyrhythmMode(enabled)
   }, [])
@@ -124,6 +128,7 @@ export default function useAudioEngine() {
     cycleSubdivisionAccent,
     setGapTraining,
     setTempoTrainer,
+    setSubdivisionTrainer,
     polyBeat1,
     polyBeat2,
     setPolyrhythmMode,

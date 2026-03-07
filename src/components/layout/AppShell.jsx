@@ -32,6 +32,11 @@ export default function AppShell() {
     tempoTargetBpm: 120,
     tempoIncrement: 5,
     tempoEveryBars: 4,
+    subdivTrainerEnabled: false,
+    subdivTrainerSubA: 1,
+    subdivTrainerBarsA: 2,
+    subdivTrainerSubB: 2,
+    subdivTrainerBarsB: 2,
     polyrhythmMode: false,
     polyRhythm1: 3,
     polyRhythm2: 4,
@@ -44,6 +49,7 @@ export default function AppShell() {
   const { accents, subdivisionAccents, beatsPerBar, subdivision, volume, soundIndex } = settings
   const { gapEnabled, gapClickBars, gapSilentBars } = settings
   const { tempoEnabled, tempoStartBpm, tempoTargetBpm, tempoIncrement, tempoEveryBars } = settings
+  const { subdivTrainerEnabled, subdivTrainerSubA, subdivTrainerBarsA, subdivTrainerSubB, subdivTrainerBarsB } = settings
   const { polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2, polyAccents1, polyAccents2 } = settings
 
   // Performance mode state
@@ -74,6 +80,11 @@ export default function AppShell() {
       tempoTargetBpm: e.tempoTargetBpm,
       tempoIncrement: e.tempoIncrement,
       tempoEveryBars: e.tempoEveryBars,
+      subdivTrainerEnabled: e.subdivTrainerEnabled,
+      subdivTrainerSubA: e.subdivTrainerSubA,
+      subdivTrainerBarsA: e.subdivTrainerBarsA,
+      subdivTrainerSubB: e.subdivTrainerSubB,
+      subdivTrainerBarsB: e.subdivTrainerBarsB,
       polyrhythmMode: e.polyrhythmMode,
       polyRhythm1: e.polyRhythm1,
       polyRhythm2: e.polyRhythm2,
@@ -174,6 +185,19 @@ export default function AppShell() {
     syncFromEngine()
   }
 
+  // Auto-sync subdivision display when bar changes during subdivision trainer
+  useEffect(() => {
+    if (subdivTrainerEnabled) {
+      syncFromEngine()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audio.currentBar])
+
+  const handleSubdivTrainerChange = (enabled, subA, barsA, subB, barsB) => {
+    audio.setSubdivisionTrainer(enabled, subA, barsA, subB, barsB)
+    syncFromEngine()
+  }
+
   const handlePolyrhythmModeToggle = (enabled) => {
     audio.setPolyrhythmMode(enabled)
     syncFromEngine()
@@ -208,6 +232,7 @@ export default function AppShell() {
   const loadSongIntoMetronome = useCallback((song) => {
     if (!song || !engine) return
     if (engine.polyrhythmMode) engine.setPolyrhythmMode(false)
+    if (engine.subdivTrainerEnabled) engine.subdivTrainerEnabled = false
     audio.changeBpm(song.bpm)
     audio.setBeatsPerBar(song.beatsPerBar)
     audio.setSubdivision(song.subdivision || 1)
@@ -318,6 +343,7 @@ export default function AppShell() {
               onBeatsChange={handleBeatsChange}
               onSubdivisionChange={handleSubdivisionChange}
               tempoEnabled={tempoEnabled}
+              subdivTrainerEnabled={subdivTrainerEnabled}
               polyrhythmMode={polyrhythmMode}
               polyRhythm1={polyRhythm1}
               polyRhythm2={polyRhythm2}
@@ -349,6 +375,12 @@ export default function AppShell() {
             tempoIncrement={tempoIncrement}
             tempoEveryBars={tempoEveryBars}
             onTempoChange={handleTempoChange}
+            subdivTrainerEnabled={subdivTrainerEnabled}
+            subdivTrainerSubA={subdivTrainerSubA}
+            subdivTrainerBarsA={subdivTrainerBarsA}
+            subdivTrainerSubB={subdivTrainerSubB}
+            subdivTrainerBarsB={subdivTrainerBarsB}
+            onSubdivTrainerChange={handleSubdivTrainerChange}
             polyrhythmMode={polyrhythmMode}
           />
         )}
@@ -356,6 +388,12 @@ export default function AppShell() {
           <SetlistScreen
             currentSettings={currentSettings}
             onPlaySetlist={handlePlaySetlist}
+            onLoadSong={(song) => {
+              if (audio.isPlaying) audio.stop()
+              handlePerfExit()
+              loadSongIntoMetronome(song)
+              setActiveTab('metronome')
+            }}
           />
         )}
         {activeTab === 'settings' && (

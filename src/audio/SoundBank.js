@@ -80,21 +80,7 @@ export default class SoundBank {
   }
 
   getSubdivisionBuffer(index) {
-    // Quieter, shorter version for subdivision clicks
-    // We synthesize on the fly a softer variant
-    if (!this._subBuffers) {
-      this._subBuffers = [
-        createClickBuffer(this.ctx, 1200, 0.015, 'square'),
-        createClickBuffer(this.ctx, 800, 0.025, 'triangle'),
-        createClickBuffer(this.ctx, 1100, 0.02, 'sine', 0.3),
-        createClickBuffer(this.ctx, 700, 0.04, 'square', 0.1),
-        createClickBuffer(this.ctx, 10000, 0.02, 'noise'),
-        createClickBuffer(this.ctx, 1200, 0.025, 'sine'),
-        createClickBuffer(this.ctx, 600, 0.03, 'sine'),
-        createClickBuffer(this.ctx, 3500, 0.01, 'noise', 0.3),
-      ]
-    }
-    return this._subBuffers[index] || this._subBuffers[0]
+    return this.getBuffer(index)
   }
 
   get count() {

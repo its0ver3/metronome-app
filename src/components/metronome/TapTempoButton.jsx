@@ -41,7 +41,7 @@ const TapTempoButton = forwardRef(function TapTempoButton({ onBpmChange }, ref) 
   return (
     <button
       onClick={handleTap}
-      className={`px-6 h-12 rounded-full border-2 border-primary text-primary font-semibold text-sm transition-all ${
+      className={`px-5 h-10 rounded-full border-2 border-primary text-primary font-semibold text-sm transition-all ${
         flash ? 'bg-primary text-light scale-95' : 'bg-transparent active:bg-primary/10'
       }`}
     >

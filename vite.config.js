@@ -16,8 +16,8 @@ export default defineConfig({
         name: 'Drums Only Metronome',
         short_name: 'Metronome',
         description: 'A precision metronome for drummers',
-        theme_color: '#B82025',
-        background_color: '#B82025',
+        theme_color: '#0A0A0A',
+        background_color: '#0A0A0A',
         display: 'standalone',
         orientation: 'portrait',
         icons: [

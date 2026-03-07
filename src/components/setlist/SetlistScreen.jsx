@@ -6,7 +6,7 @@ import SetlistDetail from './SetlistDetail'
 import useSongs from '../../hooks/useSongs'
 import useSetlists from '../../hooks/useSetlists'
 
-export default function SetlistScreen({ currentSettings, onPlaySetlist }) {
+export default function SetlistScreen({ currentSettings, onPlaySetlist, onLoadSong }) {
   const { songs, save: saveSong, remove: removeSong } = useSongs()
   const { setlists, save: saveSetlist, remove: removeSetlist } = useSetlists()
 
@@ -97,6 +97,7 @@ export default function SetlistScreen({ currentSettings, onPlaySetlist }) {
         <SongList
           songs={songs}
           onEdit={(song) => setEditingSong(song)}
+          onLoadSong={onLoadSong}
           onNewSong={handleNewSong}
           onSaveCurrent={handleSaveCurrent}
         />

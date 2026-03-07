@@ -27,6 +27,7 @@ export default function MetronomeScreen({
   onBeatsChange,
   onSubdivisionChange,
   tempoEnabled,
+  subdivTrainerEnabled,
   polyrhythmMode,
   polyRhythm1,
   polyRhythm2,
@@ -59,8 +60,24 @@ export default function MetronomeScreen({
 
   return (
     <div className="flex-1 flex flex-col items-center py-4 px-2 overflow-y-auto gap-4">
-      {/* BPM Display */}
-      <BpmDisplay bpm={bpm} onBpmChange={onBpmChange} disabled={tempoEnabled} />
+      {/* BPM Display with +/- buttons */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => onBpmChange(bpm - 1)}
+          disabled={tempoEnabled}
+          className={`w-10 h-10 rounded-full bg-secondary text-dark text-lg font-bold flex items-center justify-center active:bg-secondary/70 transition-colors ${tempoEnabled ? 'opacity-40 pointer-events-none' : ''}`}
+        >
+          −
+        </button>
+        <BpmDisplay bpm={bpm} onBpmChange={onBpmChange} disabled={tempoEnabled} />
+        <button
+          onClick={() => onBpmChange(bpm + 1)}
+          disabled={tempoEnabled}
+          className={`w-10 h-10 rounded-full bg-secondary text-dark text-lg font-bold flex items-center justify-center active:bg-secondary/70 transition-colors ${tempoEnabled ? 'opacity-40 pointer-events-none' : ''}`}
+        >
+          +
+        </button>
+      </div>
 
       {/* Beat indicators */}
       {polyrhythmMode ? (
@@ -113,9 +130,11 @@ export default function MetronomeScreen({
           onSoundPreview={onSoundPreview}
         />
       ) : (
-        <div className="flex gap-4 px-4 w-full justify-start">
+        <div className="flex gap-4 px-4 w-full justify-center mt-2">
           <BeatsPicker beatsPerBar={beatsPerBar} onChange={onBeatsChange} />
-          <SubdivisionPicker subdivision={subdivision} onChange={onSubdivisionChange} />
+          <div className={subdivTrainerEnabled ? 'opacity-40 pointer-events-none' : ''}>
+            <SubdivisionPicker subdivision={subdivision} onChange={onSubdivisionChange} />
+          </div>
         </div>
       )}
     </div>
