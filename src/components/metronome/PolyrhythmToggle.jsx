@@ -1,6 +1,6 @@
 export default function PolyrhythmToggle({ enabled, onToggle }) {
   return (
-    <div className="flex items-center gap-1 px-4 w-full">
+    <div className="flex items-center justify-center gap-1 px-4 w-full mt-2">
       <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide mr-2">
         Mode
       </span>

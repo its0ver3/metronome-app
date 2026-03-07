@@ -1,6 +1,6 @@
 export default function BeatsPicker({ beatsPerBar, onChange }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col items-center gap-1">
       <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide">
         Beats
       </span>
@@ -8,7 +8,7 @@ export default function BeatsPicker({ beatsPerBar, onChange }) {
         <select
           value={beatsPerBar}
           onChange={(e) => onChange(parseInt(e.target.value))}
-          className="h-10 px-3 pr-8 rounded-lg bg-secondary text-dark font-semibold text-sm appearance-none cursor-pointer w-full"
+          className="h-10 px-3 pr-7 rounded-lg bg-secondary text-dark font-semibold text-sm appearance-none cursor-pointer w-16"
         >
           {Array.from({ length: 16 }, (_, i) => i + 1).map((n) => (
             <option key={n} value={n}>{n}</option>

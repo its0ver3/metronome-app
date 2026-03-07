@@ -26,13 +26,13 @@ export default function BpmDisplay({ bpm, onBpmChange, disabled }) {
           defaultValue={bpm}
           min={MIN_BPM}
           max={MAX_BPM}
-          className="w-40 text-center font-heading text-8xl bg-transparent border-b-2 border-primary text-dark outline-none"
+          className="w-40 text-center font-heading text-7xl bg-transparent border-b-2 border-primary text-dark outline-none"
           onBlur={handleSubmit}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           autoFocus
         />
       ) : (
-        <span className={`font-heading text-8xl select-none ${disabled ? 'text-dark/40' : 'text-dark cursor-pointer'}`}>
+        <span className={`font-heading text-7xl select-none ${disabled ? 'text-dark/40' : 'text-dark cursor-pointer'}`}>
           {bpm}
         </span>
       )}

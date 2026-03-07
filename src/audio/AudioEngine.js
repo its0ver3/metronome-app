@@ -54,6 +54,15 @@ export default class AudioEngine {
     this._tempoBarCount = 0
     this._tempoReached = false
 
+    // Subdivision trainer
+    this.subdivTrainerEnabled = false
+    this.subdivTrainerSubA = 1
+    this.subdivTrainerBarsA = 2
+    this.subdivTrainerSubB = 2
+    this.subdivTrainerBarsB = 2
+    this._subdivTrainerBarCount = 0
+    this._subdivTrainerPhase = 'A'
+
     // Polyrhythm mode
     this.polyrhythmMode = false
     this.polyRhythm1 = 3
@@ -154,6 +163,12 @@ export default class AudioEngine {
     this._inGap = false
     this._tempoBarCount = 0
     this._tempoReached = false
+    this._subdivTrainerBarCount = 0
+    this._subdivTrainerPhase = 'A'
+
+    if (this.subdivTrainerEnabled) {
+      this.setSubdivision(this.subdivTrainerSubA)
+    }
 
     if (this.tempoTrainerEnabled) {
       this.bpm = this.tempoStartBpm
@@ -262,6 +277,22 @@ export default class AudioEngine {
     if (everyBars !== undefined) this.tempoEveryBars = everyBars
   }
 
+  // Subdivision trainer config
+  setSubdivisionTrainer(enabled, subA, barsA, subB, barsB) {
+    this.subdivTrainerEnabled = enabled
+    if (subA !== undefined) this.subdivTrainerSubA = subA
+    if (barsA !== undefined) this.subdivTrainerBarsA = barsA
+    if (subB !== undefined) this.subdivTrainerSubB = subB
+    if (barsB !== undefined) this.subdivTrainerBarsB = barsB
+    this._subdivTrainerBarCount = 0
+    this._subdivTrainerPhase = 'A'
+    if (enabled) {
+      this.setSubdivision(this.subdivTrainerSubA)
+    } else {
+      this.setSubdivision(this.subdivTrainerSubA)
+    }
+  }
+
   // Polyrhythm config
   setPolyrhythmMode(enabled) {
     if (this.isPlaying) this.stop()
@@ -269,6 +300,7 @@ export default class AudioEngine {
     if (enabled) {
       this.gapEnabled = false
       this.tempoTrainerEnabled = false
+      this.subdivTrainerEnabled = false
       this._onGapChange?.(false)
     }
   }
@@ -399,8 +431,7 @@ export default class AudioEngine {
       if (isMainBeat) {
         this._playSound(this.soundBank.getBuffer(this.soundIndex), time, accentVolume)
       } else {
-        // Subdivision click — use subdivision buffer, apply 0.5 multiplier for sound distinction
-        this._playSound(this.soundBank.getSubdivisionBuffer(this.soundIndex), time, accentVolume * 0.5)
+        this._playSound(this.soundBank.getSubdivisionBuffer(this.soundIndex), time, accentVolume)
       }
     }
 
@@ -461,6 +492,24 @@ export default class AudioEngine {
       }
     }
 
+    // Subdivision trainer logic
+    if (this.subdivTrainerEnabled) {
+      this._subdivTrainerBarCount++
+      const limit = this._subdivTrainerPhase === 'A'
+        ? this.subdivTrainerBarsA
+        : this.subdivTrainerBarsB
+      if (this._subdivTrainerBarCount >= limit) {
+        this._subdivTrainerBarCount = 0
+        if (this._subdivTrainerPhase === 'A') {
+          this._subdivTrainerPhase = 'B'
+          this.setSubdivision(this.subdivTrainerSubB)
+        } else {
+          this._subdivTrainerPhase = 'A'
+          this.setSubdivision(this.subdivTrainerSubA)
+        }
+      }
+    }
+
     // Tempo trainer logic
     if (this.tempoTrainerEnabled && !this._tempoReached) {
       this._tempoBarCount++
@@ -502,6 +551,12 @@ export default class AudioEngine {
       tempoTargetBpm: this.tempoTargetBpm,
       tempoIncrement: this.tempoIncrement,
       tempoEveryBars: this.tempoEveryBars,
+      subdivTrainerEnabled: this.subdivTrainerEnabled,
+      subdivTrainerSubA: this.subdivTrainerSubA,
+      subdivTrainerBarsA: this.subdivTrainerBarsA,
+      subdivTrainerSubB: this.subdivTrainerSubB,
+      subdivTrainerBarsB: this.subdivTrainerBarsB,
+      subdivTrainerPhase: this._subdivTrainerPhase,
       polyrhythmMode: this.polyrhythmMode,
       polyRhythm1: this.polyRhythm1,
       polyRhythm2: this.polyRhythm2,
