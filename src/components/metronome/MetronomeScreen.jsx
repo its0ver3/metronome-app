@@ -113,7 +113,6 @@ export default function MetronomeScreen({
         <PlayStopButton isPlaying={isPlaying} onToggle={onToggle} />
       </div>
 
-      {/* Mode toggle */}
       <PolyrhythmToggle enabled={polyrhythmMode} onToggle={onPolyrhythmModeToggle} />
 
       {/* Beats & Subdivision / Polyrhythm pickers */}
