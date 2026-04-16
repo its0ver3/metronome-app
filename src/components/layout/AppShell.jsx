@@ -495,7 +495,7 @@ export default function AppShell() {
             hasPlayedOnce={hasPlayedOnce}
           />
         )}
-        {activeTab === 'practice' && (
+        {activeTab === 'journal' && (
           <PracticeScreen
             sessions={sessions}
             liveBpm={audio.bpm}
