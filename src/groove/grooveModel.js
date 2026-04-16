@@ -1,4 +1,4 @@
-import { VOICES, SYMBOLS, TIME_DIVISIONS } from './grooveConstants'
+import { VOICES, SYMBOLS, VALID_TIME_DIVISIONS } from './grooveConstants'
 
 export const GROOVE_VERSION = 1
 
@@ -59,7 +59,7 @@ export function setSlotSymbol(pattern, voice, slotIndex, symbol) {
 
 // Resize all voice arrays to a new length, preserving data where possible and padding with '-'.
 export function resizePattern(pattern, newDivision) {
-  if (!TIME_DIVISIONS.includes(newDivision)) return pattern
+  if (!VALID_TIME_DIVISIONS.includes(newDivision)) return pattern
   if (pattern.timeDivision === newDivision) return pattern
   const next = { ...pattern, timeDivision: newDivision, voices: {} }
   for (const v of VOICES) {
@@ -93,7 +93,7 @@ export function normalizeGroove(raw) {
   try {
     if (!raw || typeof raw !== 'object') return createDefaultGroove()
     if (raw.version !== GROOVE_VERSION) return createDefaultGroove()
-    if (!TIME_DIVISIONS.includes(raw.timeDivision)) return createDefaultGroove()
+    if (!VALID_TIME_DIVISIONS.includes(raw.timeDivision)) return createDefaultGroove()
     const voices = {}
     for (const v of VOICES) {
       const arr = raw.voices?.[v]

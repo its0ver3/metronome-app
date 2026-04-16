@@ -25,12 +25,10 @@ const VOICE_PITCH = {
 }
 
 function noteLength(timeDivision) {
-  // ABC L: default note length. For 16 slots in 4/4 we want L:1/16 so each slot = "1".
-  if (timeDivision === 8) return '1/8'
-  if (timeDivision === 12) return '1/12'
-  if (timeDivision === 16) return '1/16'
-  if (timeDivision === 24) return '1/24'
-  return '1/16'
+  // ABC L: default note length. For N slots per measure in 4/4 we want L:1/N so
+  // each single-character token represents one slot. Works for the standard set
+  // (4, 8, 12, 16, 24, 32, 48); non-standard denominators would require tuplets.
+  return `1/${timeDivision}`
 }
 
 function headStyleFor(voice) {
