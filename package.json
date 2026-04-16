@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.59.0",
+    "abcjs": "^6.6.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
