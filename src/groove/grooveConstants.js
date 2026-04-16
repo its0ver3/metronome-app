@@ -53,6 +53,5 @@ export const VOICE_TO_MIDI = {
 
 export const TIME_DIVISIONS = [8, 12, 16, 24]
 export const COUNT_IN_OPTIONS = [0, 1, 2]
-export const MAX_SWING_PERCENT = 50
 export const MIN_GROOVE_BPM = 30
 export const MAX_GROOVE_BPM = 300

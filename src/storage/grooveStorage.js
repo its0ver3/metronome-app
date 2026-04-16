@@ -7,7 +7,6 @@ export function saveGroove(state) {
     const payload = {
       version: GROOVE_VERSION,
       pattern: state.pattern,
-      swingPercent: state.swingPercent ?? 0,
       countInBars: state.countInBars ?? 0,
       showToms: state.showToms ?? false,
     }
@@ -24,7 +23,6 @@ export function loadGroove() {
     const parsed = JSON.parse(raw)
     return {
       pattern: normalizeGroove(parsed.pattern),
-      swingPercent: Number.isFinite(parsed.swingPercent) ? parsed.swingPercent : 0,
       countInBars: Number.isFinite(parsed.countInBars) ? parsed.countInBars : 0,
       showToms: !!parsed.showToms,
     }

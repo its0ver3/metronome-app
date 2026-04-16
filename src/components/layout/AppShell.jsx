@@ -77,7 +77,6 @@ export default function AppShell() {
   // Groove state (separate from metronome settings — own persistence, own shape)
   const [grooveSettings, setGrooveSettings] = useState(() => ({
     pattern: createDefaultGroove(),
-    swingPercent: 0,
     countInBars: 0,
     showToms: false,
   }))
@@ -173,9 +172,8 @@ export default function AppShell() {
   useEffect(() => {
     if (!engine) return
     engine.setGroovePattern(grooveSettings.pattern)
-    engine.setSwingPercent(grooveSettings.swingPercent)
     engine.setCountIn(grooveSettings.countInBars)
-  }, [engine, grooveSettings.pattern, grooveSettings.swingPercent, grooveSettings.countInBars])
+  }, [engine, grooveSettings.pattern, grooveSettings.countInBars])
 
   // Mutual-exclusivity with metronome: groove mode is ON iff we're on the Groove tab.
   // Entering groove mode also clears trainer/polyrhythm flags on the engine; sync back
@@ -318,10 +316,6 @@ export default function AppShell() {
       ...prev,
       pattern: setSlotSymbol(prev.pattern, voice, slot, symbol),
     }))
-  }, [])
-
-  const handleGrooveSwingChange = useCallback((percent) => {
-    setGrooveSettings((prev) => ({ ...prev, swingPercent: percent }))
   }, [])
 
   const handleGrooveCountInChange = useCallback((bars) => {
@@ -516,7 +510,6 @@ export default function AppShell() {
             pattern={grooveSettings.pattern}
             bpm={audio.bpm}
             isPlaying={audio.isPlaying}
-            swingPercent={grooveSettings.swingPercent}
             countInBars={grooveSettings.countInBars}
             activeSlot={audio.grooveSlot}
             inCountIn={audio.grooveInCountIn}
@@ -525,7 +518,6 @@ export default function AppShell() {
             onBpmChange={audio.changeBpm}
             onCellTap={handleGrooveCellTap}
             onCellSet={handleGrooveCellSet}
-            onSwingChange={handleGrooveSwingChange}
             onCountInChange={handleGrooveCountInChange}
             onTimeDivisionChange={handleGrooveTimeDivisionChange}
             onShowTomsChange={handleGrooveShowTomsChange}
