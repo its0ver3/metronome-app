@@ -1,7 +1,9 @@
 import {
-  TIME_DIVISIONS,
+  SUBDIVISION_OPTIONS,
   COUNT_IN_OPTIONS,
 } from '../../groove/grooveConstants'
+
+const BEATS_PER_BAR = 4 // MVP is locked to 4/4
 
 function Segmented({ options, value, onChange, disabled, ariaLabel }) {
   return (
@@ -36,6 +38,7 @@ export default function GrooveControls({
   onShowTomsChange,
   onClearAll,
 }) {
+  const subdivisionPerBeat = timeDivision / BEATS_PER_BAR
   return (
     <div className="flex flex-col gap-3">
       <div>
@@ -54,18 +57,24 @@ export default function GrooveControls({
       </div>
 
       <div>
-        <label className="text-xs text-dark/60 font-semibold uppercase tracking-wide mb-1 block">
+        <label
+          htmlFor="groove-subdivision"
+          className="text-xs text-dark/60 font-semibold uppercase tracking-wide mb-1 block"
+        >
           Division
         </label>
-        <Segmented
-          ariaLabel="Time division"
-          value={timeDivision}
-          onChange={onTimeDivisionChange}
-          options={TIME_DIVISIONS.map((d) => ({
-            value: d,
-            label: String(d),
-          }))}
-        />
+        <select
+          id="groove-subdivision"
+          value={subdivisionPerBeat}
+          onChange={(e) => onTimeDivisionChange(parseInt(e.target.value, 10) * BEATS_PER_BAR)}
+          className="w-full bg-muted/40 text-dark rounded-md px-3 py-2 text-sm font-semibold border border-muted focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          {SUBDIVISION_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value} className="bg-light text-dark">
+              {opt.value} — {opt.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex items-center justify-between">

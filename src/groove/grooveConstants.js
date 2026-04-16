@@ -51,7 +51,24 @@ export const VOICE_TO_MIDI = {
   tom3: 43,
 }
 
-export const TIME_DIVISIONS = [8, 12, 16, 24]
+// Subdivisions per beat — practical drum-practice set. Each one maps cleanly
+// onto standard music notation, so abcjs can render without tuplet tricks.
+// Label is what the user sees; value is subdivisionsPerBeat. The slot count
+// per measure is value * timeSignature.numBeats (4 for MVP).
+export const SUBDIVISION_OPTIONS = [
+  { value: 1, label: 'Quarters' },
+  { value: 2, label: 'Eighths' },
+  { value: 3, label: 'Eighth triplets' },
+  { value: 4, label: 'Sixteenths' },
+  { value: 6, label: 'Sixteenth triplets' },
+  { value: 8, label: '32nds' },
+  { value: 12, label: '32nd triplets' },
+]
+
+// Slots-per-measure values derived from SUBDIVISION_OPTIONS × 4 beats. Used by
+// validators so stored patterns aren't rejected when the option set changes.
+export const VALID_TIME_DIVISIONS = SUBDIVISION_OPTIONS.map((o) => o.value * 4)
+
 export const COUNT_IN_OPTIONS = [0, 1, 2]
 export const MIN_GROOVE_BPM = 30
 export const MAX_GROOVE_BPM = 300
