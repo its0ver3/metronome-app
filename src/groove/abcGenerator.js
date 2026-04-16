@@ -42,8 +42,7 @@ function decorate(voice, symbol, pitch) {
   if (voice === 'hh') {
     const head = '!style=x!'
     if (symbol === 'o') return `!open!${head}${pitch}`
-    if (symbol === 'X') return `!accent!${head}${pitch}`
-    return `${head}${pitch}` // 'x' normal
+    return `${head}${pitch}` // 'x' = closed
   }
   if (voice === 'snare') {
     if (symbol === 'g') return `!(.!${pitch}!).!` // parenthesised ghost
