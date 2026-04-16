@@ -10,9 +10,9 @@ export const VOICE_LABELS = {
   tom3: 'Tom 3',
 }
 
-// Cycle order per tap. First entry is "off", then normal, accent, then voice-specific extras.
+// Cycle order per tap. First entry is "off", then voice-specific articulations.
 export const SYMBOLS = {
-  hh: ['-', 'x', 'X', 'o'],
+  hh: ['-', 'x', 'o'],
   snare: ['-', 'o', 'O', 'g'],
   kick: ['-', 'o'],
   tom1: ['-', 'o'],

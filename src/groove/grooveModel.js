@@ -88,6 +88,16 @@ export function clearAll(pattern) {
   }
 }
 
+// Coerce a stored symbol into the current SYMBOLS set for a voice. Unknown
+// symbols become '-'. Legacy values get a sensible migration so existing
+// patterns don't silently lose notes when the symbol set narrows.
+function migrateSymbol(voice, sym) {
+  if (SYMBOLS[voice].includes(sym)) return sym
+  // hi-hat no longer has an accent state — collapse 'X' into 'x' (on).
+  if (voice === 'hh' && sym === 'X') return 'x'
+  return '-'
+}
+
 // Runtime validator — returns a fresh default if the stored shape is incompatible.
 export function normalizeGroove(raw) {
   try {
@@ -100,7 +110,7 @@ export function normalizeGroove(raw) {
       if (!Array.isArray(arr) || arr.length !== raw.timeDivision) {
         voices[v] = new Array(raw.timeDivision).fill('-')
       } else {
-        voices[v] = arr.map((sym) => (SYMBOLS[v].includes(sym) ? sym : '-'))
+        voices[v] = arr.map((sym) => migrateSymbol(v, sym))
       }
     }
     return {
