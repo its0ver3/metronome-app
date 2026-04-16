@@ -69,6 +69,6 @@ export const SUBDIVISION_OPTIONS = [
 // validators so stored patterns aren't rejected when the option set changes.
 export const VALID_TIME_DIVISIONS = SUBDIVISION_OPTIONS.map((o) => o.value * 4)
 
-export const COUNT_IN_OPTIONS = [0, 1, 2]
+export const COUNT_IN_OPTIONS = [0, 1, 2, 3, 4]
 export const MIN_GROOVE_BPM = 30
 export const MAX_GROOVE_BPM = 300
