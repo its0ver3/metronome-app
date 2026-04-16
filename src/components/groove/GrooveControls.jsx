@@ -1,7 +1,6 @@
 import {
   TIME_DIVISIONS,
   COUNT_IN_OPTIONS,
-  MAX_SWING_PERCENT,
 } from '../../groove/grooveConstants'
 
 function Segmented({ options, value, onChange, disabled, ariaLabel }) {
@@ -29,37 +28,16 @@ function Segmented({ options, value, onChange, disabled, ariaLabel }) {
 }
 
 export default function GrooveControls({
-  swingPercent,
   countInBars,
   timeDivision,
   showToms,
-  onSwingChange,
   onCountInChange,
   onTimeDivisionChange,
   onShowTomsChange,
   onClearAll,
 }) {
-  const tripletFeel = timeDivision === 12 || timeDivision === 24
   return (
     <div className="flex flex-col gap-3">
-      <div>
-        <div className="flex items-center justify-between mb-1">
-          <label className="text-xs text-dark/60 font-semibold uppercase tracking-wide">
-            Swing {tripletFeel ? '(triplet feel)' : `${swingPercent}%`}
-          </label>
-        </div>
-        <input
-          type="range"
-          min="0"
-          max={MAX_SWING_PERCENT}
-          value={swingPercent}
-          disabled={tripletFeel}
-          onChange={(e) => onSwingChange(parseInt(e.target.value, 10))}
-          className="w-full"
-          aria-label="Swing percent"
-        />
-      </div>
-
       <div>
         <label className="text-xs text-dark/60 font-semibold uppercase tracking-wide mb-1 block">
           Count-in

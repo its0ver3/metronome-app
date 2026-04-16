@@ -7,7 +7,6 @@ export default function GrooveScreen({
   pattern,
   bpm,
   isPlaying,
-  swingPercent,
   countInBars,
   activeSlot,
   inCountIn,
@@ -16,7 +15,6 @@ export default function GrooveScreen({
   onBpmChange,
   onCellTap,
   onCellSet,
-  onSwingChange,
   onCountInChange,
   onTimeDivisionChange,
   onShowTomsChange,
@@ -31,11 +29,9 @@ export default function GrooveScreen({
         onBpmChange={onBpmChange}
       />
       <GrooveControls
-        swingPercent={swingPercent}
         countInBars={countInBars}
         timeDivision={pattern.timeDivision}
         showToms={showToms}
-        onSwingChange={onSwingChange}
         onCountInChange={onCountInChange}
         onTimeDivisionChange={onTimeDivisionChange}
         onShowTomsChange={onShowTomsChange}

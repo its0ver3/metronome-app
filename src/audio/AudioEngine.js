@@ -68,7 +68,6 @@ export default class AudioEngine {
     // Groove mode
     this.grooveMode = false
     this.groovePattern = null
-    this.swingPercent = 0
     this.countInBars = 0
     this._grooveSlot = 0
     this._grooveMeasure = 0
@@ -380,10 +379,6 @@ export default class AudioEngine {
     this.groovePattern = pattern
   }
 
-  setSwingPercent(percent) {
-    this.swingPercent = Math.max(0, Math.min(50, percent))
-  }
-
   setCountIn(bars) {
     this.countInBars = Math.max(0, Math.min(4, Math.round(bars)))
   }
@@ -509,9 +504,6 @@ export default class AudioEngine {
       return
     }
 
-    const swingOffset = this._grooveSwingOffset(this._grooveSlot, slotsPerBeat)
-    const playTime = baseTime + swingOffset
-
     for (const voice of GROOVE_VOICES) {
       const arr = pattern.voices[voice]
       if (!arr) continue
@@ -522,7 +514,7 @@ export default class AudioEngine {
       if (volume <= 0) continue
       const buffer = this.drumKit?.getBuffer(voice, sym)
       if (!buffer) continue
-      this._playSound(buffer, playTime, volume)
+      this._playSound(buffer, baseTime, volume)
     }
 
     this._onBeat?.({
@@ -535,18 +527,6 @@ export default class AudioEngine {
       inGap: false,
       countIn: false,
     })
-  }
-
-  _grooveSwingOffset(slotIndex, slotsPerBeat) {
-    if (!this.swingPercent || this.swingPercent <= 0) return 0
-    // Triplet-feel (12th-note division) bakes swing into the grid; skip.
-    const div = this.groovePattern?.timeDivision
-    if (div === 12 || div === 24) return 0
-    // Delay odd-indexed slots within each beat.
-    if (slotIndex % 2 !== 1) return 0
-    const secondsPerBeat = 60 / this.bpm
-    const secondsPerSlot = secondsPerBeat / slotsPerBeat
-    return (this.swingPercent / 100) * secondsPerSlot
   }
 
   _advanceGrooveSlot() {
@@ -723,7 +703,6 @@ export default class AudioEngine {
       polyAccents1: [...this.polyAccents1],
       polyAccents2: [...this.polyAccents2],
       grooveMode: this.grooveMode,
-      swingPercent: this.swingPercent,
       countInBars: this.countInBars,
     }
   }

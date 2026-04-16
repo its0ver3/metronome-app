@@ -122,10 +122,6 @@ export default function useAudioEngine() {
     engineRef.current?.setGroovePattern(pattern)
   }, [])
 
-  const setSwingPercent = useCallback((p) => {
-    engineRef.current?.setSwingPercent(p)
-  }, [])
-
   const setCountIn = useCallback((bars) => {
     engineRef.current?.setCountIn(bars)
   }, [])
@@ -164,7 +160,6 @@ export default function useAudioEngine() {
     grooveInCountIn,
     setGrooveMode,
     setGroovePattern,
-    setSwingPercent,
     setCountIn,
   }
 }
