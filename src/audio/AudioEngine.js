@@ -359,6 +359,9 @@ export default class AudioEngine {
 
   // Groove mode config
   setGrooveMode(enabled) {
+    // Idempotent: re-asserting the same mode must not stop playback. Callers include
+    // a React effect that can re-fire on unrelated renders.
+    if (this.grooveMode === enabled) return
     if (this.isPlaying) this.stop()
     this.grooveMode = enabled
     if (enabled) {
@@ -370,11 +373,11 @@ export default class AudioEngine {
     }
   }
 
+  // Stores the pattern for the groove scheduler. Intentionally does NOT touch
+  // this.beatsPerBar — the groove scheduler reads beats-per-bar directly from
+  // pattern.timeSignature, and the metronome's beatsPerBar is independent.
   setGroovePattern(pattern) {
     this.groovePattern = pattern
-    if (pattern?.timeSignature?.numBeats) {
-      this.beatsPerBar = pattern.timeSignature.numBeats
-    }
   }
 
   setSwingPercent(percent) {

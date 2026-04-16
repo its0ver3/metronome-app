@@ -161,12 +161,15 @@ export default function AppShell() {
 
   // Mutual-exclusivity with metronome: groove mode is ON iff we're on the Groove tab.
   // Entering groove mode also clears trainer/polyrhythm flags on the engine; sync back
-  // to React so the UI in other tabs doesn't drift out of step.
+  // to React so the UI in other tabs doesn't drift out of step. syncFromEngine is
+  // excluded from deps because it rebuilds every render (audio is a new object each
+  // render) — depending on it here would loop the effect and stop playback.
   useEffect(() => {
     if (!engine) return
     engine.setGrooveMode(activeTab === 'groove')
     syncFromEngine()
-  }, [engine, activeTab, syncFromEngine])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [engine, activeTab])
 
   // Persist groove state (debounced, same 500ms pattern as metronome settings)
   useEffect(() => {
