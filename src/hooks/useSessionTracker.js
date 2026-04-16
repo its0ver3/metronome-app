@@ -7,7 +7,6 @@ export default function useSessionTracker({
   isPlaying,
   bpm,
   subdivision,
-  activeEntryIdRef,
   onSessionSaved,
 }) {
   const sessionRef = useRef(null)
@@ -37,7 +36,6 @@ export default function useSessionTracker({
         durationMs,
         bpmSamples: snapshot.bpmSamples,
         subdivisionSamples: snapshot.subdivisionSamples,
-        practiceEntryId: activeEntryIdRef?.current ?? null,
       }).then(() => {
         if (onSessionSaved) onSessionSaved()
       })

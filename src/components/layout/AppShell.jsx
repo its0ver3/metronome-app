@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import BottomNav from './BottomNav'
 import MetronomeScreen from '../metronome/MetronomeScreen'
 import TrainingScreen from '../training/TrainingScreen'
@@ -82,17 +82,11 @@ export default function AppShell() {
   }))
   const [grooveLoaded, setGrooveLoaded] = useState(false)
 
-  // Practice tracking: active entry id attributes sessions to a rudiment/pattern
-  const [activeEntryId, setActiveEntryId] = useState(null)
-  const activeEntryIdRef = useRef(activeEntryId)
-  useEffect(() => { activeEntryIdRef.current = activeEntryId }, [activeEntryId])
-
   const { sessions, refresh: refreshSessions } = useSessions()
   useSessionTracker({
     isPlaying: audio.isPlaying,
     bpm: audio.bpm,
     subdivision: settings.subdivision,
-    activeEntryIdRef,
     onSessionSaved: refreshSessions,
   })
 
@@ -149,7 +143,6 @@ export default function AppShell() {
       if (saved.polySoundIndex2 !== undefined) engine.setPolySoundIndex2(saved.polySoundIndex2)
       if (saved.polyAccents1) engine.setPolyAccents1(saved.polyAccents1)
       if (saved.polyAccents2) engine.setPolyAccents2(saved.polyAccents2)
-      if (typeof saved.activeEntryId === 'number') setActiveEntryId(saved.activeEntryId)
       syncFromEngine()
     }
   // Only run once on mount
@@ -212,11 +205,10 @@ export default function AppShell() {
         polySoundIndex2: engine.polySoundIndex2,
         polyAccents1: [...engine.polyAccents1],
         polyAccents2: [...engine.polyAccents2],
-        activeEntryId,
       })
     }, 500)
     return () => clearTimeout(timer)
-  }, [audio.bpm, soundIndex, volume, beatsPerBar, subdivision, subdivisionAccents, polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2, polyAccents1, polyAccents2, activeEntryId, engine])
+  }, [audio.bpm, soundIndex, volume, beatsPerBar, subdivision, subdivisionAccents, polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2, polyAccents1, polyAccents2, engine])
 
   // Handlers
   const handleCycleSubdivisionAccent = (index) => {
@@ -501,8 +493,7 @@ export default function AppShell() {
           <PracticeScreen
             sessions={sessions}
             liveBpm={audio.bpm}
-            activeEntryId={activeEntryId}
-            onSetActiveEntry={setActiveEntryId}
+            onLiveBpmChange={audio.changeBpm}
           />
         )}
         {activeTab === 'groove' && (

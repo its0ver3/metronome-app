@@ -7,14 +7,13 @@ export default function PracticeEntryEditor({
   onDelete,
   onCancel,
   liveBpm,
-  isActive,
-  onToggleActive,
+  onLiveBpmChange,
 }) {
   const isEditing = !!entry?.id
 
   const [label, setLabel] = useState(entry?.label || '')
   const [goalBpm, setGoalBpm] = useState(entry?.goalBpm || 120)
-  const [currentBpm, setCurrentBpm] = useState(entry?.currentBpm || 60)
+  const [loggedBpm, setLoggedBpm] = useState(entry?.currentBpm || liveBpm)
   const [journalEntries, setJournalEntries] = useState(entry?.journalEntries || [])
   const [showDelete, setShowDelete] = useState(false)
   const [noteText, setNoteText] = useState('')
@@ -24,7 +23,7 @@ export default function PracticeEntryEditor({
 
   const handleLogBpm = () => {
     const t = Date.now()
-    setCurrentBpm(liveBpm)
+    setLoggedBpm(liveBpm)
     setJournalEntries((prev) => [
       { t, text: '', bpmAtSnapshot: liveBpm },
       ...prev,
@@ -49,12 +48,12 @@ export default function PracticeEntryEditor({
       ...(entry?.id ? { id: entry.id } : {}),
       label: label.trim(),
       goalBpm,
-      currentBpm,
+      currentBpm: loggedBpm,
       journalEntries,
     })
   }
 
-  const progressPct = goalBpm > 0 ? Math.min(100, Math.round((currentBpm / goalBpm) * 100)) : 0
+  const progressPct = goalBpm > 0 ? Math.min(100, Math.round((liveBpm / goalBpm) * 100)) : 0
 
   return (
     <div className="absolute inset-0 z-50 bg-light flex flex-col">
@@ -121,14 +120,14 @@ export default function PracticeEntryEditor({
           </div>
         </div>
 
-        {/* Current BPM + Log BPM */}
+        {/* Current BPM (drives live metronome) + Log BPM */}
         <div>
           <label className="text-xs text-dark/50 font-semibold uppercase tracking-wide block mb-1">
             Current BPM
           </label>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setCurrentBpm(clampBpm(currentBpm - 1))}
+              onClick={() => onLiveBpmChange(clampBpm(liveBpm - 1))}
               className="w-12 h-12 rounded-full bg-secondary text-dark text-2xl font-bold flex items-center justify-center active:bg-secondary/70"
             >
               −
@@ -137,12 +136,12 @@ export default function PracticeEntryEditor({
               type="number"
               min={MIN_BPM}
               max={MAX_BPM}
-              value={currentBpm}
-              onChange={(e) => setCurrentBpm(clampBpm(parseInt(e.target.value) || MIN_BPM))}
+              value={liveBpm}
+              onChange={(e) => onLiveBpmChange(clampBpm(parseInt(e.target.value) || MIN_BPM))}
               className="w-20 h-12 text-center rounded-lg bg-secondary text-dark font-heading text-3xl"
             />
             <button
-              onClick={() => setCurrentBpm(clampBpm(currentBpm + 1))}
+              onClick={() => onLiveBpmChange(clampBpm(liveBpm + 1))}
               className="w-12 h-12 rounded-full bg-secondary text-dark text-2xl font-bold flex items-center justify-center active:bg-secondary/70"
             >
               +
@@ -154,6 +153,11 @@ export default function PracticeEntryEditor({
           >
             Log current BPM ({liveBpm})
           </button>
+          {loggedBpm !== liveBpm && (
+            <p className="text-xs text-dark/40 text-center mt-2">
+              Last logged: {loggedBpm} BPM
+            </p>
+          )}
           {/* Progress toward goal */}
           <div className="mt-3">
             <div className="flex justify-between text-xs text-dark/50 mb-1">
@@ -168,25 +172,6 @@ export default function PracticeEntryEditor({
             </div>
           </div>
         </div>
-
-        {/* Tracking toggle (only after save) */}
-        {isEditing && (
-          <div>
-            <label className="text-xs text-dark/50 font-semibold uppercase tracking-wide block mb-1">
-              Session tracking
-            </label>
-            <button
-              onClick={onToggleActive}
-              className={`w-full py-3 rounded-lg font-semibold text-sm transition-colors ${
-                isActive
-                  ? 'bg-primary text-light active:bg-primary/80'
-                  : 'bg-secondary text-dark active:bg-secondary/70'
-              }`}
-            >
-              {isActive ? 'Stop tracking' : 'Set as active'}
-            </button>
-          </div>
-        )}
 
         {/* Journal */}
         <div>
