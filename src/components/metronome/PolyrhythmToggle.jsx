@@ -1,31 +1,23 @@
 export default function PolyrhythmToggle({ enabled, onToggle }) {
   return (
-    <div className="flex items-center justify-center gap-1 px-4 w-full mt-2">
-      <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide mr-2">
-        Mode
+    <div className="flex items-center justify-center gap-3 px-4 w-full mt-2">
+      <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide">
+        Polyrhythm
       </span>
-      <div className="flex gap-1">
-        <button
-          onClick={() => onToggle(false)}
-          className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
-            !enabled
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-dark/40 border-b-2 border-transparent hover:text-dark/60'
+      <button
+        role="switch"
+        aria-checked={enabled}
+        onClick={() => onToggle(!enabled)}
+        className={`relative w-11 h-6 rounded-full transition-colors ${
+          enabled ? 'bg-primary' : 'bg-secondary'
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-transform ${
+            enabled ? 'translate-x-5 bg-secondary' : 'bg-dark'
           }`}
-        >
-          Standard
-        </button>
-        <button
-          onClick={() => onToggle(true)}
-          className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
-            enabled
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-dark/40 border-b-2 border-transparent hover:text-dark/60'
-          }`}
-        >
-          Polyrhythm
-        </button>
-      </div>
+        />
+      </button>
     </div>
   )
 }
