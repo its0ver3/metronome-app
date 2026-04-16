@@ -19,6 +19,20 @@ const tabs = [
     ),
   },
   {
+    id: 'groove',
+    label: 'Groove',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
+        <rect x="3" y="5" width="4" height="14" rx="1" strokeLinejoin="round" />
+        <rect x="10" y="5" width="4" height="14" rx="1" strokeLinejoin="round" />
+        <rect x="17" y="5" width="4" height="14" rx="1" strokeLinejoin="round" />
+        <line x1="3" y1="10" x2="7" y2="10" strokeLinecap="round" />
+        <line x1="10" y1="14" x2="14" y2="14" strokeLinecap="round" />
+        <line x1="17" y1="10" x2="21" y2="10" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
     id: 'setlists',
     label: 'Setlists',
     icon: (

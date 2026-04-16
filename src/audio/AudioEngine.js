@@ -12,6 +12,8 @@ import {
   buildDefaultPolyAccents,
 } from './constants'
 import SoundBank from './SoundBank'
+import DrumKit from './DrumKit'
+import { ARTICULATION_META, VOICES as GROOVE_VOICES } from '../groove/grooveConstants'
 
 export default class AudioEngine {
   constructor() {
@@ -63,6 +65,16 @@ export default class AudioEngine {
     this._subdivTrainerBarCount = 0
     this._subdivTrainerPhase = 'A'
 
+    // Groove mode
+    this.grooveMode = false
+    this.groovePattern = null
+    this.swingPercent = 0
+    this.countInBars = 0
+    this._grooveSlot = 0
+    this._grooveMeasure = 0
+    this._countInRemaining = 0
+    this._grooveCountInBeat = 0
+
     // Polyrhythm mode
     this.polyrhythmMode = false
     this.polyRhythm1 = 3
@@ -85,6 +97,9 @@ export default class AudioEngine {
     // Gain node
     this._gainNode = null
     this._audioSessionConfigured = false
+
+    // Drum kit (lazy, same lifecycle as SoundBank)
+    this.drumKit = null
   }
 
   _configureAudioSession() {
@@ -112,6 +127,7 @@ export default class AudioEngine {
     this._gainNode.gain.value = this.volume
     this._gainNode.connect(this.ctx.destination)
     this.soundBank = new SoundBank(this.ctx)
+    this.drumKit = new DrumKit(this.ctx)
     return true
   }
 
@@ -119,6 +135,9 @@ export default class AudioEngine {
     if (!this._ensureContext()) return false
     if (!this.soundBank.ready) {
       await this.soundBank.init()
+    }
+    if (this.drumKit && !this.drumKit.ready) {
+      await this.drumKit.init()
     }
     return true
   }
@@ -180,6 +199,12 @@ export default class AudioEngine {
       this._polyBeat1 = 0
       this._polyBeat2 = 0
       this._polyCycleStart = this.ctx.currentTime + 0.05
+    }
+    if (this.grooveMode) {
+      this._grooveSlot = 0
+      this._grooveMeasure = 0
+      this._countInRemaining = this.countInBars
+      this._grooveCountInBeat = 0
     }
     this._scheduler()
     this._timerId = setInterval(() => this._scheduler(), LOOKAHEAD_MS)
@@ -298,6 +323,7 @@ export default class AudioEngine {
     if (this.isPlaying) this.stop()
     this.polyrhythmMode = enabled
     if (enabled) {
+      this.grooveMode = false
       this.gapEnabled = false
       this.tempoTrainerEnabled = false
       this.subdivTrainerEnabled = false
@@ -331,9 +357,39 @@ export default class AudioEngine {
   setPolySoundIndex1(index) { this.polySoundIndex1 = index }
   setPolySoundIndex2(index) { this.polySoundIndex2 = index }
 
+  // Groove mode config
+  setGrooveMode(enabled) {
+    if (this.isPlaying) this.stop()
+    this.grooveMode = enabled
+    if (enabled) {
+      this.polyrhythmMode = false
+      this.gapEnabled = false
+      this.tempoTrainerEnabled = false
+      this.subdivTrainerEnabled = false
+      this._onGapChange?.(false)
+    }
+  }
+
+  setGroovePattern(pattern) {
+    this.groovePattern = pattern
+    if (pattern?.timeSignature?.numBeats) {
+      this.beatsPerBar = pattern.timeSignature.numBeats
+    }
+  }
+
+  setSwingPercent(percent) {
+    this.swingPercent = Math.max(0, Math.min(50, percent))
+  }
+
+  setCountIn(bars) {
+    this.countInBars = Math.max(0, Math.min(4, Math.round(bars)))
+  }
+
   // --- Scheduler ---
   _scheduler() {
-    if (this.polyrhythmMode) {
+    if (this.grooveMode) {
+      this._schedulerGroove()
+    } else if (this.polyrhythmMode) {
       this._schedulerPoly()
     } else {
       this._schedulerStandard()
@@ -411,6 +467,105 @@ export default class AudioEngine {
       accent: accentLevel,
       inGap: false,
     })
+  }
+
+  _schedulerGroove() {
+    if (!this.groovePattern) return
+    while (this._nextNoteTime < this.ctx.currentTime + SCHEDULE_AHEAD_S) {
+      this._scheduleGrooveSlot(this._nextNoteTime)
+      this._advanceGrooveSlot()
+    }
+  }
+
+  _scheduleGrooveSlot(baseTime) {
+    const pattern = this.groovePattern
+    if (!pattern) return
+    const slotsPerMeasure = pattern.timeDivision
+    const beatsPerBar = pattern.timeSignature.numBeats
+    const slotsPerBeat = slotsPerMeasure / beatsPerBar
+
+    if (this._countInRemaining > 0) {
+      // Count-in: fire a click on beat boundaries using the metronome click voice
+      if (this._grooveSlot % slotsPerBeat === 0) {
+        const isDownbeat = this._grooveSlot === 0
+        const vol = isDownbeat ? 0.6 : 0.35
+        const buffer = this.soundBank?.getBuffer(this.soundIndex)
+        if (buffer) this._playSound(buffer, baseTime, vol)
+        this._onBeat?.({
+          beat: this._grooveSlot / slotsPerBeat,
+          subdivision: 0,
+          slot: this._grooveSlot,
+          bar: this._currentBar,
+          time: baseTime,
+          accent: isDownbeat ? 'LOUD' : 'ON',
+          inGap: false,
+          countIn: true,
+          countInBarsLeft: this._countInRemaining,
+        })
+      }
+      return
+    }
+
+    const swingOffset = this._grooveSwingOffset(this._grooveSlot, slotsPerBeat)
+    const playTime = baseTime + swingOffset
+
+    for (const voice of GROOVE_VOICES) {
+      const arr = pattern.voices[voice]
+      if (!arr) continue
+      const sym = arr[this._grooveSlot]
+      if (!sym || sym === '-') continue
+      const meta = ARTICULATION_META[sym]
+      const volume = meta?.volume ?? 0
+      if (volume <= 0) continue
+      const buffer = this.drumKit?.getBuffer(voice, sym)
+      if (!buffer) continue
+      this._playSound(buffer, playTime, volume)
+    }
+
+    this._onBeat?.({
+      beat: Math.floor(this._grooveSlot / slotsPerBeat),
+      subdivision: this._grooveSlot % slotsPerBeat,
+      slot: this._grooveSlot,
+      bar: this._currentBar,
+      time: baseTime,
+      accent: 'ON',
+      inGap: false,
+      countIn: false,
+    })
+  }
+
+  _grooveSwingOffset(slotIndex, slotsPerBeat) {
+    if (!this.swingPercent || this.swingPercent <= 0) return 0
+    // Triplet-feel (12th-note division) bakes swing into the grid; skip.
+    const div = this.groovePattern?.timeDivision
+    if (div === 12 || div === 24) return 0
+    // Delay odd-indexed slots within each beat.
+    if (slotIndex % 2 !== 1) return 0
+    const secondsPerBeat = 60 / this.bpm
+    const secondsPerSlot = secondsPerBeat / slotsPerBeat
+    return (this.swingPercent / 100) * secondsPerSlot
+  }
+
+  _advanceGrooveSlot() {
+    const pattern = this.groovePattern
+    if (!pattern) return
+    const slotsPerMeasure = pattern.timeDivision
+    const beatsPerBar = pattern.timeSignature.numBeats
+    const slotsPerBeat = slotsPerMeasure / beatsPerBar
+    const secondsPerBeat = 60 / this.bpm
+    const secondsPerSlot = secondsPerBeat / slotsPerBeat
+    this._nextNoteTime += secondsPerSlot
+
+    this._grooveSlot++
+    if (this._grooveSlot >= slotsPerMeasure) {
+      this._grooveSlot = 0
+      this._grooveMeasure = (this._grooveMeasure + 1) % (pattern.numberOfMeasures || 1)
+      this._currentBar++
+      this._onBarChange?.(this._currentBar)
+      if (this._countInRemaining > 0) {
+        this._countInRemaining--
+      }
+    }
   }
 
   _scheduleNote(time) {
@@ -564,6 +719,9 @@ export default class AudioEngine {
       polySoundIndex2: this.polySoundIndex2,
       polyAccents1: [...this.polyAccents1],
       polyAccents2: [...this.polyAccents2],
+      grooveMode: this.grooveMode,
+      swingPercent: this.swingPercent,
+      countInBars: this.countInBars,
     }
   }
 }
