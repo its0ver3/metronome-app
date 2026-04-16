@@ -5,11 +5,12 @@ import GrooveCellPopover from './GrooveCellPopover'
 const LONG_PRESS_MS = 400
 
 function glyph(voice, symbol) {
-  if (symbol === '-') return null
-  // Use simple visual glyphs — the sheet music preview carries the notation.
+  if (symbol === '-') {
+    // Empty-cell affordance: faint dot so users see the cell is tappable
+    return <span className="w-1 h-1 rounded-full bg-dark/20" />
+  }
   if (symbol === 'g') {
-    // Ghost: small parenthesised dot
-    return <span className="text-[0.7rem] leading-none opacity-60">(●)</span>
+    return <span className="text-[0.7rem] leading-none opacity-70">(●)</span>
   }
   if (voice === 'hh' && symbol === 'o') {
     return <span className="text-base leading-none">◯</span>
@@ -17,7 +18,7 @@ function glyph(voice, symbol) {
   const isAccent = symbol === 'X' || symbol === 'O'
   return (
     <span
-      className={`inline-block rounded-full ${isAccent ? 'w-3 h-3 ring-2 ring-primary' : 'w-2.5 h-2.5'} bg-primary`}
+      className={`inline-block rounded-full ${isAccent ? 'w-3.5 h-3.5 ring-2 ring-primary' : 'w-2.5 h-2.5'} bg-primary`}
     />
   )
 }
@@ -68,8 +69,17 @@ export default function GrooveCell({
   const meta = ARTICULATION_META[symbol] || ARTICULATION_META['-']
   const label = `${voice} slot ${slot} ${meta.label}`
 
-  const baseBg = active ? 'bg-primary/25' : oddBeat ? 'bg-muted/30' : 'bg-muted/10'
-  const borderLeft = beatGroupStart ? 'border-l-2 border-primary/50' : 'border-l border-muted/30'
+  const filled = symbol !== '-'
+  const baseBg = active
+    ? 'bg-primary/30'
+    : filled
+    ? 'bg-muted'
+    : oddBeat
+    ? 'bg-muted/50'
+    : 'bg-muted/25'
+  const borderLeft = beatGroupStart
+    ? 'border-l-2 border-primary/60'
+    : 'border-l border-dark/10'
 
   return (
     <div className="relative">
@@ -81,9 +91,9 @@ export default function GrooveCell({
         onPointerLeave={clear}
         onPointerCancel={clear}
         onContextMenu={handleContextMenu}
-        className={`w-8 h-8 flex items-center justify-center ${baseBg} ${borderLeft} ${
-          active ? 'outline outline-primary' : ''
-        } transition-colors`}
+        className={`w-10 h-10 flex items-center justify-center ${baseBg} ${borderLeft} border-b border-dark/10 ${
+          active ? 'ring-2 ring-primary' : ''
+        } transition-colors cursor-pointer hover:bg-muted/80`}
       >
         {glyph(voice, symbol)}
       </button>
