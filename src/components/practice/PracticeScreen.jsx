@@ -29,7 +29,8 @@ export default function PracticeScreen({
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="px-4 pt-4 pb-3">
-        <h2 className="font-heading text-3xl text-dark mb-3">Practice</h2>
+        <h2 className="font-heading text-3xl text-dark">Journal</h2>
+        <p className="text-dark/50 text-sm mb-3">Add an entry to track your progress!</p>
         <StatsCards sessions={sessions} />
       </div>
 
