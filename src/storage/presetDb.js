@@ -1,5 +1,5 @@
 const DB_NAME = 'drums-only-metronome'
-const DB_VERSION = 2
+const DB_VERSION = 3
 
 function openDb() {
   return new Promise((resolve, reject) => {
@@ -16,6 +16,13 @@ function openDb() {
       }
       if (!db.objectStoreNames.contains('setlists')) {
         db.createObjectStore('setlists', { keyPath: 'id', autoIncrement: true })
+      }
+      // v3: practice stats + journal stores
+      if (!db.objectStoreNames.contains('sessions')) {
+        db.createObjectStore('sessions', { keyPath: 'id', autoIncrement: true })
+      }
+      if (!db.objectStoreNames.contains('practiceEntries')) {
+        db.createObjectStore('practiceEntries', { keyPath: 'id', autoIncrement: true })
       }
     }
     request.onsuccess = () => resolve(request.result)
@@ -176,6 +183,94 @@ export async function deleteSetlist(id) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction('setlists', 'readwrite')
     const store = tx.objectStore('setlists')
+    const request = store.delete(id)
+    request.onsuccess = () => resolve()
+    request.onerror = () => reject(request.error)
+  })
+}
+
+// ─── Sessions (append-only, auto-logged) ───
+
+export async function getAllSessions() {
+  const db = await openDb()
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('sessions', 'readonly')
+    const store = tx.objectStore('sessions')
+    const request = store.getAll()
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+  })
+}
+
+export async function saveSession(session) {
+  const db = await openDb()
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('sessions', 'readwrite')
+    const store = tx.objectStore('sessions')
+    const now = Date.now()
+    const newSession = { ...session, createdAt: now, updatedAt: now }
+    delete newSession.id
+    const addReq = store.add(newSession)
+    addReq.onsuccess = () => resolve(addReq.result)
+    addReq.onerror = () => reject(addReq.error)
+  })
+}
+
+// ─── Practice entries (manual journal) ───
+
+export async function getAllPracticeEntries() {
+  const db = await openDb()
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('practiceEntries', 'readonly')
+    const store = tx.objectStore('practiceEntries')
+    const request = store.getAll()
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+  })
+}
+
+export async function getPracticeEntry(id) {
+  const db = await openDb()
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('practiceEntries', 'readonly')
+    const store = tx.objectStore('practiceEntries')
+    const request = store.get(id)
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+  })
+}
+
+export async function savePracticeEntry(entry) {
+  const db = await openDb()
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('practiceEntries', 'readwrite')
+    const store = tx.objectStore('practiceEntries')
+    const now = Date.now()
+    if (entry.id) {
+      const getReq = store.get(entry.id)
+      getReq.onsuccess = () => {
+        const existing = getReq.result || {}
+        const updated = { ...existing, ...entry, updatedAt: now }
+        const putReq = store.put(updated)
+        putReq.onsuccess = () => resolve(updated.id)
+        putReq.onerror = () => reject(putReq.error)
+      }
+      getReq.onerror = () => reject(getReq.error)
+    } else {
+      const newEntry = { ...entry, createdAt: now, updatedAt: now }
+      delete newEntry.id
+      const addReq = store.add(newEntry)
+      addReq.onsuccess = () => resolve(addReq.result)
+      addReq.onerror = () => reject(addReq.error)
+    }
+  })
+}
+
+export async function deletePracticeEntry(id) {
+  const db = await openDb()
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('practiceEntries', 'readwrite')
+    const store = tx.objectStore('practiceEntries')
     const request = store.delete(id)
     request.onsuccess = () => resolve()
     request.onerror = () => reject(request.error)
