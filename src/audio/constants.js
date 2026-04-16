@@ -46,6 +46,11 @@ export const SOUND_NAMES = [
 
 export const POLYRHYTHM_MAX = 16
 
+// Groove-mode constants
+export const GROOVE_TIME_DIVISIONS = [8, 12, 16, 24]
+export const GROOVE_COUNT_IN_OPTIONS = [0, 1, 2]
+export const GROOVE_MAX_SWING_PERCENT = 50
+
 export function cycleAccentLevel(current) {
   const idx = ACCENT_ORDER.indexOf(current)
   return ACCENT_ORDER[(idx + 1) % ACCENT_ORDER.length]

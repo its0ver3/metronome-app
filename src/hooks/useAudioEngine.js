@@ -12,6 +12,8 @@ export default function useAudioEngine() {
   const [beatAccent, setBeatAccent] = useState('ON')
   const [polyBeat1, setPolyBeat1] = useState(-1)
   const [polyBeat2, setPolyBeat2] = useState(-1)
+  const [grooveSlot, setGrooveSlot] = useState(-1)
+  const [grooveInCountIn, setGrooveInCountIn] = useState(false)
 
   useEffect(() => {
     const engine = new AudioEngine()
@@ -21,10 +23,15 @@ export default function useAudioEngine() {
     engine.onBpmChange((newBpm) => setBpm(newBpm))
     engine.onBarChange((bar) => setCurrentBar(bar))
     engine.onGapChange((gap) => setInGap(gap))
-    engine.onBeat(({ beat, subdivision, accent, rhythm }) => {
+    engine.onBeat(({ beat, subdivision, accent, rhythm, slot, countIn }) => {
       if (rhythm) {
         if (rhythm === 1) setPolyBeat1(beat)
         else setPolyBeat2(beat)
+      } else if (typeof slot === 'number') {
+        setGrooveSlot(slot)
+        setGrooveInCountIn(!!countIn)
+        setCurrentBeat(beat)
+        setCurrentSubdivision(subdivision)
       } else {
         setCurrentBeat(beat)
         setCurrentSubdivision(subdivision)
@@ -107,6 +114,22 @@ export default function useAudioEngine() {
     return engineRef.current?.cyclePolyAccent(rhythmIndex, beatIndex)
   }, [])
 
+  const setGrooveMode = useCallback((enabled) => {
+    engineRef.current?.setGrooveMode(enabled)
+  }, [])
+
+  const setGroovePattern = useCallback((pattern) => {
+    engineRef.current?.setGroovePattern(pattern)
+  }, [])
+
+  const setSwingPercent = useCallback((p) => {
+    engineRef.current?.setSwingPercent(p)
+  }, [])
+
+  const setCountIn = useCallback((bars) => {
+    engineRef.current?.setCountIn(bars)
+  }, [])
+
   return {
     engine: getEngine,
     isPlaying,
@@ -137,5 +160,11 @@ export default function useAudioEngine() {
     setPolySoundIndex1,
     setPolySoundIndex2,
     cyclePolyAccent,
+    grooveSlot,
+    grooveInCountIn,
+    setGrooveMode,
+    setGroovePattern,
+    setSwingPercent,
+    setCountIn,
   }
 }

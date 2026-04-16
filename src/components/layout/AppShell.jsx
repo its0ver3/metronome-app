@@ -7,8 +7,11 @@ import SetlistScreen from '../setlist/SetlistScreen'
 import SetlistBanner from '../setlist/SetlistBanner'
 import useAudioEngine from '../../hooks/useAudioEngine'
 import { saveSettings, loadSettings } from '../../storage/settingsStorage'
+import { saveGroove, loadGroove } from '../../storage/grooveStorage'
 import { getAllSongs, getSetlist } from '../../storage/presetDb'
 import { buildDefaultPolyAccents } from '../../audio/constants'
+import GrooveScreen from '../groove/GrooveScreen'
+import { createDefaultGroove, toggleSlot, setSlotSymbol, resizePattern, clearAll as clearAllVoices } from '../../groove/grooveModel'
 
 export default function AppShell() {
   const [activeTab, setActiveTab] = useState('metronome')
@@ -68,6 +71,15 @@ export default function AppShell() {
     songs: [],
   })
 
+  // Groove state (separate from metronome settings — own persistence, own shape)
+  const [grooveSettings, setGrooveSettings] = useState(() => ({
+    pattern: createDefaultGroove(),
+    swingPercent: 0,
+    countInBars: 0,
+    showToms: false,
+  }))
+  const [grooveLoaded, setGrooveLoaded] = useState(false)
+
   // Sync React state from engine snapshot
   const syncFromEngine = useCallback(() => {
     const e = audio.engine()
@@ -126,6 +138,45 @@ export default function AppShell() {
   // Only run once on mount
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!engine])
+
+  // Restore groove state on mount (runs after engine is ready so pattern can be pushed)
+  useEffect(() => {
+    if (!engine) return
+    const saved = loadGroove()
+    if (saved) {
+      setGrooveSettings(saved)
+    }
+    setGrooveLoaded(true)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!engine])
+
+  // Push groove config into the engine whenever groove state OR engine changes.
+  // Engine reads these on demand in _schedulerGroove; updating while stopped is safe.
+  useEffect(() => {
+    if (!engine) return
+    engine.setGroovePattern(grooveSettings.pattern)
+    engine.setSwingPercent(grooveSettings.swingPercent)
+    engine.setCountIn(grooveSettings.countInBars)
+  }, [engine, grooveSettings.pattern, grooveSettings.swingPercent, grooveSettings.countInBars])
+
+  // Mutual-exclusivity with metronome: groove mode is ON iff we're on the Groove tab.
+  // Entering groove mode also clears trainer/polyrhythm flags on the engine; sync back
+  // to React so the UI in other tabs doesn't drift out of step. syncFromEngine is
+  // excluded from deps because it rebuilds every render (audio is a new object each
+  // render) — depending on it here would loop the effect and stop playback.
+  useEffect(() => {
+    if (!engine) return
+    engine.setGrooveMode(activeTab === 'groove')
+    syncFromEngine()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [engine, activeTab])
+
+  // Persist groove state (debounced, same 500ms pattern as metronome settings)
+  useEffect(() => {
+    if (!grooveLoaded) return
+    const timer = setTimeout(() => saveGroove(grooveSettings), 500)
+    return () => clearTimeout(timer)
+  }, [grooveLoaded, grooveSettings])
 
   // Auto-save settings whenever key values change
   useEffect(() => {
@@ -234,6 +285,44 @@ export default function AppShell() {
     audio.setPolySoundIndex2(index)
     syncFromEngine()
   }
+
+  // Groove handlers
+  const handleGrooveCellTap = useCallback((voice, slot) => {
+    setGrooveSettings((prev) => ({
+      ...prev,
+      pattern: toggleSlot(prev.pattern, voice, slot),
+    }))
+  }, [])
+
+  const handleGrooveCellSet = useCallback((voice, slot, symbol) => {
+    setGrooveSettings((prev) => ({
+      ...prev,
+      pattern: setSlotSymbol(prev.pattern, voice, slot, symbol),
+    }))
+  }, [])
+
+  const handleGrooveSwingChange = useCallback((percent) => {
+    setGrooveSettings((prev) => ({ ...prev, swingPercent: percent }))
+  }, [])
+
+  const handleGrooveCountInChange = useCallback((bars) => {
+    setGrooveSettings((prev) => ({ ...prev, countInBars: bars }))
+  }, [])
+
+  const handleGrooveTimeDivisionChange = useCallback((division) => {
+    setGrooveSettings((prev) => ({
+      ...prev,
+      pattern: resizePattern(prev.pattern, division),
+    }))
+  }, [])
+
+  const handleGrooveShowTomsChange = useCallback((show) => {
+    setGrooveSettings((prev) => ({ ...prev, showToms: show }))
+  }, [])
+
+  const handleGrooveClearAll = useCallback(() => {
+    setGrooveSettings((prev) => ({ ...prev, pattern: clearAllVoices(prev.pattern) }))
+  }, [])
 
   // Load a song's settings into the metronome
   const loadSongIntoMetronome = useCallback((song) => {
@@ -393,6 +482,27 @@ export default function AppShell() {
             isPlaying={audio.isPlaying}
             onToggle={audio.toggle}
             hasPlayedOnce={hasPlayedOnce}
+          />
+        )}
+        {activeTab === 'groove' && (
+          <GrooveScreen
+            pattern={grooveSettings.pattern}
+            bpm={audio.bpm}
+            isPlaying={audio.isPlaying}
+            swingPercent={grooveSettings.swingPercent}
+            countInBars={grooveSettings.countInBars}
+            activeSlot={audio.grooveSlot}
+            inCountIn={audio.grooveInCountIn}
+            showToms={grooveSettings.showToms}
+            onTogglePlay={audio.toggle}
+            onBpmChange={audio.changeBpm}
+            onCellTap={handleGrooveCellTap}
+            onCellSet={handleGrooveCellSet}
+            onSwingChange={handleGrooveSwingChange}
+            onCountInChange={handleGrooveCountInChange}
+            onTimeDivisionChange={handleGrooveTimeDivisionChange}
+            onShowTomsChange={handleGrooveShowTomsChange}
+            onClearAll={handleGrooveClearAll}
           />
         )}
         {activeTab === 'setlists' && (
