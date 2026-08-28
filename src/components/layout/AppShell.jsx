@@ -1,191 +1,68 @@
 import { useState, useEffect, useCallback } from 'react'
 import BottomNav from './BottomNav'
+import GlobalTransport from './GlobalTransport'
 import MetronomeScreen from '../metronome/MetronomeScreen'
 import TrainingScreen from '../training/TrainingScreen'
 import SettingsScreen from '../settings/SettingsScreen'
-import SetlistScreen from '../setlist/SetlistScreen'
-import SetlistBanner from '../setlist/SetlistBanner'
-import PracticeScreen from '../practice/PracticeScreen'
 import useAudioEngine from '../../hooks/useAudioEngine'
-import useSessions from '../../hooks/useSessions'
-import useSessionTracker from '../../hooks/useSessionTracker'
 import { saveSettings, loadSettings } from '../../storage/settingsStorage'
-import { saveGroove, loadGroove } from '../../storage/grooveStorage'
-import { getAllSongs, getSetlist } from '../../storage/presetDb'
-import { buildDefaultPolyAccents } from '../../audio/constants'
-import GrooveScreen from '../groove/GrooveScreen'
-import { createDefaultGroove, toggleSlot, setSlotSymbol, resizePattern, clearAll as clearAllVoices } from '../../groove/grooveModel'
+
+function getSettingsSnapshot(engine) {
+  const state = engine.getState()
+
+  return {
+    subdivisionAccents: state.subdivisionAccents,
+    beatsPerBar: state.beatsPerBar,
+    subdivision: state.subdivision,
+    volume: state.volume,
+    soundIndex: state.soundIndex,
+    gapEnabled: state.gapEnabled,
+    gapClickBars: state.gapClickBars,
+    gapSilentBars: state.gapSilentBars,
+    tempoEnabled: state.tempoTrainerEnabled,
+    tempoStartBpm: state.tempoStartBpm,
+    tempoTargetBpm: state.tempoTargetBpm,
+    tempoIncrement: state.tempoIncrement,
+    tempoEveryBars: state.tempoEveryBars,
+    subdivTrainerEnabled: state.subdivTrainerEnabled,
+    subdivTrainerStages: state.subdivTrainerStages,
+    subdivTrainerStageIndex: state.subdivTrainerStageIndex,
+    subdivTrainerBarCount: state.subdivTrainerBarCount,
+    polyrhythmMode: state.polyrhythmMode,
+    polyRhythm1: state.polyRhythm1,
+    polyRhythm2: state.polyRhythm2,
+    polySoundIndex1: state.polySoundIndex1,
+    polySoundIndex2: state.polySoundIndex2,
+    polyAccents1: state.polyAccents1,
+    polyAccents2: state.polyAccents2,
+  }
+}
 
 export default function AppShell() {
   const [activeTab, setActiveTab] = useState('metronome')
-  const audio = useAudioEngine()
+  const [initialSettings] = useState(() => loadSettings())
+  const audio = useAudioEngine(initialSettings)
 
   const engine = audio.engine()
 
   // Track engine-derived values in React state instead of reading mutable props
-  const [settings, setSettings] = useState({
-    accents: ['ACCENT', 'ON', 'ON', 'ON'],
-    subdivisionAccents: ['ACCENT', 'ON', 'ON', 'ON'],
-    beatsPerBar: 4,
-    subdivision: 1,
-    volume: 1,
-    soundIndex: 0,
-    gapEnabled: false,
-    gapClickBars: 2,
-    gapSilentBars: 2,
-    tempoEnabled: false,
-    tempoStartBpm: 80,
-    tempoTargetBpm: 120,
-    tempoIncrement: 5,
-    tempoEveryBars: 4,
-    subdivTrainerEnabled: false,
-    subdivTrainerSubA: 1,
-    subdivTrainerBarsA: 2,
-    subdivTrainerSubB: 2,
-    subdivTrainerBarsB: 2,
-    polyrhythmMode: false,
-    polyRhythm1: 3,
-    polyRhythm2: 4,
-    polySoundIndex1: 0,
-    polySoundIndex2: 1,
-    polyAccents1: buildDefaultPolyAccents(3),
-    polyAccents2: buildDefaultPolyAccents(4),
-  })
+  const [settings, setSettings] = useState(() => getSettingsSnapshot(engine))
 
-  const { accents, subdivisionAccents, beatsPerBar, subdivision, volume, soundIndex } = settings
+  const { subdivisionAccents, beatsPerBar, subdivision, volume, soundIndex } = settings
   const { gapEnabled, gapClickBars, gapSilentBars } = settings
   const { tempoEnabled, tempoStartBpm, tempoTargetBpm, tempoIncrement, tempoEveryBars } = settings
-  const { subdivTrainerEnabled, subdivTrainerSubA, subdivTrainerBarsA, subdivTrainerSubB, subdivTrainerBarsB } = settings
+  const {
+    subdivTrainerEnabled,
+    subdivTrainerStages,
+    subdivTrainerStageIndex,
+    subdivTrainerBarCount,
+  } = settings
   const { polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2, polyAccents1, polyAccents2 } = settings
-
-  // Track whether metronome has been played at least once (for training mini player)
-  const [hasPlayedOnce, setHasPlayedOnce] = useState(false)
-
-  useEffect(() => {
-    if (audio.isPlaying) setHasPlayedOnce(true)
-  }, [audio.isPlaying])
-
-  // Performance mode state
-  const [performanceMode, setPerformanceMode] = useState({
-    active: false,
-    setlistId: null,
-    setlistName: '',
-    currentIndex: 0,
-    songs: [],
-  })
-
-  // Groove state (separate from metronome settings — own persistence, own shape)
-  const [grooveSettings, setGrooveSettings] = useState(() => ({
-    pattern: createDefaultGroove(),
-    countInBars: 0,
-    showToms: false,
-  }))
-  const [grooveLoaded, setGrooveLoaded] = useState(false)
-
-  const { sessions, refresh: refreshSessions } = useSessions()
-  useSessionTracker({
-    isPlaying: audio.isPlaying,
-    bpm: audio.bpm,
-    subdivision: settings.subdivision,
-    onSessionSaved: refreshSessions,
-  })
 
   // Sync React state from engine snapshot
   const syncFromEngine = useCallback(() => {
-    const e = audio.engine()
-    if (!e) return
-    setSettings({
-      accents: [...e.accents],
-      subdivisionAccents: [...e.subdivisionAccents],
-      beatsPerBar: e.beatsPerBar,
-      subdivision: e.subdivision,
-      volume: e.volume,
-      soundIndex: e.soundIndex,
-      gapEnabled: e.gapEnabled,
-      gapClickBars: e.gapClickBars,
-      gapSilentBars: e.gapSilentBars,
-      tempoEnabled: e.tempoTrainerEnabled,
-      tempoStartBpm: e.tempoStartBpm,
-      tempoTargetBpm: e.tempoTargetBpm,
-      tempoIncrement: e.tempoIncrement,
-      tempoEveryBars: e.tempoEveryBars,
-      subdivTrainerEnabled: e.subdivTrainerEnabled,
-      subdivTrainerSubA: e.subdivTrainerSubA,
-      subdivTrainerBarsA: e.subdivTrainerBarsA,
-      subdivTrainerSubB: e.subdivTrainerSubB,
-      subdivTrainerBarsB: e.subdivTrainerBarsB,
-      polyrhythmMode: e.polyrhythmMode,
-      polyRhythm1: e.polyRhythm1,
-      polyRhythm2: e.polyRhythm2,
-      polySoundIndex1: e.polySoundIndex1,
-      polySoundIndex2: e.polySoundIndex2,
-      polyAccents1: [...e.polyAccents1],
-      polyAccents2: [...e.polyAccents2],
-    })
-  }, [audio])
-
-  // Restore settings on mount
-  useEffect(() => {
-    const saved = loadSettings()
-    if (saved && engine) {
-      if (saved.bpm) audio.changeBpm(saved.bpm)
-      if (saved.soundIndex !== undefined) audio.setSound(saved.soundIndex)
-      if (saved.volume !== undefined) audio.setVolume(saved.volume)
-      if (saved.beatsPerBar) audio.setBeatsPerBar(saved.beatsPerBar)
-      if (saved.subdivision) audio.setSubdivision(saved.subdivision)
-      if (saved.subdivisionAccents) {
-        saved.subdivisionAccents.forEach((a, i) => engine.setSubdivisionAccent(i, a))
-      }
-      if (saved.polyrhythmMode !== undefined) engine.setPolyrhythmMode(saved.polyrhythmMode)
-      if (saved.polyRhythm1) engine.setPolyRhythm1(saved.polyRhythm1)
-      if (saved.polyRhythm2) engine.setPolyRhythm2(saved.polyRhythm2)
-      if (saved.polySoundIndex1 !== undefined) engine.setPolySoundIndex1(saved.polySoundIndex1)
-      if (saved.polySoundIndex2 !== undefined) engine.setPolySoundIndex2(saved.polySoundIndex2)
-      if (saved.polyAccents1) engine.setPolyAccents1(saved.polyAccents1)
-      if (saved.polyAccents2) engine.setPolyAccents2(saved.polyAccents2)
-      syncFromEngine()
-    }
-  // Only run once on mount
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!engine])
-
-  // Restore groove state on mount (runs after engine is ready so pattern can be pushed)
-  useEffect(() => {
-    if (!engine) return
-    const saved = loadGroove()
-    if (saved) {
-      setGrooveSettings(saved)
-    }
-    setGrooveLoaded(true)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!engine])
-
-  // Push groove config into the engine whenever groove state OR engine changes.
-  // Engine reads these on demand in _schedulerGroove; updating while stopped is safe.
-  useEffect(() => {
-    if (!engine) return
-    engine.setGroovePattern(grooveSettings.pattern)
-    engine.setCountIn(grooveSettings.countInBars)
-  }, [engine, grooveSettings.pattern, grooveSettings.countInBars])
-
-  // Mutual-exclusivity with metronome: groove mode is ON iff we're on the Groove tab.
-  // Entering groove mode also clears trainer/polyrhythm flags on the engine; sync back
-  // to React so the UI in other tabs doesn't drift out of step. syncFromEngine is
-  // excluded from deps because it rebuilds every render (audio is a new object each
-  // render) — depending on it here would loop the effect and stop playback.
-  useEffect(() => {
-    if (!engine) return
-    engine.setGrooveMode(activeTab === 'groove')
-    syncFromEngine()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [engine, activeTab])
-
-  // Persist groove state (debounced, same 500ms pattern as metronome settings)
-  useEffect(() => {
-    if (!grooveLoaded) return
-    const timer = setTimeout(() => saveGroove(grooveSettings), 500)
-    return () => clearTimeout(timer)
-  }, [grooveLoaded, grooveSettings])
+    setSettings(getSettingsSnapshot(engine))
+  }, [engine])
 
   // Auto-save settings whenever key values change
   useEffect(() => {
@@ -198,6 +75,16 @@ export default function AppShell() {
         beatsPerBar: engine.beatsPerBar,
         subdivision: engine.subdivision,
         subdivisionAccents: [...engine.subdivisionAccents],
+        gapEnabled: engine.gapEnabled,
+        gapClickBars: engine.gapClickBars,
+        gapSilentBars: engine.gapSilentBars,
+        tempoEnabled: engine.tempoTrainerEnabled,
+        tempoStartBpm: engine.tempoStartBpm,
+        tempoTargetBpm: engine.tempoTargetBpm,
+        tempoIncrement: engine.tempoIncrement,
+        tempoEveryBars: engine.tempoEveryBars,
+        subdivTrainerEnabled: engine.subdivTrainerEnabled,
+        subdivTrainerStages: engine.subdivTrainerStages.map((stage) => ({ ...stage })),
         polyrhythmMode: engine.polyrhythmMode,
         polyRhythm1: engine.polyRhythm1,
         polyRhythm2: engine.polyRhythm2,
@@ -208,11 +95,16 @@ export default function AppShell() {
       })
     }, 500)
     return () => clearTimeout(timer)
-  }, [audio.bpm, soundIndex, volume, beatsPerBar, subdivision, subdivisionAccents, polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2, polyAccents1, polyAccents2, engine])
+  }, [audio.bpm, soundIndex, volume, beatsPerBar, subdivision, subdivisionAccents, gapEnabled, gapClickBars, gapSilentBars, tempoEnabled, tempoStartBpm, tempoTargetBpm, tempoIncrement, tempoEveryBars, subdivTrainerEnabled, subdivTrainerStages, polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2, polyAccents1, polyAccents2, engine])
 
   // Handlers
   const handleCycleSubdivisionAccent = (index) => {
     audio.cycleSubdivisionAccent(index)
+    syncFromEngine()
+  }
+
+  const handleCycleBeatAccent = (beatIndex) => {
+    audio.cycleBeatAccent(beatIndex)
     syncFromEngine()
   }
 
@@ -237,10 +129,8 @@ export default function AppShell() {
   }
 
   const handleSoundPreview = useCallback(async (index) => {
-    const e = audio.engine()
-    if (!e) return
-    await e.preview(index)
-  }, [audio])
+    await engine.preview(index)
+  }, [engine])
 
   const handleGapChange = (enabled, clickBars, silentBars) => {
     audio.setGapTraining(enabled, clickBars, silentBars)
@@ -260,8 +150,8 @@ export default function AppShell() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [audio.currentBar])
 
-  const handleSubdivTrainerChange = (enabled, subA, barsA, subB, barsB) => {
-    audio.setSubdivisionTrainer(enabled, subA, barsA, subB, barsB)
+  const handleSubdivTrainerChange = (enabled, stages) => {
+    audio.setSubdivisionTrainer(enabled, stages)
     syncFromEngine()
   }
 
@@ -295,145 +185,32 @@ export default function AppShell() {
     syncFromEngine()
   }
 
-  // Groove handlers
-  const handleGrooveCellTap = useCallback((voice, slot) => {
-    setGrooveSettings((prev) => ({
-      ...prev,
-      pattern: toggleSlot(prev.pattern, voice, slot),
-    }))
-  }, [])
-
-  const handleGrooveCellSet = useCallback((voice, slot, symbol) => {
-    setGrooveSettings((prev) => ({
-      ...prev,
-      pattern: setSlotSymbol(prev.pattern, voice, slot, symbol),
-    }))
-  }, [])
-
-  const handleGrooveCountInChange = useCallback((bars) => {
-    setGrooveSettings((prev) => ({ ...prev, countInBars: bars }))
-  }, [])
-
-  const handleGrooveTimeDivisionChange = useCallback((division) => {
-    setGrooveSettings((prev) => ({
-      ...prev,
-      pattern: resizePattern(prev.pattern, division),
-    }))
-  }, [])
-
-  const handleGrooveShowTomsChange = useCallback((show) => {
-    setGrooveSettings((prev) => ({ ...prev, showToms: show }))
-  }, [])
-
-  const handleGrooveClearAll = useCallback(() => {
-    setGrooveSettings((prev) => ({ ...prev, pattern: clearAllVoices(prev.pattern) }))
-  }, [])
-
-  // Load a song's settings into the metronome
-  const loadSongIntoMetronome = useCallback((song) => {
-    if (!song || !engine) return
-    if (engine.polyrhythmMode) engine.setPolyrhythmMode(false)
-    if (engine.subdivTrainerEnabled) engine.subdivTrainerEnabled = false
-    audio.changeBpm(song.bpm)
-    audio.setBeatsPerBar(song.beatsPerBar)
-    audio.setSubdivision(song.subdivision || 1)
-    audio.setSound(song.soundIndex ?? 0)
-    if (song.subdivisionAccents) {
-      song.subdivisionAccents.forEach((a, i) => engine.setSubdivisionAccent(i, a))
-    }
-    syncFromEngine()
-  }, [audio, engine, syncFromEngine])
-
-  // Enter performance mode
-  const handlePlaySetlist = useCallback(async (setlistId) => {
-    const setlist = await getSetlist(setlistId)
-    if (!setlist) return
-
-    const allSongs = await getAllSongs()
-    const songMap = {}
-    for (const s of allSongs) songMap[s.id] = s
-
-    // Resolve song IDs to objects, filtering out deleted ones
-    const resolvedSongs = setlist.songIds
-      .map((id) => songMap[id])
-      .filter(Boolean)
-
-    if (resolvedSongs.length === 0) return
-
-    // Stop playback before switching
-    if (audio.isPlaying) audio.stop()
-
-    setPerformanceMode({
-      active: true,
-      setlistId,
-      setlistName: setlist.name,
-      currentIndex: 0,
-      songs: resolvedSongs,
-    })
-
-    // Load first song and switch to metronome tab
-    loadSongIntoMetronome(resolvedSongs[0])
-    setActiveTab('metronome')
-  }, [audio, loadSongIntoMetronome])
-
-  // Performance mode navigation
-  const handlePerfPrev = () => {
-    if (performanceMode.currentIndex <= 0) return
-    if (audio.isPlaying) audio.stop()
-    const newIndex = performanceMode.currentIndex - 1
-    setPerformanceMode((prev) => ({ ...prev, currentIndex: newIndex }))
-    loadSongIntoMetronome(performanceMode.songs[newIndex])
-  }
-
-  const handlePerfNext = () => {
-    if (performanceMode.currentIndex >= performanceMode.songs.length - 1) return
-    if (audio.isPlaying) audio.stop()
-    const newIndex = performanceMode.currentIndex + 1
-    setPerformanceMode((prev) => ({ ...prev, currentIndex: newIndex }))
-    loadSongIntoMetronome(performanceMode.songs[newIndex])
-  }
-
-  const handlePerfExit = () => {
-    if (audio.isPlaying) audio.stop()
-    setPerformanceMode({
-      active: false,
-      setlistId: null,
-      setlistName: '',
-      currentIndex: 0,
-      songs: [],
-    })
-  }
-
-  // Current settings for "Save Current as Song"
-  const currentSettings = {
+  const playbackStatus = {
     bpm: audio.bpm,
+    isPlaying: audio.isPlaying,
+    currentBar: audio.currentBar,
+    currentBeat: audio.currentBeat,
     beatsPerBar,
-    subdivision,
-    soundIndex,
-    subdivisionAccents: [...subdivisionAccents],
+    inGap: audio.inGap,
+    gapEnabled,
+    tempoEnabled,
+    tempoTargetBpm,
+    subdivTrainerEnabled,
+    subdivTrainerStages,
+    subdivTrainerStageIndex,
+    subdivTrainerBarCount,
+    polyrhythmMode,
   }
 
   return (
     <>
       <div className="flex-1 flex flex-col overflow-hidden">
         {activeTab === 'metronome' && (
-          <>
-            {performanceMode.active && (
-              <SetlistBanner
-                setlistName={performanceMode.setlistName}
-                songs={performanceMode.songs}
-                currentIndex={performanceMode.currentIndex}
-                onPrev={handlePerfPrev}
-                onNext={handlePerfNext}
-                onExit={handlePerfExit}
-              />
-            )}
-            <MetronomeScreen
+          <MetronomeScreen
               bpm={audio.bpm}
               isPlaying={audio.isPlaying}
               currentBeat={audio.currentBeat}
               currentSubdivision={audio.currentSubdivision}
-              currentBar={audio.currentBar}
               inGap={audio.inGap}
               beatsPerBar={beatsPerBar}
               subdivision={subdivision}
@@ -441,10 +218,11 @@ export default function AppShell() {
               onBpmChange={audio.changeBpm}
               onToggle={audio.toggle}
               onCycleSubdivisionAccent={handleCycleSubdivisionAccent}
+              onCycleBeatAccent={handleCycleBeatAccent}
               onBeatsChange={handleBeatsChange}
               onSubdivisionChange={handleSubdivisionChange}
-              tempoEnabled={tempoEnabled}
-              subdivTrainerEnabled={subdivTrainerEnabled}
+              tempoEnabled={tempoEnabled && !polyrhythmMode}
+              subdivTrainerEnabled={subdivTrainerEnabled && !polyrhythmMode}
               polyrhythmMode={polyrhythmMode}
               polyRhythm1={polyRhythm1}
               polyRhythm2={polyRhythm2}
@@ -461,8 +239,8 @@ export default function AppShell() {
               onPolySoundIndex1Change={handlePolySoundIndex1Change}
               onPolySoundIndex2Change={handlePolySoundIndex2Change}
               onSoundPreview={handleSoundPreview}
+              playbackStatus={playbackStatus}
             />
-          </>
         )}
         {activeTab === 'training' && (
           <TrainingScreen
@@ -477,54 +255,12 @@ export default function AppShell() {
             tempoEveryBars={tempoEveryBars}
             onTempoChange={handleTempoChange}
             subdivTrainerEnabled={subdivTrainerEnabled}
-            subdivTrainerSubA={subdivTrainerSubA}
-            subdivTrainerBarsA={subdivTrainerBarsA}
-            subdivTrainerSubB={subdivTrainerSubB}
-            subdivTrainerBarsB={subdivTrainerBarsB}
+            subdivTrainerStages={subdivTrainerStages}
+            subdivTrainerStageIndex={subdivTrainerStageIndex}
+            subdivTrainerBarCount={subdivTrainerBarCount}
             onSubdivTrainerChange={handleSubdivTrainerChange}
             polyrhythmMode={polyrhythmMode}
-            bpm={audio.bpm}
             isPlaying={audio.isPlaying}
-            onToggle={audio.toggle}
-            hasPlayedOnce={hasPlayedOnce}
-          />
-        )}
-        {activeTab === 'journal' && (
-          <PracticeScreen
-            sessions={sessions}
-            liveBpm={audio.bpm}
-            onLiveBpmChange={audio.changeBpm}
-          />
-        )}
-        {activeTab === 'groove' && (
-          <GrooveScreen
-            pattern={grooveSettings.pattern}
-            bpm={audio.bpm}
-            isPlaying={audio.isPlaying}
-            countInBars={grooveSettings.countInBars}
-            activeSlot={audio.grooveSlot}
-            inCountIn={audio.grooveInCountIn}
-            showToms={grooveSettings.showToms}
-            onTogglePlay={audio.toggle}
-            onBpmChange={audio.changeBpm}
-            onCellTap={handleGrooveCellTap}
-            onCellSet={handleGrooveCellSet}
-            onCountInChange={handleGrooveCountInChange}
-            onTimeDivisionChange={handleGrooveTimeDivisionChange}
-            onShowTomsChange={handleGrooveShowTomsChange}
-            onClearAll={handleGrooveClearAll}
-          />
-        )}
-        {activeTab === 'setlists' && (
-          <SetlistScreen
-            currentSettings={currentSettings}
-            onPlaySetlist={handlePlaySetlist}
-            onLoadSong={(song) => {
-              if (audio.isPlaying) audio.stop()
-              handlePerfExit()
-              loadSongIntoMetronome(song)
-              setActiveTab('metronome')
-            }}
           />
         )}
         {activeTab === 'settings' && (
@@ -537,6 +273,13 @@ export default function AppShell() {
           />
         )}
       </div>
+      {activeTab !== 'metronome' && (
+        <GlobalTransport
+          {...playbackStatus}
+          onToggle={audio.toggle}
+          onOpenMetronome={() => setActiveTab('metronome')}
+        />
+      )}
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </>
   )

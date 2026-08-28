@@ -3,17 +3,44 @@ import {
   SCHEDULE_AHEAD_S,
   DEFAULT_BPM,
   DEFAULT_BEATS_PER_BAR,
-  MIN_BPM,
-  EXTENDED_MAX_BPM,
   ACCENT_LEVELS,
+  SUBDIVISION_OPTIONS,
+  SUBDIVISION_TRAINER_MIN_STAGES,
+  SUBDIVISION_TRAINER_MAX_STAGES,
+  DEFAULT_SUBDIVISION_TRAINER_STAGES,
+  clampBpm,
   cycleAccentLevel,
-  buildDefaultAccents,
+  normalizeAccentLevel,
   buildDefaultSubdivisionAccents,
   buildDefaultPolyAccents,
-} from './constants'
-import SoundBank from './SoundBank'
-import DrumKit from './DrumKit'
-import { ARTICULATION_META, VOICES as GROOVE_VOICES } from '../groove/grooveConstants'
+} from './constants.js'
+import SoundBank from './SoundBank.js'
+
+function normalizeSubdivisionTrainerStages(stages) {
+  const source = Array.isArray(stages) ? stages : []
+  const normalized = source
+    .slice(0, SUBDIVISION_TRAINER_MAX_STAGES)
+    .map((stage, index) => {
+      const subdivision = Number(stage?.subdivision)
+      const bars = Number(stage?.bars)
+      const fallback = DEFAULT_SUBDIVISION_TRAINER_STAGES[
+        Math.min(index, DEFAULT_SUBDIVISION_TRAINER_STAGES.length - 1)
+      ]
+
+      return {
+        subdivision: SUBDIVISION_OPTIONS.some((option) => option.type === subdivision)
+          ? subdivision
+          : fallback.subdivision,
+        bars: Number.isFinite(bars) ? Math.max(1, Math.min(16, Math.round(bars))) : fallback.bars,
+      }
+    })
+
+  while (normalized.length < SUBDIVISION_TRAINER_MIN_STAGES) {
+    normalized.push({ ...DEFAULT_SUBDIVISION_TRAINER_STAGES[normalized.length] })
+  }
+
+  return normalized
+}
 
 export default class AudioEngine {
   constructor() {
@@ -28,8 +55,6 @@ export default class AudioEngine {
     this.volume = 1.0
     this.soundIndex = 0
 
-    // Accent pattern — one entry per beat in the bar
-    this.accents = buildDefaultAccents(DEFAULT_BEATS_PER_BAR)
     // Subdivision accent pattern — one entry per click (beatsPerBar * subdivision)
     this.subdivisionAccents = buildDefaultSubdivisionAccents(DEFAULT_BEATS_PER_BAR, 1)
 
@@ -39,6 +64,7 @@ export default class AudioEngine {
     this._currentSubdivision = 0
     this._currentBar = 1
     this._timerId = null
+    this._visualTimerIds = new Set()
 
     // Gap training
     this.gapEnabled = false
@@ -55,24 +81,15 @@ export default class AudioEngine {
     this.tempoEveryBars = 4
     this._tempoBarCount = 0
     this._tempoReached = false
+    this._tempoPendingActivation = false
 
     // Subdivision trainer
     this.subdivTrainerEnabled = false
-    this.subdivTrainerSubA = 1
-    this.subdivTrainerBarsA = 2
-    this.subdivTrainerSubB = 2
-    this.subdivTrainerBarsB = 2
+    this.subdivTrainerStages = DEFAULT_SUBDIVISION_TRAINER_STAGES.map((stage) => ({ ...stage }))
     this._subdivTrainerBarCount = 0
-    this._subdivTrainerPhase = 'A'
-
-    // Groove mode
-    this.grooveMode = false
-    this.groovePattern = null
-    this.countInBars = 0
-    this._grooveSlot = 0
-    this._grooveMeasure = 0
-    this._countInRemaining = 0
-    this._grooveCountInBeat = 0
+    this._subdivTrainerStageIndex = 0
+    this._subdivTrainerPendingActivation = false
+    this._subdivTrainerConfigDirty = false
 
     // Polyrhythm mode
     this.polyrhythmMode = false
@@ -97,8 +114,6 @@ export default class AudioEngine {
     this._gainNode = null
     this._audioSessionConfigured = false
 
-    // Drum kit (lazy, same lifecycle as SoundBank)
-    this.drumKit = null
   }
 
   _configureAudioSession() {
@@ -126,7 +141,6 @@ export default class AudioEngine {
     this._gainNode.gain.value = this.volume
     this._gainNode.connect(this.ctx.destination)
     this.soundBank = new SoundBank(this.ctx)
-    this.drumKit = new DrumKit(this.ctx)
     return true
   }
 
@@ -134,9 +148,6 @@ export default class AudioEngine {
     if (!this._ensureContext()) return false
     if (!this.soundBank.ready) {
       await this.soundBank.init()
-    }
-    if (this.drumKit && !this.drumKit.ready) {
-      await this.drumKit.init()
     }
     return true
   }
@@ -181,14 +192,17 @@ export default class AudioEngine {
     this._inGap = false
     this._tempoBarCount = 0
     this._tempoReached = false
+    this._tempoPendingActivation = false
     this._subdivTrainerBarCount = 0
-    this._subdivTrainerPhase = 'A'
+    this._subdivTrainerStageIndex = 0
+    this._subdivTrainerPendingActivation = false
+    this._subdivTrainerConfigDirty = false
 
-    if (this.subdivTrainerEnabled) {
-      this.setSubdivision(this.subdivTrainerSubA)
+    if (this.subdivTrainerEnabled && !this.polyrhythmMode) {
+      this.setSubdivision(this.subdivTrainerStages[0].subdivision)
     }
 
-    if (this.tempoTrainerEnabled) {
+    if (this.tempoTrainerEnabled && !this.polyrhythmMode) {
       this.bpm = this.tempoStartBpm
       this._onBpmChange?.(this.bpm)
     }
@@ -199,23 +213,18 @@ export default class AudioEngine {
       this._polyBeat2 = 0
       this._polyCycleStart = this.ctx.currentTime + 0.05
     }
-    if (this.grooveMode) {
-      this._grooveSlot = 0
-      this._grooveMeasure = 0
-      this._countInRemaining = this.countInBars
-      this._grooveCountInBeat = 0
-    }
     this._scheduler()
     this._timerId = setInterval(() => this._scheduler(), LOOKAHEAD_MS)
     this._onStateChange?.(true)
   }
 
   stop() {
-    if (!this.isPlaying) return
+    const wasPlaying = this.isPlaying
     this.isPlaying = false
     clearInterval(this._timerId)
     this._timerId = null
-    this._onStateChange?.(false)
+    this._clearVisualTimers()
+    if (wasPlaying) this._onStateChange?.(false)
   }
 
   toggle() {
@@ -224,7 +233,7 @@ export default class AudioEngine {
   }
 
   setBpm(bpm) {
-    this.bpm = Math.max(MIN_BPM, Math.min(EXTENDED_MAX_BPM, Math.round(bpm)))
+    this.bpm = clampBpm(bpm)
     this._onBpmChange?.(this.bpm)
   }
 
@@ -252,7 +261,6 @@ export default class AudioEngine {
 
   setBeatsPerBar(beatsPerBar) {
     this.beatsPerBar = beatsPerBar
-    this.accents = buildDefaultAccents(beatsPerBar)
     this.subdivisionAccents = buildDefaultSubdivisionAccents(beatsPerBar, this.subdivision)
   }
 
@@ -261,20 +269,9 @@ export default class AudioEngine {
     this.subdivisionAccents = buildDefaultSubdivisionAccents(this.beatsPerBar, type)
   }
 
-  setAccent(beatIndex, level) {
-    if (beatIndex >= 0 && beatIndex < this.accents.length) {
-      this.accents[beatIndex] = level
-    }
-  }
-
-  cycleAccent(beatIndex) {
-    this.accents[beatIndex] = cycleAccentLevel(this.accents[beatIndex])
-    return this.accents[beatIndex]
-  }
-
   setSubdivisionAccent(index, level) {
     if (index >= 0 && index < this.subdivisionAccents.length) {
-      this.subdivisionAccents[index] = level
+      this.subdivisionAccents[index] = normalizeAccentLevel(level)
     }
   }
 
@@ -285,48 +282,140 @@ export default class AudioEngine {
     }
   }
 
+  cycleBeatAccent(beatIndex) {
+    const startIndex = beatIndex * this.subdivision
+    if (
+      !Number.isInteger(beatIndex)
+      || beatIndex < 0
+      || startIndex >= this.subdivisionAccents.length
+    ) {
+      return undefined
+    }
+
+    const currentLevel = normalizeAccentLevel(this.subdivisionAccents[startIndex])
+    const nextLevel = cycleAccentLevel(currentLevel)
+    const endIndex = Math.min(startIndex + this.subdivision, this.subdivisionAccents.length)
+
+    if (nextLevel === 'OFF') {
+      // Muting from the orbit silences the complete beat, including subdivisions.
+      this.subdivisionAccents.fill('OFF', startIndex, endIndex)
+    } else if (currentLevel === 'OFF') {
+      // Bring a muted beat back as a normal sounding beat. A following tap can
+      // then accent its main click while keeping the subdivisions distinct.
+      this.subdivisionAccents.fill('ON', startIndex, endIndex)
+    } else {
+      // On and Accent remain main-click controls so subdivisions keep their
+      // quieter sound and any detailed pattern edits made in the Rhythm sheet.
+      this.subdivisionAccents[startIndex] = nextLevel
+    }
+
+    return nextLevel
+  }
+
   // Gap training config
   setGapTraining(enabled, clickBars, silentBars) {
+    const changed = this.gapEnabled !== enabled
+      || (clickBars !== undefined && this.gapClickBars !== clickBars)
+      || (silentBars !== undefined && this.gapSilentBars !== silentBars)
+
     this.gapEnabled = enabled
     if (clickBars !== undefined) this.gapClickBars = clickBars
     if (silentBars !== undefined) this.gapSilentBars = silentBars
+
+    if (changed) {
+      this._gapBarCount = 0
+      this._inGap = false
+      this._onGapChange?.(false)
+    }
   }
 
   // Tempo trainer config
   setTempoTrainer(enabled, startBpm, targetBpm, increment, everyBars) {
+    const wasEnabled = this.tempoTrainerEnabled
+    const configChanged = (startBpm !== undefined && this.tempoStartBpm !== startBpm)
+      || (targetBpm !== undefined && this.tempoTargetBpm !== targetBpm)
+      || (increment !== undefined && this.tempoIncrement !== increment)
+      || (everyBars !== undefined && this.tempoEveryBars !== everyBars)
+
     this.tempoTrainerEnabled = enabled
-    if (startBpm !== undefined) this.tempoStartBpm = startBpm
-    if (targetBpm !== undefined) this.tempoTargetBpm = targetBpm
+    if (startBpm !== undefined) this.tempoStartBpm = clampBpm(startBpm)
+    if (targetBpm !== undefined) this.tempoTargetBpm = clampBpm(targetBpm)
     if (increment !== undefined) this.tempoIncrement = increment
     if (everyBars !== undefined) this.tempoEveryBars = everyBars
+
+    if (!enabled) {
+      this._tempoBarCount = 0
+      this._tempoReached = false
+      this._tempoPendingActivation = false
+      return
+    }
+
+    if (!wasEnabled || configChanged) {
+      this._tempoBarCount = 0
+      this._tempoReached = false
+
+      if (this.isPlaying && !this.polyrhythmMode) {
+        this._tempoPendingActivation = true
+      } else if (!this.polyrhythmMode) {
+        this._tempoPendingActivation = false
+        this.bpm = this.tempoStartBpm
+        this._onBpmChange?.(this.bpm)
+      }
+    }
   }
 
   // Subdivision trainer config
-  setSubdivisionTrainer(enabled, subA, barsA, subB, barsB) {
+  setSubdivisionTrainer(enabled, stages) {
+    const wasEnabled = this.subdivTrainerEnabled
     this.subdivTrainerEnabled = enabled
-    if (subA !== undefined) this.subdivTrainerSubA = subA
-    if (barsA !== undefined) this.subdivTrainerBarsA = barsA
-    if (subB !== undefined) this.subdivTrainerSubB = subB
-    if (barsB !== undefined) this.subdivTrainerBarsB = barsB
-    this._subdivTrainerBarCount = 0
-    this._subdivTrainerPhase = 'A'
-    if (enabled) {
-      this.setSubdivision(this.subdivTrainerSubA)
+    if (stages !== undefined) {
+      this.subdivTrainerStages = normalizeSubdivisionTrainerStages(stages)
+    }
+
+    if (!enabled) {
+      this._subdivTrainerPendingActivation = false
+      this._subdivTrainerConfigDirty = false
+      return
+    }
+
+    if (!wasEnabled || !this.isPlaying) {
+      this._subdivTrainerBarCount = 0
+      this._subdivTrainerStageIndex = 0
+      this._subdivTrainerConfigDirty = false
+
+      if (this.isPlaying) {
+        this._subdivTrainerPendingActivation = true
+      } else {
+        this._subdivTrainerPendingActivation = false
+        this.setSubdivision(this.subdivTrainerStages[0].subdivision)
+      }
     } else {
-      this.setSubdivision(this.subdivTrainerSubA)
+      this._subdivTrainerConfigDirty = true
     }
   }
 
   // Polyrhythm config
   setPolyrhythmMode(enabled) {
+    if (this.polyrhythmMode === enabled) return
     if (this.isPlaying) this.stop()
     this.polyrhythmMode = enabled
-    if (enabled) {
-      this.grooveMode = false
-      this.gapEnabled = false
-      this.tempoTrainerEnabled = false
-      this.subdivTrainerEnabled = false
-      this._onGapChange?.(false)
+    this._gapBarCount = 0
+    this._inGap = false
+    this._onGapChange?.(false)
+
+    if (!enabled) {
+      if (this.tempoTrainerEnabled) {
+        this._tempoBarCount = 0
+        this._tempoReached = false
+        this._tempoPendingActivation = false
+        this.bpm = this.tempoStartBpm
+        this._onBpmChange?.(this.bpm)
+      }
+      if (this.subdivTrainerEnabled) {
+        this._subdivTrainerBarCount = 0
+        this._subdivTrainerStageIndex = 0
+        this.setSubdivision(this.subdivTrainerStages[0].subdivision)
+      }
     }
   }
 
@@ -342,8 +431,8 @@ export default class AudioEngine {
     this.polyAccents2 = buildDefaultPolyAccents(this.polyRhythm2)
   }
 
-  setPolyAccents1(accents) { this.polyAccents1 = accents }
-  setPolyAccents2(accents) { this.polyAccents2 = accents }
+  setPolyAccents1(accents) { this.polyAccents1 = accents.map(normalizeAccentLevel) }
+  setPolyAccents2(accents) { this.polyAccents2 = accents.map(normalizeAccentLevel) }
 
   cyclePolyAccent(rhythmIndex, beatIndex) {
     const arr = rhythmIndex === 1 ? this.polyAccents1 : this.polyAccents2
@@ -356,38 +445,23 @@ export default class AudioEngine {
   setPolySoundIndex1(index) { this.polySoundIndex1 = index }
   setPolySoundIndex2(index) { this.polySoundIndex2 = index }
 
-  // Groove mode config
-  setGrooveMode(enabled) {
-    // Idempotent: re-asserting the same mode must not stop playback. Callers include
-    // a React effect that can re-fire on unrelated renders.
-    if (this.grooveMode === enabled) return
-    if (this.isPlaying) this.stop()
-    this.grooveMode = enabled
-    if (enabled) {
-      this.polyrhythmMode = false
-      this.gapEnabled = false
-      this.tempoTrainerEnabled = false
-      this.subdivTrainerEnabled = false
-      this._onGapChange?.(false)
-    }
+  _notifyAtAudioTime(time, callback) {
+    const delayMs = Math.max(0, (time - this.ctx.currentTime) * 1000)
+    const timerId = setTimeout(() => {
+      this._visualTimerIds.delete(timerId)
+      if (this.isPlaying) callback()
+    }, delayMs)
+    this._visualTimerIds.add(timerId)
   }
 
-  // Stores the pattern for the groove scheduler. Intentionally does NOT touch
-  // this.beatsPerBar — the groove scheduler reads beats-per-bar directly from
-  // pattern.timeSignature, and the metronome's beatsPerBar is independent.
-  setGroovePattern(pattern) {
-    this.groovePattern = pattern
-  }
-
-  setCountIn(bars) {
-    this.countInBars = Math.max(0, Math.min(4, Math.round(bars)))
+  _clearVisualTimers() {
+    this._visualTimerIds.forEach((timerId) => clearTimeout(timerId))
+    this._visualTimerIds.clear()
   }
 
   // --- Scheduler ---
   _scheduler() {
-    if (this.grooveMode) {
-      this._schedulerGroove()
-    } else if (this.polyrhythmMode) {
+    if (this.polyrhythmMode) {
       this._schedulerPoly()
     } else {
       this._schedulerStandard()
@@ -449,116 +523,39 @@ export default class AudioEngine {
   _scheduleNotePoly(time, rhythmIndex, beatIndex) {
     const soundIdx = rhythmIndex === 1 ? this.polySoundIndex1 : this.polySoundIndex2
     const accentArr = rhythmIndex === 1 ? this.polyAccents1 : this.polyAccents2
-    const accentLevel = accentArr[beatIndex] || 'ON'
+    const accentLevel = normalizeAccentLevel(accentArr[beatIndex])
     const vol = ACCENT_LEVELS[accentLevel]?.volume ?? 0.4
+    const isCycleDownbeat = beatIndex === 0
 
     if (vol > 0) {
-      this._playSound(this.soundBank.getBuffer(soundIdx), time, vol)
+      const buffer = isCycleDownbeat
+        ? this.soundBank.getDownbeatBuffer(soundIdx)
+        : this.soundBank.getBuffer(soundIdx)
+      this._playSound(buffer, time, vol)
     }
 
-    this._onBeat?.({
+    const event = {
       beat: beatIndex,
       subdivision: 0,
       rhythm: rhythmIndex,
       bar: 1,
       time,
       accent: accentLevel,
+      downbeat: isCycleDownbeat,
       inGap: false,
-    })
-  }
-
-  _schedulerGroove() {
-    if (!this.groovePattern) return
-    while (this._nextNoteTime < this.ctx.currentTime + SCHEDULE_AHEAD_S) {
-      this._scheduleGrooveSlot(this._nextNoteTime)
-      this._advanceGrooveSlot()
     }
-  }
-
-  _scheduleGrooveSlot(baseTime) {
-    const pattern = this.groovePattern
-    if (!pattern) return
-    const slotsPerMeasure = pattern.timeDivision
-    const beatsPerBar = pattern.timeSignature.numBeats
-    const slotsPerBeat = slotsPerMeasure / beatsPerBar
-
-    if (this._countInRemaining > 0) {
-      // Count-in: fire a click on beat boundaries using the metronome click voice
-      if (this._grooveSlot % slotsPerBeat === 0) {
-        const isDownbeat = this._grooveSlot === 0
-        const vol = isDownbeat ? 0.6 : 0.35
-        const buffer = this.soundBank?.getBuffer(this.soundIndex)
-        if (buffer) this._playSound(buffer, baseTime, vol)
-        this._onBeat?.({
-          beat: this._grooveSlot / slotsPerBeat,
-          subdivision: 0,
-          slot: this._grooveSlot,
-          bar: this._currentBar,
-          time: baseTime,
-          accent: isDownbeat ? 'LOUD' : 'ON',
-          inGap: false,
-          countIn: true,
-          countInBarsLeft: this._countInRemaining,
-        })
-      }
-      return
-    }
-
-    for (const voice of GROOVE_VOICES) {
-      const arr = pattern.voices[voice]
-      if (!arr) continue
-      const sym = arr[this._grooveSlot]
-      if (!sym || sym === '-') continue
-      const meta = ARTICULATION_META[sym]
-      const volume = meta?.volume ?? 0
-      if (volume <= 0) continue
-      const buffer = this.drumKit?.getBuffer(voice, sym)
-      if (!buffer) continue
-      this._playSound(buffer, baseTime, volume)
-    }
-
-    this._onBeat?.({
-      beat: Math.floor(this._grooveSlot / slotsPerBeat),
-      subdivision: this._grooveSlot % slotsPerBeat,
-      slot: this._grooveSlot,
-      bar: this._currentBar,
-      time: baseTime,
-      accent: 'ON',
-      inGap: false,
-      countIn: false,
-    })
-  }
-
-  _advanceGrooveSlot() {
-    const pattern = this.groovePattern
-    if (!pattern) return
-    const slotsPerMeasure = pattern.timeDivision
-    const beatsPerBar = pattern.timeSignature.numBeats
-    const slotsPerBeat = slotsPerMeasure / beatsPerBar
-    const secondsPerBeat = 60 / this.bpm
-    const secondsPerSlot = secondsPerBeat / slotsPerBeat
-    this._nextNoteTime += secondsPerSlot
-
-    this._grooveSlot++
-    if (this._grooveSlot >= slotsPerMeasure) {
-      this._grooveSlot = 0
-      this._grooveMeasure = (this._grooveMeasure + 1) % (pattern.numberOfMeasures || 1)
-      this._currentBar++
-      this._onBarChange?.(this._currentBar)
-      if (this._countInRemaining > 0) {
-        this._countInRemaining--
-      }
-    }
+    this._notifyAtAudioTime(time, () => this._onBeat?.(event))
   }
 
   _scheduleNote(time) {
     const beatIndex = this._currentBeat
     const subIndex = this._currentSubdivision
     const isMainBeat = subIndex === 0
+    const isCycleDownbeat = beatIndex === 0 && isMainBeat
 
     // Look up per-click accent from subdivisionAccents
     const flatIndex = beatIndex * this.subdivision + subIndex
-    const accentLevel = this.subdivisionAccents[flatIndex] || 'ON'
+    const accentLevel = normalizeAccentLevel(this.subdivisionAccents[flatIndex])
     const accentVolume = ACCENT_LEVELS[accentLevel]?.volume ?? 0.5
 
     // Determine if in gap
@@ -567,21 +564,26 @@ export default class AudioEngine {
 
     if (shouldPlay) {
       if (isMainBeat) {
-        this._playSound(this.soundBank.getBuffer(this.soundIndex), time, accentVolume)
+        const buffer = isCycleDownbeat
+          ? this.soundBank.getDownbeatBuffer(this.soundIndex)
+          : this.soundBank.getBuffer(this.soundIndex)
+        this._playSound(buffer, time, accentVolume)
       } else {
         this._playSound(this.soundBank.getSubdivisionBuffer(this.soundIndex), time, accentVolume)
       }
     }
 
     // Notify UI of every click (not just main beats)
-    this._onBeat?.({
+    const event = {
       beat: beatIndex,
       subdivision: subIndex,
       bar: this._currentBar,
       time,
       accent: accentLevel,
+      downbeat: isCycleDownbeat,
       inGap,
-    })
+    }
+    this._notifyAtAudioTime(time, () => this._onBeat?.(event))
   }
 
   _playSound(buffer, time, volume) {
@@ -607,14 +609,15 @@ export default class AudioEngine {
 
       if (this._currentBeat >= this.beatsPerBar) {
         this._currentBeat = 0
-        this._handleBarBoundary()
+        this._handleBarBoundary(this._nextNoteTime)
       }
     }
   }
 
-  _handleBarBoundary() {
+  _handleBarBoundary(boundaryTime) {
     this._currentBar++
-    this._onBarChange?.(this._currentBar)
+    const currentBar = this._currentBar
+    this._notifyAtAudioTime(boundaryTime, () => this._onBarChange?.(currentBar))
 
     // Gap training logic
     if (this.gapEnabled) {
@@ -622,34 +625,56 @@ export default class AudioEngine {
       if (!this._inGap && this._gapBarCount >= this.gapClickBars) {
         this._inGap = true
         this._gapBarCount = 0
-        this._onGapChange?.(true)
+        this._notifyAtAudioTime(boundaryTime, () => this._onGapChange?.(true))
       } else if (this._inGap && this._gapBarCount >= this.gapSilentBars) {
         this._inGap = false
         this._gapBarCount = 0
-        this._onGapChange?.(false)
+        this._notifyAtAudioTime(boundaryTime, () => this._onGapChange?.(false))
       }
     }
 
     // Subdivision trainer logic
     if (this.subdivTrainerEnabled) {
-      this._subdivTrainerBarCount++
-      const limit = this._subdivTrainerPhase === 'A'
-        ? this.subdivTrainerBarsA
-        : this.subdivTrainerBarsB
-      if (this._subdivTrainerBarCount >= limit) {
+      if (this._subdivTrainerPendingActivation) {
         this._subdivTrainerBarCount = 0
-        if (this._subdivTrainerPhase === 'A') {
-          this._subdivTrainerPhase = 'B'
-          this.setSubdivision(this.subdivTrainerSubB)
-        } else {
-          this._subdivTrainerPhase = 'A'
-          this.setSubdivision(this.subdivTrainerSubA)
+        this._subdivTrainerStageIndex = 0
+        this._subdivTrainerPendingActivation = false
+        this._subdivTrainerConfigDirty = false
+        this.setSubdivision(this.subdivTrainerStages[0].subdivision)
+      } else if (this._subdivTrainerStageIndex >= this.subdivTrainerStages.length) {
+        this._subdivTrainerBarCount = 0
+        this._subdivTrainerStageIndex = 0
+        this._subdivTrainerConfigDirty = false
+        this.setSubdivision(this.subdivTrainerStages[0].subdivision)
+      } else {
+        this._subdivTrainerBarCount++
+        const stage = this.subdivTrainerStages[this._subdivTrainerStageIndex]
+
+        if (this._subdivTrainerBarCount >= stage.bars) {
+          this._subdivTrainerBarCount = 0
+          this._subdivTrainerStageIndex = (
+            this._subdivTrainerStageIndex + 1
+          ) % this.subdivTrainerStages.length
+          this._subdivTrainerConfigDirty = false
+          this.setSubdivision(
+            this.subdivTrainerStages[this._subdivTrainerStageIndex].subdivision,
+          )
+        } else if (this._subdivTrainerConfigDirty) {
+          this._subdivTrainerConfigDirty = false
+          this.setSubdivision(stage.subdivision)
         }
       }
     }
 
     // Tempo trainer logic
-    if (this.tempoTrainerEnabled && !this._tempoReached) {
+    if (this.tempoTrainerEnabled && this._tempoPendingActivation) {
+      this._tempoPendingActivation = false
+      this._tempoBarCount = 0
+      this._tempoReached = false
+      this.bpm = this.tempoStartBpm
+      const bpm = this.bpm
+      this._notifyAtAudioTime(boundaryTime, () => this._onBpmChange?.(bpm))
+    } else if (this.tempoTrainerEnabled && !this._tempoReached) {
       this._tempoBarCount++
       if (this._tempoBarCount >= this.tempoEveryBars) {
         this._tempoBarCount = 0
@@ -661,7 +686,8 @@ export default class AudioEngine {
           this.bpm = Math.max(this.bpm - this.tempoIncrement, this.tempoTargetBpm)
         }
 
-        this._onBpmChange?.(this.bpm)
+        const bpm = this.bpm
+        this._notifyAtAudioTime(boundaryTime, () => this._onBpmChange?.(bpm))
 
         if (this.bpm === this.tempoTargetBpm) {
           this._tempoReached = true
@@ -679,7 +705,6 @@ export default class AudioEngine {
       subdivision: this.subdivision,
       volume: this.volume,
       soundIndex: this.soundIndex,
-      accents: [...this.accents],
       subdivisionAccents: [...this.subdivisionAccents],
       gapEnabled: this.gapEnabled,
       gapClickBars: this.gapClickBars,
@@ -690,11 +715,9 @@ export default class AudioEngine {
       tempoIncrement: this.tempoIncrement,
       tempoEveryBars: this.tempoEveryBars,
       subdivTrainerEnabled: this.subdivTrainerEnabled,
-      subdivTrainerSubA: this.subdivTrainerSubA,
-      subdivTrainerBarsA: this.subdivTrainerBarsA,
-      subdivTrainerSubB: this.subdivTrainerSubB,
-      subdivTrainerBarsB: this.subdivTrainerBarsB,
-      subdivTrainerPhase: this._subdivTrainerPhase,
+      subdivTrainerStages: this.subdivTrainerStages.map((stage) => ({ ...stage })),
+      subdivTrainerStageIndex: this._subdivTrainerStageIndex,
+      subdivTrainerBarCount: this._subdivTrainerBarCount,
       polyrhythmMode: this.polyrhythmMode,
       polyRhythm1: this.polyRhythm1,
       polyRhythm2: this.polyRhythm2,
@@ -702,8 +725,6 @@ export default class AudioEngine {
       polySoundIndex2: this.polySoundIndex2,
       polyAccents1: [...this.polyAccents1],
       polyAccents2: [...this.polyAccents2],
-      grooveMode: this.grooveMode,
-      countInBars: this.countInBars,
     }
   }
 }

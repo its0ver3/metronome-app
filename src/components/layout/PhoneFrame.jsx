@@ -1,14 +1,37 @@
-export default function PhoneFrame({ children }) {
-  const logoSrc = `${import.meta.env.BASE_URL}logo.png`
+import {
+  activeBrand,
+  getBrandCssProperties,
+  resolveBrandAsset,
+} from '../../brand'
+
+export default function PhoneFrame({ children, brand = activeBrand }) {
+  const logoSrc = resolveBrandAsset(brand.logo.src)
+  const brandProperties = getBrandCssProperties(brand, import.meta.env.BASE_URL)
 
   return (
-    <div className="min-h-full flex items-center justify-center p-4">
-      <div className="w-full max-w-[430px] h-[calc(100vh-2rem)] max-h-[932px] brick-texture rounded-2xl border border-[#3A3A3A] overflow-hidden flex flex-col relative">
-        {/* Header */}
-        <div className="flex flex-col items-center justify-center py-2 border-b border-secondary/50">
-          <img src={logoSrc} alt="Drums Only" className="h-28 rounded" />
-          <p className="text-xs text-white/60 tracking-wide" style={{ fontFamily: "'Dancing Script', cursive", fontWeight: 400 }}>by drummers for drummers</p>
-        </div>
+    <div
+      className="app-viewport"
+      data-brand={brand.id}
+      style={{
+        ...brandProperties,
+        backgroundColor: 'var(--brand-color-canvas)',
+        color: 'var(--brand-color-ink)',
+        fontFamily: 'var(--brand-font-body)',
+      }}
+    >
+      <div
+        className="app-phone-frame"
+        style={{
+          backgroundColor: 'var(--brand-color-canvas)',
+          borderColor: 'var(--brand-color-border)',
+        }}
+      >
+        <header
+          className="app-brand-header"
+          style={{ borderBottomColor: 'color-mix(in srgb, var(--brand-color-surface) 50%, transparent)' }}
+        >
+          <img src={logoSrc} alt={brand.logo.alt} className="app-brand-logo" />
+        </header>
         {children}
       </div>
     </div>

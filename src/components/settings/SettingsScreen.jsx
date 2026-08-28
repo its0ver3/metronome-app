@@ -9,16 +9,24 @@ export default function SettingsScreen({
   onVolumeChange,
 }) {
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
-      <h2 className="font-heading text-3xl text-dark">Settings</h2>
+    <section className="pulse-feature-screen pulse-settings-screen" aria-labelledby="settings-title">
+      <div className="pulse-feature-scroll">
+        <header className="pulse-feature-header">
+          <span>Sound & feel</span>
+          <h1 id="settings-title">Settings</h1>
+          <p>Shape the click so it sits comfortably in your practice.</p>
+        </header>
 
-      <VolumeControl volume={volume} onChange={onVolumeChange} />
+        <div className="pulse-settings-stack">
+          <VolumeControl volume={volume} onChange={onVolumeChange} />
 
-      <SoundSelector
-        selectedIndex={soundIndex}
-        onSelect={onSoundChange}
-        onPreview={onSoundPreview}
-      />
-    </div>
+          <SoundSelector
+            selectedIndex={soundIndex}
+            onSelect={onSoundChange}
+            onPreview={onSoundPreview}
+          />
+        </div>
+      </div>
+    </section>
   )
 }

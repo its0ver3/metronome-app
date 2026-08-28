@@ -1,4 +1,5 @@
 import { SOUND_NAMES } from '../../audio/constants'
+import { useId } from 'react'
 
 export default function PolyrhythmPickers({
   rhythm1,
@@ -34,17 +35,21 @@ export default function PolyrhythmPickers({
 }
 
 function RhythmRow({ label, rhythm, soundIndex, onRhythmChange, onSoundChange, onSoundPreview }) {
+  const rhythmId = useId()
+  const soundId = useId()
+
   return (
     <div className="flex gap-3 items-end">
       <div className="flex flex-col gap-1">
-        <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide">
+        <label htmlFor={rhythmId} className="text-xs text-dark/50 font-semibold uppercase tracking-wide">
           {label}
-        </span>
+        </label>
         <div className="relative">
           <select
+            id={rhythmId}
             value={rhythm}
-            onChange={(e) => onRhythmChange(parseInt(e.target.value))}
-            className="h-10 px-3 pr-8 rounded-lg bg-secondary text-dark font-semibold text-sm appearance-none cursor-pointer w-full"
+            onChange={(e) => onRhythmChange(parseInt(e.target.value, 10))}
+            className="h-11 px-3 pr-8 rounded-lg bg-secondary text-dark font-semibold text-sm appearance-none cursor-pointer w-full"
           >
             {Array.from({ length: 16 }, (_, i) => i + 1).map((n) => (
               <option key={n} value={n}>{n}</option>
@@ -56,18 +61,19 @@ function RhythmRow({ label, rhythm, soundIndex, onRhythmChange, onSoundChange, o
         </div>
       </div>
       <div className="flex flex-col gap-1 flex-1">
-        <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide">
+        <label htmlFor={soundId} className="text-xs text-dark/50 font-semibold uppercase tracking-wide">
           Sound
-        </span>
+        </label>
         <div className="relative">
           <select
+            id={soundId}
             value={soundIndex}
             onChange={(e) => {
-              const idx = parseInt(e.target.value)
+              const idx = parseInt(e.target.value, 10)
               onSoundChange(idx)
               onSoundPreview?.(idx)
             }}
-            className="h-10 px-3 pr-8 rounded-lg bg-secondary text-dark font-semibold text-sm appearance-none cursor-pointer w-full"
+            className="h-11 px-3 pr-8 rounded-lg bg-secondary text-dark font-semibold text-sm appearance-none cursor-pointer w-full"
           >
             {SOUND_NAMES.map((name, i) => (
               <option key={i} value={i}>{name}</option>

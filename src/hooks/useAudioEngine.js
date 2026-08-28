@@ -1,130 +1,111 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import AudioEngine from '../audio/AudioEngine'
+import { restoreEngineSettings } from '../audio/engineSettings'
 
-export default function useAudioEngine() {
-  const engineRef = useRef(null)
+export default function useAudioEngine(initialSettings) {
+  const [engine] = useState(() => restoreEngineSettings(new AudioEngine(), initialSettings))
   const [isPlaying, setIsPlaying] = useState(false)
-  const [bpm, setBpm] = useState(120)
+  const [bpm, setBpm] = useState(engine.bpm)
   const [currentBeat, setCurrentBeat] = useState(-1)
   const [currentSubdivision, setCurrentSubdivision] = useState(-1)
   const [currentBar, setCurrentBar] = useState(1)
   const [inGap, setInGap] = useState(false)
-  const [beatAccent, setBeatAccent] = useState('ON')
   const [polyBeat1, setPolyBeat1] = useState(-1)
   const [polyBeat2, setPolyBeat2] = useState(-1)
-  const [grooveSlot, setGrooveSlot] = useState(-1)
-  const [grooveInCountIn, setGrooveInCountIn] = useState(false)
 
   useEffect(() => {
-    const engine = new AudioEngine()
-    engineRef.current = engine
-
-    engine.onStateChange((playing) => setIsPlaying(playing))
+    engine.onStateChange((playing) => {
+      setIsPlaying(playing)
+      if (!playing) {
+        setPolyBeat1(-1)
+        setPolyBeat2(-1)
+      }
+    })
     engine.onBpmChange((newBpm) => setBpm(newBpm))
     engine.onBarChange((bar) => setCurrentBar(bar))
     engine.onGapChange((gap) => setInGap(gap))
-    engine.onBeat(({ beat, subdivision, accent, rhythm, slot, countIn }) => {
+    engine.onBeat(({ beat, subdivision, rhythm }) => {
       if (rhythm) {
         if (rhythm === 1) setPolyBeat1(beat)
         else setPolyBeat2(beat)
-      } else if (typeof slot === 'number') {
-        setGrooveSlot(slot)
-        setGrooveInCountIn(!!countIn)
-        setCurrentBeat(beat)
-        setCurrentSubdivision(subdivision)
       } else {
         setCurrentBeat(beat)
         setCurrentSubdivision(subdivision)
       }
-      setBeatAccent(accent)
     })
 
     return () => {
       engine.stop()
     }
-  }, [])
+  }, [engine])
 
-  const getEngine = useCallback(() => engineRef.current, [])
+  const getEngine = useCallback(() => engine, [engine])
 
-  const toggle = useCallback(() => engineRef.current?.toggle(), [])
-  const start = useCallback(() => engineRef.current?.start(), [])
-  const stop = useCallback(() => engineRef.current?.stop(), [])
+  const toggle = useCallback(() => engine.toggle(), [engine])
 
   const changeBpm = useCallback((newBpm) => {
-    engineRef.current?.setBpm(newBpm)
-  }, [])
+    engine.setBpm(newBpm)
+  }, [engine])
 
   const setVolume = useCallback((v) => {
-    engineRef.current?.setVolume(v)
-  }, [])
+    engine.setVolume(v)
+  }, [engine])
 
   const setSound = useCallback((index) => {
-    engineRef.current?.setSound(index)
-  }, [])
+    engine.setSound(index)
+  }, [engine])
 
   const setBeatsPerBar = useCallback((beats) => {
-    engineRef.current?.setBeatsPerBar(beats)
-  }, [])
+    engine.setBeatsPerBar(beats)
+  }, [engine])
 
   const setSubdivision = useCallback((type) => {
-    engineRef.current?.setSubdivision(type)
-  }, [])
-
-  const cycleAccent = useCallback((beatIndex) => {
-    return engineRef.current?.cycleAccent(beatIndex)
-  }, [])
+    engine.setSubdivision(type)
+  }, [engine])
 
   const cycleSubdivisionAccent = useCallback((index) => {
-    return engineRef.current?.cycleSubdivisionAccent(index)
-  }, [])
+    return engine.cycleSubdivisionAccent(index)
+  }, [engine])
+
+  const cycleBeatAccent = useCallback((beatIndex) => {
+    return engine.cycleBeatAccent(beatIndex)
+  }, [engine])
 
   const setGapTraining = useCallback((enabled, clickBars, silentBars) => {
-    engineRef.current?.setGapTraining(enabled, clickBars, silentBars)
-  }, [])
+    engine.setGapTraining(enabled, clickBars, silentBars)
+  }, [engine])
 
   const setTempoTrainer = useCallback((enabled, startBpm, targetBpm, increment, everyBars) => {
-    engineRef.current?.setTempoTrainer(enabled, startBpm, targetBpm, increment, everyBars)
-  }, [])
+    engine.setTempoTrainer(enabled, startBpm, targetBpm, increment, everyBars)
+  }, [engine])
 
-  const setSubdivisionTrainer = useCallback((enabled, subA, barsA, subB, barsB) => {
-    engineRef.current?.setSubdivisionTrainer(enabled, subA, barsA, subB, barsB)
-  }, [])
+  const setSubdivisionTrainer = useCallback((enabled, stages) => {
+    engine.setSubdivisionTrainer(enabled, stages)
+  }, [engine])
 
   const setPolyrhythmMode = useCallback((enabled) => {
-    engineRef.current?.setPolyrhythmMode(enabled)
-  }, [])
+    engine.setPolyrhythmMode(enabled)
+  }, [engine])
 
   const setPolyRhythm1 = useCallback((v) => {
-    engineRef.current?.setPolyRhythm1(v)
-  }, [])
+    engine.setPolyRhythm1(v)
+  }, [engine])
 
   const setPolyRhythm2 = useCallback((v) => {
-    engineRef.current?.setPolyRhythm2(v)
-  }, [])
+    engine.setPolyRhythm2(v)
+  }, [engine])
 
   const setPolySoundIndex1 = useCallback((i) => {
-    engineRef.current?.setPolySoundIndex1(i)
-  }, [])
+    engine.setPolySoundIndex1(i)
+  }, [engine])
 
   const setPolySoundIndex2 = useCallback((i) => {
-    engineRef.current?.setPolySoundIndex2(i)
-  }, [])
+    engine.setPolySoundIndex2(i)
+  }, [engine])
 
   const cyclePolyAccent = useCallback((rhythmIndex, beatIndex) => {
-    return engineRef.current?.cyclePolyAccent(rhythmIndex, beatIndex)
-  }, [])
-
-  const setGrooveMode = useCallback((enabled) => {
-    engineRef.current?.setGrooveMode(enabled)
-  }, [])
-
-  const setGroovePattern = useCallback((pattern) => {
-    engineRef.current?.setGroovePattern(pattern)
-  }, [])
-
-  const setCountIn = useCallback((bars) => {
-    engineRef.current?.setCountIn(bars)
-  }, [])
+    return engine.cyclePolyAccent(rhythmIndex, beatIndex)
+  }, [engine])
 
   return {
     engine: getEngine,
@@ -134,17 +115,14 @@ export default function useAudioEngine() {
     currentSubdivision,
     currentBar,
     inGap,
-    beatAccent,
     toggle,
-    start,
-    stop,
     changeBpm,
     setVolume,
     setSound,
     setBeatsPerBar,
     setSubdivision,
-    cycleAccent,
     cycleSubdivisionAccent,
+    cycleBeatAccent,
     setGapTraining,
     setTempoTrainer,
     setSubdivisionTrainer,
@@ -156,10 +134,5 @@ export default function useAudioEngine() {
     setPolySoundIndex1,
     setPolySoundIndex2,
     cyclePolyAccent,
-    grooveSlot,
-    grooveInCountIn,
-    setGrooveMode,
-    setGroovePattern,
-    setCountIn,
   }
 }

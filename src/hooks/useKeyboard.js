@@ -3,25 +3,40 @@ import { useEffect } from 'react'
 export default function useKeyboard({ onToggle, onBpmUp, onBpmDown, onTap }) {
   useEffect(() => {
     const handler = (e) => {
-      // Don't capture when typing in an input
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return
+      // Let focused controls handle their own keyboard interactions. This also
+      // avoids firing a global shortcut in addition to a button's native click.
+      if (
+        e.target?.closest?.(
+          'input, textarea, select, button, a, [contenteditable="true"], [role="button"], [role="slider"], [role="switch"]',
+        )
+      ) {
+        return
+      }
 
       switch (e.code) {
         case 'Space':
-          e.preventDefault()
-          onToggle()
+          if (typeof onToggle === 'function') {
+            e.preventDefault()
+            onToggle()
+          }
           break
         case 'ArrowUp':
-          e.preventDefault()
-          onBpmUp()
+          if (typeof onBpmUp === 'function') {
+            e.preventDefault()
+            onBpmUp()
+          }
           break
         case 'ArrowDown':
-          e.preventDefault()
-          onBpmDown()
+          if (typeof onBpmDown === 'function') {
+            e.preventDefault()
+            onBpmDown()
+          }
           break
         case 'KeyT':
-          e.preventDefault()
-          onTap()
+          if (typeof onTap === 'function') {
+            e.preventDefault()
+            onTap()
+          }
           break
       }
     }

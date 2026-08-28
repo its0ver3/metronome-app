@@ -1,4 +1,4 @@
-import { SOUND_NAMES } from './constants'
+import { SOUND_NAMES } from './constants.js'
 
 /**
  * Synthesizes click sounds directly using Web Audio API.
@@ -57,15 +57,31 @@ function synthesizeSounds(ctx) {
   ]
 }
 
+function synthesizeDownbeats(ctx) {
+  return [
+    // Brighter companions mark beat 1 without replacing the selected click voice.
+    createClickBuffer(ctx, 1500, 0.035, 'square'),
+    createClickBuffer(ctx, 900, 0.06, 'triangle'),
+    createClickBuffer(ctx, 1350, 0.055, 'sine', 0.35),
+    createClickBuffer(ctx, 810, 0.1, 'square', 0.05),
+    createClickBuffer(ctx, 8000, 0.065, 'noise'),
+    createClickBuffer(ctx, 1320, 0.07, 'sine'),
+    createClickBuffer(ctx, 660, 0.08, 'sine'),
+    createClickBuffer(ctx, 2500, 0.026, 'noise', 0.2),
+  ]
+}
+
 export default class SoundBank {
   constructor(audioContext) {
     this.ctx = audioContext
     this.buffers = []
+    this.downbeatBuffers = []
     this.ready = false
   }
 
   async init() {
     this.buffers = synthesizeSounds(this.ctx)
+    this.downbeatBuffers = synthesizeDownbeats(this.ctx)
     this.ready = true
   }
 
@@ -73,17 +89,11 @@ export default class SoundBank {
     return this.buffers[index] || this.buffers[0]
   }
 
-  getAccentBuffer(index) {
-    // Return a higher-pitched version for accent beats
-    // We just use the same buffer — volume differentiation handles accents
-    return this.getBuffer(index)
-  }
-
   getSubdivisionBuffer(index) {
     return this.getBuffer(index)
   }
 
-  get count() {
-    return this.buffers.length
+  getDownbeatBuffer(index) {
+    return this.downbeatBuffers[index] || this.getBuffer(index)
   }
 }

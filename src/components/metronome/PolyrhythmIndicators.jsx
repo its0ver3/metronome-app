@@ -28,7 +28,7 @@ export default function PolyrhythmIndicators({
         activeBeat={polyBeat2}
         accents={polyAccents2}
         isPlaying={isPlaying}
-        fillColor="#3b82f6"
+        fillColor="var(--pulse-rhythm-two-color, var(--brand-color-rhythm-two, #3b82f6))"
         ringColor="ring-blue-500"
         onCycleAccent={(beatIndex) => onCyclePolyAccent(2, beatIndex)}
       />
@@ -53,10 +53,12 @@ function PolyRow({ label, count, activeBeat, accents, isPlaying, fillColor, ring
               key={i}
               level={level}
               size={20}
+              hitSize={44}
               isActive={isActive}
               isDownbeat={isDownbeat}
               fillColor={fillColor}
               activeRingClass={ringColor}
+              accessibleLabel={`${label === 'R1' ? 'Rhythm 1' : 'Rhythm 2'}, beat ${i + 1} accent: ${level.toLowerCase()}. Activate to change.`}
               onClick={() => onCycleAccent(i)}
             />
           )

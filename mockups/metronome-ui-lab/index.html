@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Metronome UI Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="lab-shell">
+      <header class="lab-header">
+        <div>
+          <p class="lab-kicker">Independent concept study</p>
+          <h1>Metronome UI Lab</h1>
+        </div>
+        <p class="lab-intro">Five mobile directions. One shared metronome state.</p>
+      </header>
+
+      <nav class="variant-switcher" aria-label="Choose a design variation">
+        <button type="button" data-variant="0" aria-pressed="true"><span>01</span> Pulse Core</button>
+        <button type="button" data-variant="1" aria-pressed="false"><span>02</span> Beat Tide</button>
+        <button type="button" data-variant="2" aria-pressed="false"><span>03</span> Rhythm Loom</button>
+        <button type="button" data-variant="3" aria-pressed="false"><span>04</span> Kinetic Poster</button>
+        <button type="button" data-variant="4" aria-pressed="false"><span>05</span> Soft Utility</button>
+      </nav>
+
+      <div class="variant-stepper" aria-label="Step through design variations">
+        <button id="previous-concept" type="button" aria-label="Previous design variation">← Previous</button>
+        <p aria-live="polite">
+          <span id="variant-position">1 of 5</span>
+          <strong id="variant-short-name">Pulse Core</strong>
+        </p>
+        <button id="next-concept" type="button" aria-label="Next design variation">Next →</button>
+      </div>
+
+      <section class="concept-context" aria-live="polite">
+        <div>
+          <p id="concept-number">Concept 01</p>
+          <h2 id="concept-name">Pulse Core</h2>
+        </div>
+        <p id="concept-description">Tempo and beat movement form one clear performance instrument.</p>
+      </section>
+
+      <div class="device-stage">
+        <div class="device-frame">
+          <main
+            id="metronome-stage"
+            tabindex="0"
+            aria-label="Interactive metronome concept"
+            aria-keyshortcuts="Space ArrowLeft ArrowRight T"
+          ></main>
+        </div>
+      </div>
+
+      <p class="lab-hint">State carries between concepts so you can compare the same setup back to back.</p>
+    </div>
+  </body>
+</html>

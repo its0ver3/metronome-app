@@ -1,34 +1,21 @@
-import { useState } from 'react'
-import { MAX_BPM, EXTENDED_MAX_BPM } from '../../audio/constants'
+import { MIN_BPM, MAX_BPM } from '../../audio/constants'
 
-export default function BpmControls({ bpm, onBpmChange, disabled }) {
-  const [extendedRange, setExtendedRange] = useState(false)
-  const currentMax = extendedRange ? EXTENDED_MAX_BPM : MAX_BPM
-
+export default function BpmControls({ bpm, onBpmChange, disabled, className = '' }) {
   return (
-    <div className={`flex flex-col items-center gap-4 w-full px-6 ${disabled ? 'opacity-40 pointer-events-none' : ''}`}>
-      <div className="flex items-center gap-3 w-full">
+    <div className={`flex flex-col items-center gap-4 w-full px-6 ${className} ${disabled ? 'opacity-40' : ''}`}>
+      <div className="flex items-center w-full">
         <input
           type="range"
-          min={20}
-          max={currentMax}
+          min={MIN_BPM}
+          max={MAX_BPM}
+          step={1}
           value={bpm}
-          onChange={(e) => onBpmChange(parseInt(e.target.value))}
+          onChange={(e) => onBpmChange(parseInt(e.target.value, 10))}
           disabled={disabled}
-          className="flex-1 h-2 rounded-full appearance-none cursor-pointer accent-primary bg-secondary"
+          aria-label="Tempo"
+          aria-valuetext={`${bpm} beats per minute`}
+          className="flex-1 h-11 rounded-full appearance-none cursor-pointer disabled:cursor-not-allowed accent-primary bg-secondary"
         />
-        <button
-          onClick={() => setExtendedRange(!extendedRange)}
-          disabled={disabled}
-          className={`text-xs font-bold px-2.5 py-1 rounded-full transition-all whitespace-nowrap border ${
-            extendedRange
-              ? 'border-primary text-primary shadow-[0_0_8px_rgba(245,240,232,0.3)]'
-              : 'border-dark/20 text-dark/40'
-          }`}
-          title={extendedRange ? 'Normal range (20–240)' : 'Extended range (20–600)'}
-        >
-          600
-        </button>
       </div>
     </div>
   )

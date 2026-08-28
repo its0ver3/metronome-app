@@ -17,8 +17,17 @@ export default function BpmDisplay({ bpm, onBpmChange, disabled }) {
     setEditing(false)
   }
 
+  const handleInputKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      handleSubmit()
+    } else if (event.key === 'Escape') {
+      setEditing(false)
+    }
+  }
+
   return (
-    <div className="text-center" onClick={!editing ? handleClick : undefined}>
+    <div className="text-center">
       {editing ? (
         <input
           ref={inputRef}
@@ -26,15 +35,22 @@ export default function BpmDisplay({ bpm, onBpmChange, disabled }) {
           defaultValue={bpm}
           min={MIN_BPM}
           max={MAX_BPM}
+          aria-label="Tempo in beats per minute"
           className="w-40 text-center font-heading text-7xl bg-transparent border-b-2 border-primary text-dark outline-none"
           onBlur={handleSubmit}
-          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+          onKeyDown={handleInputKeyDown}
           autoFocus
         />
       ) : (
-        <span className={`font-heading text-7xl select-none ${disabled ? 'text-dark/40' : 'text-dark cursor-pointer'}`}>
+        <button
+          type="button"
+          onClick={handleClick}
+          disabled={disabled}
+          aria-label={disabled ? `${bpm} BPM. Tempo is controlled by Tempo Trainer.` : `Edit tempo, currently ${bpm} BPM`}
+          className={`min-w-40 min-h-11 font-heading text-7xl select-none bg-transparent ${disabled ? 'text-dark/40 cursor-not-allowed' : 'text-dark cursor-pointer'}`}
+        >
           {bpm}
-        </span>
+        </button>
       )}
       <p className="text-sm text-dark/50 mt-1 font-body">
         {disabled ? 'Tempo trainer active' : 'BPM'}

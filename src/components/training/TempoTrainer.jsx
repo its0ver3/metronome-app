@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
-import { MIN_BPM, EXTENDED_MAX_BPM } from '../../audio/constants'
+import { useState, useEffect, useId } from 'react'
+import { MIN_BPM, MAX_BPM } from '../../audio/constants'
 
-export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, everyBars, onChange }) {
+export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, everyBars, disabled = false, onChange }) {
+  const idPrefix = useId()
   const [localStartBpm, setLocalStartBpm] = useState(String(startBpm))
   const [localTargetBpm, setLocalTargetBpm] = useState(String(targetBpm))
   const [localIncrement, setLocalIncrement] = useState(String(increment))
@@ -36,80 +37,86 @@ export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, 
   }
 
   return (
-    <div className="bg-secondary/50 rounded-xl p-4">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="font-heading text-xl text-dark">Tempo Trainer</h3>
-          <p className="text-xs text-dark/50">Gradually change BPM over time</p>
+    <section className={`pulse-panel pulse-trainer-card ${enabled ? 'is-enabled' : ''}`}>
+      <header className="pulse-panel-header">
+        <div className="pulse-panel-copy">
+          <span>Tempo · 02</span>
+          <h2>Tempo trainer</h2>
+          <p>Increase the tempo automatically as you play.</p>
         </div>
         <button
+          type="button"
+          role="switch"
+          aria-checked={enabled}
+          aria-label="Enable tempo trainer"
+          disabled={disabled}
           onClick={handleToggle}
-          className={`w-12 h-7 rounded-full transition-colors relative ${
-            enabled ? 'bg-primary' : 'bg-dark/20'
-          }`}
+          className="pulse-switch"
         >
-          <span
-            className={`absolute left-0 top-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform ${
-              enabled ? 'translate-x-[22px]' : 'translate-x-0.5'
-            }`}
-          />
+          <span aria-hidden="true" className="pulse-switch-track">
+            <span className="pulse-switch-thumb" />
+          </span>
         </button>
-      </div>
+      </header>
 
-      <div className={`space-y-3 ${!enabled ? 'opacity-40 pointer-events-none' : ''}`}>
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label className="text-xs text-dark/50 font-semibold block mb-1">Start BPM</label>
+      <fieldset
+        disabled={!enabled || disabled}
+        aria-label="Tempo trainer settings"
+        className={`pulse-number-grid ${!enabled || disabled ? 'is-disabled' : ''}`}
+      >
+          <label className="pulse-number-control">
+            <span>Start BPM</span>
             <input
+              id={`${idPrefix}-start-bpm`}
               type="number"
               min={MIN_BPM}
-              max={EXTENDED_MAX_BPM}
+              max={MAX_BPM}
               value={localStartBpm}
               onChange={(e) => setLocalStartBpm(e.target.value)}
-              onBlur={() => handleBlur('startBpm', localStartBpm, setLocalStartBpm, MIN_BPM, EXTENDED_MAX_BPM)}
-              className="w-full h-10 text-center rounded-lg bg-secondary text-dark font-semibold"
+              onBlur={() => handleBlur('startBpm', localStartBpm, setLocalStartBpm, MIN_BPM, MAX_BPM)}
+              className="pulse-number-input"
             />
-          </div>
-          <div className="flex-1">
-            <label className="text-xs text-dark/50 font-semibold block mb-1">Target BPM</label>
+          </label>
+          <label className="pulse-number-control">
+            <span>Target BPM</span>
             <input
+              id={`${idPrefix}-target-bpm`}
               type="number"
               min={MIN_BPM}
-              max={EXTENDED_MAX_BPM}
+              max={MAX_BPM}
               value={localTargetBpm}
               onChange={(e) => setLocalTargetBpm(e.target.value)}
-              onBlur={() => handleBlur('targetBpm', localTargetBpm, setLocalTargetBpm, MIN_BPM, EXTENDED_MAX_BPM)}
-              className="w-full h-10 text-center rounded-lg bg-secondary text-dark font-semibold"
+              onBlur={() => handleBlur('targetBpm', localTargetBpm, setLocalTargetBpm, MIN_BPM, MAX_BPM)}
+              className="pulse-number-input"
             />
-          </div>
-        </div>
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label className="text-xs text-dark/50 font-semibold block mb-1">Increment</label>
+          </label>
+          <label className="pulse-number-control">
+            <span>Increase by</span>
             <input
+              id={`${idPrefix}-increment`}
               type="number"
               min={1}
               max={20}
               value={localIncrement}
               onChange={(e) => setLocalIncrement(e.target.value)}
               onBlur={() => handleBlur('increment', localIncrement, setLocalIncrement, 1, 20)}
-              className="w-full h-10 text-center rounded-lg bg-secondary text-dark font-semibold"
+              className="pulse-number-input"
             />
-          </div>
-          <div className="flex-1">
-            <label className="text-xs text-dark/50 font-semibold block mb-1">Every N Bars</label>
+          </label>
+          <label className="pulse-number-control">
+            <span>Every bars</span>
             <input
+              id={`${idPrefix}-every-bars`}
               type="number"
               min={1}
               max={32}
               value={localEveryBars}
               onChange={(e) => setLocalEveryBars(e.target.value)}
               onBlur={() => handleBlur('everyBars', localEveryBars, setLocalEveryBars, 1, 32)}
-              className="w-full h-10 text-center rounded-lg bg-secondary text-dark font-semibold"
+              className="pulse-number-input"
             />
-          </div>
-        </div>
-      </div>
-    </div>
+          </label>
+      </fieldset>
+    </section>
   )
 }

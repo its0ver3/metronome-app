@@ -1,22 +1,22 @@
 export default function PolyrhythmToggle({ enabled, onToggle }) {
   return (
-    <div className="flex items-center justify-center gap-3 px-4 w-full mt-2">
-      <span className="text-xs text-dark/50 font-semibold uppercase tracking-wide">
-        Polyrhythm
-      </span>
+    <div className="pulse-polyrhythm-toggle">
+      <span>Polyrhythm mode</span>
       <button
+        type="button"
         role="switch"
         aria-checked={enabled}
+        aria-label="Polyrhythm mode"
+        title={`${enabled ? 'Disable' : 'Enable'} polyrhythm mode`}
         onClick={() => onToggle(!enabled)}
-        className={`relative w-11 h-6 rounded-full transition-colors ${
-          enabled ? 'bg-primary' : 'bg-secondary'
-        }`}
+        className="pulse-mode-switch"
       >
         <span
-          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-transform ${
-            enabled ? 'translate-x-5 bg-secondary' : 'bg-dark'
-          }`}
-        />
+          aria-hidden="true"
+          className="pulse-mode-switch-track"
+        >
+          <span className="pulse-mode-switch-thumb" />
+        </span>
       </button>
     </div>
   )

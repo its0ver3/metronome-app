@@ -32,6 +32,7 @@ export default function BeatIndicators({
 
   const compact = subdivision > 8
   const dotSize = compact ? 14 : 20
+  const hitSize = 44
 
   // Pagination
   const needsPagination = useStacked && beatsPerBar > ROWS_PER_PAGE
@@ -90,19 +91,17 @@ export default function BeatIndicators({
                     </span>
                     <div className="flex items-center gap-1 flex-wrap">
                       {group.dots.map((dot) => (
-                        <div
+                        <AccentPie
                           key={dot.flatIndex}
-                          className={`flex items-center justify-center ${compact ? 'w-7 h-7' : 'w-10 h-10'}`}
-                        >
-                          <AccentPie
-                            level={dot.accent}
-                            size={dotSize}
-                            isActive={dot.isActive}
-                            isDownbeat={dot.isDownbeat}
-                            inGap={inGap}
-                            onClick={() => onCycleSubdivisionAccent(dot.flatIndex)}
-                          />
-                        </div>
+                          level={dot.accent}
+                          size={dotSize}
+                          hitSize={hitSize}
+                          isActive={dot.isActive}
+                          isDownbeat={dot.isDownbeat}
+                          inGap={inGap}
+                          accessibleLabel={`Beat ${group.beat + 1}, subdivision ${dot.flatIndex - group.beat * subdivision + 1} accent: ${dot.accent.toLowerCase()}. Activate to change.`}
+                          onClick={() => onCycleSubdivisionAccent(dot.flatIndex)}
+                        />
                       ))}
                     </div>
                   </div>
@@ -116,14 +115,21 @@ export default function BeatIndicators({
             {Array.from({ length: totalPages }, (_, i) => (
               <button
                 key={i}
+                type="button"
                 onClick={() => setCurrentPage(i)}
-                className={`rounded-full transition-all duration-300 ${
-                  i === currentPage
-                    ? 'w-5 h-1.5 bg-dark'
-                    : 'w-1.5 h-1.5 bg-dark/25'
-                }`}
-                aria-label={`Page ${i + 1}`}
-              />
+                className="w-11 h-11 flex items-center justify-center rounded-full"
+                aria-label={`Show beat page ${i + 1} of ${totalPages}`}
+                aria-current={i === currentPage ? 'page' : undefined}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`rounded-full transition-all duration-300 ${
+                    i === currentPage
+                      ? 'w-5 h-1.5 bg-dark'
+                      : 'w-1.5 h-1.5 bg-dark/25'
+                  }`}
+                />
+              </button>
             ))}
           </div>
         )}
@@ -137,19 +143,17 @@ export default function BeatIndicators({
       {groups.map((group, gi) => (
         <div key={group.beat} className={`flex items-center gap-1 ${gi > 0 ? 'ml-3' : ''}`}>
           {group.dots.map((dot) => (
-            <div
+            <AccentPie
               key={dot.flatIndex}
-              className="w-10 h-10 flex items-center justify-center"
-            >
-              <AccentPie
-                level={dot.accent}
-                size={20}
-                isActive={dot.isActive}
-                isDownbeat={dot.isDownbeat}
-                inGap={inGap}
-                onClick={() => onCycleSubdivisionAccent(dot.flatIndex)}
-              />
-            </div>
+              level={dot.accent}
+              size={20}
+              hitSize={44}
+              isActive={dot.isActive}
+              isDownbeat={dot.isDownbeat}
+              inGap={inGap}
+              accessibleLabel={`Beat ${group.beat + 1} accent: ${dot.accent.toLowerCase()}. Activate to change.`}
+              onClick={() => onCycleSubdivisionAccent(dot.flatIndex)}
+            />
           ))}
         </div>
       ))}

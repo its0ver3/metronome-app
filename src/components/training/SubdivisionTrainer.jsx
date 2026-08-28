@@ -1,107 +1,206 @@
 import SubdivisionPicker from '../metronome/SubdivisionPicker'
+import { SUBDIVISION_OPTIONS, SUBDIVISION_TRAINER_MAX_STAGES } from '../../audio/constants'
+
+const STAGE_LABELS = ['A', 'B', 'C', 'D']
 
 export default function SubdivisionTrainer({
   enabled,
-  subA,
-  barsA,
-  subB,
-  barsB,
+  stages,
+  activeStageIndex,
+  activeBar,
+  isPlaying,
+  disabled = false,
   onChange,
 }) {
   const handleToggle = () => {
-    onChange(!enabled, subA, barsA, subB, barsB)
+    onChange(!enabled, stages)
   }
 
-  const handleSubAChange = (val) => {
-    onChange(enabled, val, barsA, subB, barsB)
+  const updateStage = (index, changes) => {
+    const nextStages = stages.map((stage, stageIndex) => (
+      stageIndex === index ? { ...stage, ...changes } : stage
+    ))
+    onChange(enabled, nextStages)
   }
 
-  const handleSubBChange = (val) => {
-    onChange(enabled, subA, barsA, val, barsB)
+  const handleBarsChange = (index, value) => {
+    updateStage(index, { bars: Math.max(1, Math.min(16, value)) })
   }
 
-  const handleBarsA = (val) => {
-    const v = Math.max(1, Math.min(16, val))
-    onChange(enabled, subA, v, subB, barsB)
+  const handleAdd = () => {
+    if (stages.length >= SUBDIVISION_TRAINER_MAX_STAGES) return
+    const previousSubdivision = stages[stages.length - 1]?.subdivision || 1
+    const usedSubdivisions = new Set(stages.map((stage) => stage.subdivision))
+    const previousIndex = SUBDIVISION_OPTIONS.findIndex(
+      (option) => option.type === previousSubdivision,
+    )
+    const orderedOptions = [
+      ...SUBDIVISION_OPTIONS.slice(previousIndex + 1),
+      ...SUBDIVISION_OPTIONS.slice(0, previousIndex + 1),
+    ]
+    const nextSubdivision = orderedOptions.find(
+      (option) => !usedSubdivisions.has(option.type),
+    )?.type || 1
+
+    onChange(enabled, [
+      ...stages,
+      { subdivision: nextSubdivision, bars: 2 },
+    ])
   }
 
-  const handleBarsB = (val) => {
-    const v = Math.max(1, Math.min(16, val))
-    onChange(enabled, subA, barsA, subB, v)
+  const handleRemove = (index) => {
+    if (index < 2) return
+    onChange(enabled, stages.filter((_, stageIndex) => stageIndex !== index))
   }
 
   return (
-    <div className="bg-secondary/50 rounded-xl p-4">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="font-heading text-xl text-dark">Subdivision Trainer</h3>
-          <p className="text-xs text-dark/50">Alternate between two subdivisions</p>
+    <section className={`pulse-panel pulse-trainer-card ${enabled ? 'is-enabled' : ''}`}>
+      <header className="pulse-panel-header">
+        <div className="pulse-panel-copy">
+          <span>Control · 03</span>
+          <h2>Subdivision trainer</h2>
+          <p>Cycle through two to four rhythmic groupings.</p>
         </div>
         <button
+          type="button"
+          role="switch"
+          aria-checked={enabled}
+          aria-label="Enable subdivision trainer"
+          disabled={disabled}
           onClick={handleToggle}
-          className={`w-12 h-7 rounded-full transition-colors relative ${
-            enabled ? 'bg-primary' : 'bg-dark/20'
-          }`}
+          className="pulse-switch"
         >
-          <span
-            className={`absolute left-0 top-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform ${
-              enabled ? 'translate-x-[22px]' : 'translate-x-0.5'
-            }`}
-          />
+          <span aria-hidden="true" className="pulse-switch-track">
+            <span className="pulse-switch-thumb" />
+          </span>
         </button>
-      </div>
+      </header>
 
-      <div className={`space-y-4 ${!enabled ? 'opacity-40 pointer-events-none' : ''}`}>
-        <div className="flex items-end gap-4">
-          <div>
-            <label className="text-xs text-dark/50 font-semibold block mb-1">Subdivision A</label>
-            <SubdivisionPicker subdivision={subA} onChange={handleSubAChange} />
-          </div>
-          <div>
-            <label className="text-xs text-dark/50 font-semibold block mb-1">Bars</label>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleBarsA(barsA - 1)}
-                className="w-9 h-9 rounded-lg bg-secondary text-dark font-bold flex items-center justify-center"
+      <fieldset
+        disabled={!enabled || disabled}
+        aria-label="Subdivision trainer settings"
+        className={`pulse-subdivision-settings ${!enabled || disabled ? 'is-disabled' : ''}`}
+      >
+      <div className="pulse-cycle-summary">
+        <span>Cycle</span>
+        <div role="list" aria-label="Subdivision cycle order">
+          {stages.map((stage, index) => {
+            const isActive = enabled && isPlaying && activeStageIndex === index
+            return (
+              <div
+                key={index}
+                role="listitem"
+                aria-current={isActive ? 'step' : undefined}
               >
-                −
-              </button>
-              <span className="font-heading text-2xl text-dark w-8 text-center">{barsA}</span>
-              <button
-                onClick={() => handleBarsA(barsA + 1)}
-                className="w-9 h-9 rounded-lg bg-secondary text-dark font-bold flex items-center justify-center"
-              >
-                +
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-end gap-4">
-          <div>
-            <label className="text-xs text-dark/50 font-semibold block mb-1">Subdivision B</label>
-            <SubdivisionPicker subdivision={subB} onChange={handleSubBChange} />
-          </div>
-          <div>
-            <label className="text-xs text-dark/50 font-semibold block mb-1">Bars</label>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleBarsB(barsB - 1)}
-                className="w-9 h-9 rounded-lg bg-secondary text-dark font-bold flex items-center justify-center"
-              >
-                −
-              </button>
-              <span className="font-heading text-2xl text-dark w-8 text-center">{barsB}</span>
-              <button
-                onClick={() => handleBarsB(barsB + 1)}
-                className="w-9 h-9 rounded-lg bg-secondary text-dark font-bold flex items-center justify-center"
-              >
-                +
-              </button>
-            </div>
+                {index > 0 && <i aria-hidden="true">→</i>}
+                <span
+                  className={isActive ? 'is-active' : ''}
+                >
+                  {STAGE_LABELS[index]} · {stage.subdivision}
+                </span>
+              </div>
+            )
+          })}
+          <div role="listitem">
+            <i aria-hidden="true">→</i>
+            <span>A</span>
           </div>
         </div>
       </div>
-    </div>
+
+      <div className="pulse-stage-list">
+        {stages.map((stage, index) => {
+          const isActive = enabled && isPlaying && activeStageIndex === index
+          return (
+            <article
+              key={index}
+              className={`pulse-stage-card ${isActive ? 'is-active' : ''}`}
+            >
+              <header>
+                <span
+                  className="pulse-stage-badge"
+                  aria-hidden="true"
+                >
+                  {STAGE_LABELS[index]}
+                </span>
+                <div>
+                  <strong>Stage {STAGE_LABELS[index]}</strong>
+                  {isActive && (
+                    <span className="pulse-stage-progress">
+                      Active · Bar {Math.min(activeBar, stage.bars)} of {stage.bars}
+                    </span>
+                  )}
+                </div>
+                {index >= 2 && (
+                  <button
+                    type="button"
+                    aria-label={`Remove stage ${STAGE_LABELS[index]}`}
+                    title={`Remove stage ${STAGE_LABELS[index]}`}
+                    onClick={() => handleRemove(index)}
+                    className="pulse-stage-remove"
+                  >
+                    ×
+                  </button>
+                )}
+              </header>
+
+              <div className="pulse-stage-controls">
+                <SubdivisionPicker
+                  subdivision={stage.subdivision}
+                  accessibleLabel={`Stage ${STAGE_LABELS[index]} subdivision`}
+                  onChange={(subdivision) => updateStage(index, { subdivision })}
+                  className="pulse-stage-subdivision"
+                />
+                <div className="pulse-stepper"
+                  role="group"
+                  aria-label={`Stage ${STAGE_LABELS[index]} bars, currently ${stage.bars}`}
+                >
+                  <span className="pulse-control-label">Bars</span>
+                  <div>
+                    <button
+                      type="button"
+                      aria-label={`Decrease bars for stage ${STAGE_LABELS[index]}`}
+                      disabled={!enabled || disabled}
+                      onClick={() => handleBarsChange(index, stage.bars - 1)}
+                      className="pulse-step-button"
+                    >
+                      −
+                    </button>
+                    <strong>{stage.bars}</strong>
+                    <button
+                      type="button"
+                      aria-label={`Increase bars for stage ${STAGE_LABELS[index]}`}
+                      disabled={!enabled || disabled}
+                      onClick={() => handleBarsChange(index, stage.bars + 1)}
+                      className="pulse-step-button"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          )
+        })}
+      </div>
+
+      {stages.length < SUBDIVISION_TRAINER_MAX_STAGES && (
+        <button
+          type="button"
+          disabled={!enabled || disabled}
+          onClick={handleAdd}
+          className="pulse-add-stage"
+        >
+          + Add subdivision
+        </button>
+      )}
+
+      {enabled && isPlaying && (
+        <p className="pulse-owned-note">
+          Changes take effect at the next bar
+        </p>
+      )}
+      </fieldset>
+    </section>
   )
 }

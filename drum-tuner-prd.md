@@ -1,5 +1,7 @@
 # DrumTune — iOS Drum Tuner App PRD
 
+> **Status: separate future concept — not implemented.** This document describes a proposed native iOS drum-tuning product. It is not a screen, feature, or technical roadmap for the current Drums Only Metronome web app. The implemented web app is documented in `metronome-app-prd.md`.
+
 ## Overview
 
 A native iOS app that enables drummers to tune their drums using their iPhone as both a microphone and a center-mute. The phone sits on the drumhead during lug-by-lug tuning, doubling as the mute that isolates localized pitch at each tension rod. MVP scope: full tuning workflow for a snare drum (batter and resonant heads).

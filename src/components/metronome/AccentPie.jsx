@@ -1,10 +1,9 @@
-import { ACCENT_WEDGES } from '../../audio/constants'
+import { ACCENT_LEVELS, ACCENT_WEDGES } from '../../audio/constants'
 
 const WEDGE_ANGLES = [
-  // Each wedge: [startAngle, endAngle] in degrees, clockwise from 12 o'clock
-  [-90, 30],    // top-right
-  [30, 150],    // bottom
-  [150, 270],   // top-left
+  // Two halves make the three states legible: empty, half, and full.
+  [-90, 90],
+  [90, 270],
 ]
 
 function polarToCart(cx, cy, r, angleDeg) {
@@ -27,8 +26,11 @@ export default function AccentPie({
   fillColor,
   activeRingClass = 'ring-primary',
   onClick,
+  accessibleLabel,
+  hitSize = size,
 }) {
   const filledCount = ACCENT_WEDGES[level] ?? 0
+  const levelName = ACCENT_LEVELS[level]?.name || level
   const cx = 10
   const cy = 10
   const r = 9
@@ -40,38 +42,54 @@ export default function AccentPie({
   return (
     <Wrapper
       onClick={onClick}
-      className={`rounded-full flex-shrink-0 flex items-center justify-center transition-all duration-100 ${
-        isDownbeat ? 'ring-1 ring-dark/20' : ''
-      } ${
-        isActive
-          ? inGap
-            ? 'ring-2 ring-dark/20 ring-offset-2 opacity-40'
-            : `ring-2 ${activeRingClass} ring-offset-2 scale-125`
-          : ''
-      }`}
-      style={{ width: size, height: size }}
-      {...(onClick ? { title: `${level}` } : {})}
+      {...(onClick ? { type: 'button' } : {})}
+      className="rounded-full flex-shrink-0 flex items-center justify-center bg-transparent border-0 p-0"
+      style={{ width: hitSize, height: hitSize }}
+      {...(onClick
+        ? {
+            'aria-label': accessibleLabel || `Accent level: ${levelName}. Activate to change.`,
+            title: accessibleLabel || `${levelName} accent`,
+          }
+        : accessibleLabel
+          ? { 'aria-label': accessibleLabel, role: 'img' }
+          : { 'aria-hidden': true })}
     >
-      <svg
-        viewBox="0 0 20 20"
-        width={size * 0.85}
-        height={size * 0.85}
-        className="block"
+      <span
+        aria-hidden="true"
+        className={`rounded-full flex items-center justify-center transition-all duration-100 ${
+          isDownbeat ? 'ring-1 ring-dark/20' : ''
+        } ${
+          isActive
+            ? inGap
+              ? 'ring-2 ring-dark/20 ring-offset-2 opacity-40'
+              : `ring-2 ${activeRingClass} ring-offset-2 scale-125`
+            : ''
+        }`}
+        style={{ width: size, height: size }}
       >
-        {WEDGE_ANGLES.map(([start, end], i) => {
-          const filled = i < filledCount
-          return (
-            <path
-              key={i}
-              d={wedgePath(cx, cy, r, start + gap, end - gap)}
-              fill={filled ? (fillColor || 'var(--color-primary)') : 'transparent'}
-              stroke={filled ? 'none' : (fillColor || 'var(--color-primary)')}
-              strokeWidth={filled ? 0 : 0.8}
-              opacity={filled ? 1 : 0.3}
-            />
-          )
-        })}
-      </svg>
+        <svg
+          aria-hidden="true"
+          focusable="false"
+          viewBox="0 0 20 20"
+          width={size * 0.85}
+          height={size * 0.85}
+          className="block"
+        >
+          {WEDGE_ANGLES.map(([start, end], i) => {
+            const filled = i < filledCount
+            return (
+              <path
+                key={i}
+                d={wedgePath(cx, cy, r, start + gap, end - gap)}
+                fill={filled ? (fillColor || 'var(--color-primary)') : 'transparent'}
+                stroke={filled ? 'none' : (fillColor || 'var(--color-primary)')}
+                strokeWidth={filled ? 0 : 0.8}
+                opacity={filled ? 1 : 0.3}
+              />
+            )
+          })}
+        </svg>
+      </span>
     </Wrapper>
   )
 }

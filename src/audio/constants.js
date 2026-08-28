@@ -1,21 +1,28 @@
 export const LOOKAHEAD_MS = 25
 export const SCHEDULE_AHEAD_S = 0.05
 export const MIN_BPM = 20
-export const MAX_BPM = 240
-export const EXTENDED_MAX_BPM = 600
+export const MAX_BPM = 300
 export const DEFAULT_BPM = 120
 export const DEFAULT_BEATS_PER_BAR = 4
 
 export const ACCENT_LEVELS = {
-  LOUD: { name: 'Loud', volume: 1.0 },
-  ACCENT: { name: 'Accent', volume: 0.5 },
-  ON: { name: 'On', volume: 0.25 },
   OFF: { name: 'Off', volume: 0.0 },
+  ON: { name: 'On', volume: 0.25 },
+  ACCENT: { name: 'Accent', volume: 1.0 },
 }
 
-export const ACCENT_ORDER = ['OFF', 'ON', 'ACCENT', 'LOUD']
+export const ACCENT_ORDER = ['OFF', 'ON', 'ACCENT']
 
-export const ACCENT_WEDGES = { OFF: 0, ON: 1, ACCENT: 2, LOUD: 3 }
+export const ACCENT_WEDGES = { OFF: 0, ON: 1, ACCENT: 2 }
+
+const LEGACY_ACCENT_LEVELS = {
+  LOUD: 'ACCENT',
+  STRONG: 'ACCENT',
+  MEDIUM: 'ACCENT',
+  NORMAL: 'ON',
+  GHOST: 'OFF',
+  SILENT: 'OFF',
+}
 
 export const SUBDIVISION_OPTIONS = [
   { type: 1, label: '1', desc: '1' },
@@ -33,6 +40,13 @@ export const SUBDIVISION_OPTIONS = [
   { type: 13, label: '13', desc: '13' },
 ]
 
+export const SUBDIVISION_TRAINER_MIN_STAGES = 2
+export const SUBDIVISION_TRAINER_MAX_STAGES = 4
+export const DEFAULT_SUBDIVISION_TRAINER_STAGES = [
+  { subdivision: 1, bars: 2 },
+  { subdivision: 2, bars: 2 },
+]
+
 export const SOUND_NAMES = [
   'Classic Click',
   'Woodblock',
@@ -46,29 +60,34 @@ export const SOUND_NAMES = [
 
 export const POLYRHYTHM_MAX = 16
 
+export function clampBpm(value) {
+  const numericValue = Number(value)
+  if (!Number.isFinite(numericValue)) return DEFAULT_BPM
+  return Math.max(MIN_BPM, Math.min(MAX_BPM, Math.round(numericValue)))
+}
 
 export function cycleAccentLevel(current) {
-  const idx = ACCENT_ORDER.indexOf(current)
+  const normalized = normalizeAccentLevel(current)
+  const idx = ACCENT_ORDER.indexOf(normalized)
   return ACCENT_ORDER[(idx + 1) % ACCENT_ORDER.length]
 }
 
-export function buildDefaultAccents(beatsPerBar) {
-  const accents = new Array(beatsPerBar).fill('ON')
-  accents[0] = 'LOUD'
-  return accents
+export function normalizeAccentLevel(level) {
+  if (ACCENT_LEVELS[level]) return level
+  return LEGACY_ACCENT_LEVELS[level] || 'ON'
 }
 
 export function buildDefaultSubdivisionAccents(beatsPerBar, subdivision) {
   const total = beatsPerBar * subdivision
   const accents = new Array(total).fill('ON')
   for (let beat = 0; beat < beatsPerBar; beat++) {
-    accents[beat * subdivision] = 'LOUD'
+    accents[beat * subdivision] = 'ACCENT'
   }
   return accents
 }
 
 export function buildDefaultPolyAccents(count) {
   const accents = new Array(count).fill('ON')
-  accents[0] = 'LOUD'
+  accents[0] = 'ACCENT'
   return accents
 }

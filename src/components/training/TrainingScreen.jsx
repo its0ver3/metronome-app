@@ -1,7 +1,6 @@
 import GapTraining from './GapTraining'
 import TempoTrainer from './TempoTrainer'
 import SubdivisionTrainer from './SubdivisionTrainer'
-import TrainingMiniPlayer from './TrainingMiniPlayer'
 
 export default function TrainingScreen({
   gapEnabled,
@@ -15,31 +14,35 @@ export default function TrainingScreen({
   tempoEveryBars,
   onTempoChange,
   subdivTrainerEnabled,
-  subdivTrainerSubA,
-  subdivTrainerBarsA,
-  subdivTrainerSubB,
-  subdivTrainerBarsB,
+  subdivTrainerStages,
+  subdivTrainerStageIndex,
+  subdivTrainerBarCount,
   onSubdivTrainerChange,
   polyrhythmMode,
-  bpm,
   isPlaying,
-  onToggle,
-  hasPlayedOnce,
 }) {
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+    <section className="pulse-feature-screen pulse-training-screen" aria-labelledby="training-title">
+      <div className="pulse-feature-scroll">
+        <header className="pulse-feature-header">
+          <span>Practice tools</span>
+          <h1 id="training-title">Training</h1>
+          <p>Build steadier time with focused, repeatable challenges.</p>
+        </header>
+
         {polyrhythmMode && (
-          <p className="text-sm text-dark/60 bg-secondary rounded-lg px-3 py-2">
-            Disable Polyrhythm Mode on the Metronome tab to use training features.
-          </p>
+          <div className="pulse-feature-notice" role="status">
+            <strong>Training paused</strong>
+            <span>Turn off Polyrhythm mode to use your saved trainer setup.</span>
+          </div>
         )}
 
-        <div className={`space-y-6 ${polyrhythmMode ? 'opacity-40 pointer-events-none' : ''}`}>
+        <div className={`pulse-training-stack ${polyrhythmMode ? 'is-unavailable' : ''}`}>
           <GapTraining
             enabled={gapEnabled}
             clickBars={gapClickBars}
             silentBars={gapSilentBars}
+            disabled={polyrhythmMode}
             onChange={onGapChange}
           />
 
@@ -49,29 +52,21 @@ export default function TrainingScreen({
             targetBpm={tempoTargetBpm}
             increment={tempoIncrement}
             everyBars={tempoEveryBars}
+            disabled={polyrhythmMode}
             onChange={onTempoChange}
           />
 
           <SubdivisionTrainer
             enabled={subdivTrainerEnabled}
-            subA={subdivTrainerSubA}
-            barsA={subdivTrainerBarsA}
-            subB={subdivTrainerSubB}
-            barsB={subdivTrainerBarsB}
+            stages={subdivTrainerStages}
+            activeStageIndex={subdivTrainerStageIndex}
+            activeBar={subdivTrainerBarCount + 1}
+            isPlaying={isPlaying}
+            disabled={polyrhythmMode}
             onChange={onSubdivTrainerChange}
           />
         </div>
-
-        {!polyrhythmMode && !hasPlayedOnce && (
-          <p className="text-xs text-dark/40 text-center pt-2">
-            Start the metronome on the Metronome tab to use training features
-          </p>
-        )}
       </div>
-
-      {hasPlayedOnce && (
-        <TrainingMiniPlayer bpm={bpm} isPlaying={isPlaying} onToggle={onToggle} />
-      )}
-    </div>
+    </section>
   )
 }
