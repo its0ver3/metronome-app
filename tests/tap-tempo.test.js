@@ -1,9 +1,19 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
 import {
   TAP_TEMPO_IDLE_RESET_MS,
   registerTempoTap,
 } from '../src/components/metronome/tapTempo.js'
+
+const tapButtonSource = await readFile(
+  new URL('../src/components/metronome/TapTempoButton.jsx', import.meta.url),
+  'utf8',
+)
+const metronomeScreenSource = await readFile(
+  new URL('../src/components/metronome/MetronomeScreen.jsx', import.meta.url),
+  'utf8',
+)
 
 function tapSequence(times) {
   let taps = []
@@ -37,4 +47,11 @@ test('five seconds without input starts a fresh four-tap session', () => {
   assert.equal(results[3].bpm, 120)
   assert.deepEqual(results.slice(4).map(({ bpm }) => bpm), [null, null, null, 120])
   assert.deepEqual(results[4].taps, [6500])
+})
+
+test('tap tempo uses one icon-only control without losing its accessible name', () => {
+  assert.match(tapButtonSource, /aria-label="Tap tempo"/)
+  assert.match(tapButtonSource, /className="pulse-tap-glyph"/)
+  assert.doesNotMatch(tapButtonSource, />\s*TAP\s*</)
+  assert.doesNotMatch(metronomeScreenSource, /<span>Tap tempo<\/span>/)
 })

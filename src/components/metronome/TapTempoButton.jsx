@@ -55,15 +55,20 @@ const TapTempoButton = forwardRef(function TapTempoButton({ onBpmChange, disable
       aria-label="Tap tempo"
       aria-keyshortcuts="T"
       title={disabled ? 'Tempo is controlled by Tempo Trainer' : 'Tap four times to set tempo (T)'}
-      className={`h-11 rounded-full border-2 border-primary px-5 text-primary font-semibold text-sm transition-all ${className} ${
+      className={`${className} ${
         disabled
           ? 'opacity-40 cursor-not-allowed'
           : flash
-            ? 'bg-primary text-light scale-95'
-            : 'bg-transparent active:bg-primary/10'
+            ? 'is-flashing'
+            : ''
       }`}
     >
-      TAP
+      <span className="pulse-tap-glyph" aria-hidden="true">
+        <span className="pulse-tap-ripple pulse-tap-ripple-one" />
+        <span className="pulse-tap-ripple pulse-tap-ripple-two" />
+        <span className="pulse-tap-stick" />
+        <span className="pulse-tap-pad" />
+      </span>
     </button>
   )
 })

@@ -350,15 +350,12 @@ export default function MetronomeScreen({
         </div>
 
         <div className="pulse-quickbar">
-          <div className="pulse-tap-control">
-            <span>Tap tempo</span>
-            <TapTempoButton
-              ref={tapRef}
-              onBpmChange={onBpmChange}
-              disabled={tempoEnabled}
-              className="pulse-tap-button"
-            />
-          </div>
+          <TapTempoButton
+            ref={tapRef}
+            onBpmChange={onBpmChange}
+            disabled={tempoEnabled}
+            className="pulse-tap-button"
+          />
           <RhythmReadout
             polyrhythmMode={polyrhythmMode}
             beatsPerBar={beatsPerBar}
