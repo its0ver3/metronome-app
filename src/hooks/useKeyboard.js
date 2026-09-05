@@ -7,7 +7,7 @@ export default function useKeyboard({ onToggle, onBpmUp, onBpmDown, onTap }) {
       // avoids firing a global shortcut in addition to a button's native click.
       if (
         e.target?.closest?.(
-          'input, textarea, select, button, a, [contenteditable="true"], [role="button"], [role="slider"], [role="switch"]',
+          'input, textarea, select, button, a, [contenteditable="true"], [role="button"], [role="slider"], [role="spinbutton"], [role="switch"]',
         )
       ) {
         return

@@ -1,6 +1,6 @@
 export const TAP_TEMPO_MIN_TAPS = 4
 export const TAP_TEMPO_MAX_TAPS = 5
-export const TAP_TEMPO_IDLE_RESET_MS = 5000
+export const TAP_TEMPO_IDLE_RESET_MS = 2000
 
 export function registerTempoTap(previousTaps, now) {
   const taps = Array.isArray(previousTaps) ? previousTaps : []

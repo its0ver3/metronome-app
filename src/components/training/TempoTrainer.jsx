@@ -1,122 +1,30 @@
-import { useState, useEffect, useId } from 'react'
 import { MIN_BPM, MAX_BPM } from '../../audio/constants'
+import TrainerCardHeader from './TrainerCardHeader'
+import NumberWheel from './NumberWheel'
 
 export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, everyBars, disabled = false, onChange }) {
-  const idPrefix = useId()
-  const [localStartBpm, setLocalStartBpm] = useState(String(startBpm))
-  const [localTargetBpm, setLocalTargetBpm] = useState(String(targetBpm))
-  const [localIncrement, setLocalIncrement] = useState(String(increment))
-  const [localEveryBars, setLocalEveryBars] = useState(String(everyBars))
-
-  useEffect(() => { setLocalStartBpm(String(startBpm)) }, [startBpm])
-  useEffect(() => { setLocalTargetBpm(String(targetBpm)) }, [targetBpm])
-  useEffect(() => { setLocalIncrement(String(increment)) }, [increment])
-  useEffect(() => { setLocalEveryBars(String(everyBars)) }, [everyBars])
-
-  const handleBlur = (key, localValue, setLocal, min, max) => {
-    const parsed = parseInt(localValue)
-    let clamped
-    if (isNaN(parsed) || parsed < min) {
-      clamped = min
-    } else if (parsed > max) {
-      clamped = max
-    } else {
-      clamped = parsed
-    }
-    setLocal(String(clamped))
-    update(key, clamped)
+  const update = (key, value) => {
+    const next = { startBpm, targetBpm, increment, everyBars, [key]: value }
+    onChange(enabled, next.startBpm, next.targetBpm, next.increment, next.everyBars)
   }
-
-  const handleToggle = () => {
-    onChange(!enabled, startBpm, targetBpm, increment, everyBars)
-  }
-
-  const update = (key, val) => {
-    const vals = { startBpm, targetBpm, increment, everyBars, [key]: val }
-    onChange(enabled, vals.startBpm, vals.targetBpm, vals.increment, vals.everyBars)
-  }
-
-  return (
-    <section className={`pulse-panel pulse-trainer-card ${enabled ? 'is-enabled' : ''}`}>
-      <header className="pulse-panel-header">
-        <div className="pulse-panel-copy">
-          <span>Tempo · 02</span>
-          <h2>Tempo trainer</h2>
-          <p>Increase the tempo automatically as you play.</p>
-        </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={enabled}
-          aria-label="Enable tempo trainer"
-          disabled={disabled}
-          onClick={handleToggle}
-          className="pulse-switch"
-        >
-          <span aria-hidden="true" className="pulse-switch-track">
-            <span className="pulse-switch-thumb" />
-          </span>
-        </button>
-      </header>
-
-      <fieldset
-        disabled={!enabled || disabled}
-        aria-label="Tempo trainer settings"
-        className={`pulse-number-grid ${!enabled || disabled ? 'is-disabled' : ''}`}
-      >
-          <label className="pulse-number-control">
-            <span>Start BPM</span>
-            <input
-              id={`${idPrefix}-start-bpm`}
-              type="number"
-              min={MIN_BPM}
-              max={MAX_BPM}
-              value={localStartBpm}
-              onChange={(e) => setLocalStartBpm(e.target.value)}
-              onBlur={() => handleBlur('startBpm', localStartBpm, setLocalStartBpm, MIN_BPM, MAX_BPM)}
-              className="pulse-number-input"
-            />
-          </label>
-          <label className="pulse-number-control">
-            <span>Target BPM</span>
-            <input
-              id={`${idPrefix}-target-bpm`}
-              type="number"
-              min={MIN_BPM}
-              max={MAX_BPM}
-              value={localTargetBpm}
-              onChange={(e) => setLocalTargetBpm(e.target.value)}
-              onBlur={() => handleBlur('targetBpm', localTargetBpm, setLocalTargetBpm, MIN_BPM, MAX_BPM)}
-              className="pulse-number-input"
-            />
-          </label>
-          <label className="pulse-number-control">
-            <span>Increase by</span>
-            <input
-              id={`${idPrefix}-increment`}
-              type="number"
-              min={1}
-              max={20}
-              value={localIncrement}
-              onChange={(e) => setLocalIncrement(e.target.value)}
-              onBlur={() => handleBlur('increment', localIncrement, setLocalIncrement, 1, 20)}
-              className="pulse-number-input"
-            />
-          </label>
-          <label className="pulse-number-control">
-            <span>Every bars</span>
-            <input
-              id={`${idPrefix}-every-bars`}
-              type="number"
-              min={1}
-              max={32}
-              value={localEveryBars}
-              onChange={(e) => setLocalEveryBars(e.target.value)}
-              onBlur={() => handleBlur('everyBars', localEveryBars, setLocalEveryBars, 1, 32)}
-              className="pulse-number-input"
-            />
-          </label>
-      </fieldset>
-    </section>
-  )
+  return <section className={`pulse-panel pulse-trainer-card ${enabled ? 'is-enabled' : ''}`}>
+    <TrainerCardHeader type="tempo" title="Tempo Trainer"
+      description="Change BPM at set intervals."
+      metrics={[
+        { label: 'Start BPM', value: startBpm, min: MIN_BPM, max: MAX_BPM, onChange: value => update('startBpm', value) },
+        { label: 'Target BPM', value: targetBpm, min: MIN_BPM, max: MAX_BPM, onChange: value => update('targetBpm', value) },
+      ]}
+      enabled={enabled} disabled={disabled} controlsId="tempo-trainer-settings"
+      onToggle={() => onChange(!enabled, startBpm, targetBpm, increment, everyBars)}
+    />
+    <div id="tempo-trainer-settings" aria-hidden={!enabled} inert={!enabled ? true : undefined}
+      className={`pulse-trainer-settings-reveal ${enabled ? 'is-open' : ''}`}>
+      <div className="pulse-trainer-settings-clip">
+        <fieldset disabled={!enabled || disabled} aria-label="Tempo Trainer settings" className="pulse-trainer-settings pulse-tempo-wheel-settings">
+          <div className="pulse-inline-wheel-setting"><span>Increase by</span><NumberWheel compact label="BPM increase" value={increment} min={1} max={20} disabled={!enabled || disabled} onChange={value => update('increment', value)} /><span>BPM</span></div>
+          <div className="pulse-inline-wheel-setting"><span>Every</span><NumberWheel compact label="Bars between increases" value={everyBars} min={1} max={32} disabled={!enabled || disabled} onChange={value => update('everyBars', value)} /><span>bars</span></div>
+        </fieldset>
+      </div>
+    </div>
+  </section>
 }

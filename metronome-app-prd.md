@@ -18,7 +18,7 @@ The primary target is iPhone-sized portrait viewports. Tablet and desktop users 
 The current navigation contains exactly three screens:
 
 1. Metronome
-2. Training
+2. Practice tools
 3. Settings
 
 Setlists, Journal, and Groove are removed from the current product. Reintroducing any of them requires a new product and interaction design rather than restoring the previous implementation.
@@ -43,10 +43,11 @@ On browsers that require it, including iOS Safari, the audio context is created 
 - The phone layout is edge-to-edge at widths up to 640 px and uses `100dvh` with a `100vh` fallback.
 - iPhone top, left, right, and bottom safe-area insets are respected.
 - The desktop frame is capped at 430 × 932 px.
-- The bottom navigation exposes the three current screens and identifies the active screen semantically.
-- Training and Settings show a persistent transport with the current mode, BPM or bar/beat state, active trainer summaries, a start/stop control, and a shortcut back to Metronome.
+- The bottom navigation exposes the three current screens and identifies the active screen semantically. Selection only brightens the icon and label, without a background highlight or indicator line; keyboard focus remains visible.
+- Practice tools and Settings show a compact metronome transport: the same segmented beat orbit with BPM centered inside, followed by minus, start/stop, and plus controls. The orbit mirrors saved accents and live standard/polyrhythm beats without its own timer; tapping it opens Metronome. No mode, ready, or trainer-summary text is shown. BPM nudges respect the 20–300 range and Tempo Trainer ownership.
+- Its translucent card floats over the scrollable content, with scroll-end clearance keeping all settings reachable. The chevron sits on the card edge without adding height; it collapses and reopens the card without changing playback. Hidden controls are inert; the shared collapse state survives tab navigation but resets on reload.
 - Metronome omits an idle title/status row so the tempo surface begins immediately below the shared brand mark. Active trainer ownership appears through compact chips only when needed.
-- Metronome, Training, Settings, the persistent transport, and bottom navigation share the Pulse Core surface, typography, spacing, and control language.
+- Metronome, Practice tools, Settings, the persistent transport, and bottom navigation share the Pulse Core surface, typography, spacing, and control language.
 - A compact Drums Only mark remains in the shell. The mark, palette, and fonts come from the active brand definition rather than metronome feature code.
 
 ## 4. Metronome screen
@@ -56,12 +57,12 @@ On browsers that require it, including iOS Safari, the audio context is created 
 - Default tempo: 120 BPM.
 - The slider and numeric BPM display use one 20–300 BPM range in whole-number steps.
 - `+` and `−` change tempo by one BPM.
-- Tap tempo waits for four taps before changing BPM, then refines the result using up to the five most recent taps while the session remains active. Five seconds without input expires the session, so the next tempo requires four fresh taps. The elapsed-time check occurs on input as well as through an idle timer so mobile timer throttling cannot reuse stale taps.
+- Tap tempo waits for four taps before changing BPM, then refines the result using up to the five most recent taps while the session remains active. A radial fill expands across the icon-only button with each input and reaches the full button on tap four; a light synthesized C-major “boop” rises with the same four stages and respects master volume. Two seconds without input expires the session, while the visual charge fades continuously across that same interval and reaches zero at expiration, so the next tempo requires four fresh taps. The elapsed-time check occurs on input as well as through an idle timer so mobile timer throttling cannot reuse stale taps.
 - Start/stop is available as a central, distance-readable control without overpowering the BPM hierarchy.
-- The main Pulse Core view combines a large BPM orbit, one-BPM nudges, the full 20–300 slider, compact beat indicators, and two evenly divided quick actions. Tap Tempo retains its short text label. The rhythm action uses an icon-led count readout: standard mode pairs beats per bar with a metronome icon and clicks per beat with a notes icon, while Polyrhythm shows distinct A and B pulse counts. Its accessible name announces the full meaning, and it opens the complete rhythm sheet in either mode.
-- Standard and Polyrhythm modes share one discrete visual language: evenly spaced orbit segments and fixed-position circular indicators illuminate from the audible beat state. Standard divides the full circle by its beat count; Polyrhythm divides the upper and lower halves by the independent R1 and R2 pulse counts.
+- The main Pulse Core view combines a large BPM orbit, one-BPM nudges, the full 20–300 slider, and two evenly divided quick actions. Tap Tempo uses the icon-only four-stage radial charge. The rhythm action uses an icon-led count readout: standard mode pairs beats per bar with a metronome icon and clicks per beat with a notes icon, while Polyrhythm shows distinct A and B pulse counts. Its accessible name announces the full meaning, and it opens the complete rhythm sheet in either mode.
+- Standard and Polyrhythm modes share one discrete visual language: evenly spaced orbit segments illuminate from the audible beat state. Standard divides the full circle by its beat count; Polyrhythm divides the upper and lower halves by the independent R1 and R2 pulse counts.
 - The orbit segments are direct accent controls with mobile-sized hit regions and keyboard activation. Annular wedges sit on a recessed track and cycle Off → On → Accent, visibly rendering those states as hollow → inner-half depth → clean full-depth solid fill without edge outlines. Segment divisions are straight slot-style gaps with parallel opposing faces; there is no separate cycle-origin dot. Audible-time playback feedback changes only brightness and glow without shifting the ring. A standard segment applies its chosen state to every subdivision click inside that beat; the detailed Rhythm sheet remains available for individual-click edits. Polyrhythm segments address their corresponding R1 or R2 pulse, and both modes remain synchronized with the detailed Rhythm sheet.
-- Standard mode and Polyrhythm Rhythm 1 communicate tempo through a continuous gradient: blue at 20 BPM, green at 110, yellow at 200, red at 290, and a smoothly warming fire base through 300. Polyrhythm Rhythm 2 uses a contrasting cool-violet identity in both its orbit and compact indicators so the voices remain visually distinct. At 291–300 BPM, Rhythm 1 uses the warm animated fire treatment while Rhythm 2 uses a separate cool blue-flame treatment. The slider reveals the primary tempo gradient from its left edge to the thumb while the remaining range stays muted.
+- Standard mode and Polyrhythm Rhythm 1 communicate tempo through a continuous gradient: blue at 20 BPM, green at 110, yellow at 200, red at 290, and a smoothly warming fire base through 300. Polyrhythm Rhythm 2 uses a contrasting cool-violet orbit so the voices remain visually distinct. At 291–300 BPM, Rhythm 1 uses the warm animated fire treatment while Rhythm 2 uses a separate cool blue-flame treatment. The slider reveals the primary tempo gradient from its left edge to the thumb while the remaining range stays muted.
 - Beat 1 uses a brighter synthesized companion of the selected click sound. It marks each return to the start of a standard measure and both voices' shared polyrhythm cycle boundary; an explicitly muted first pulse remains silent.
 - The orbit is a view of audio-timed React state; it does not create or own a second playback clock.
 
@@ -79,42 +80,42 @@ Keyboard shortcuts work while focus is not inside an interactive control:
 - Tapping a standard orbit segment cycles the beat's main click through On and Accent without flattening its subdivision dynamics or detailed pattern edits. Choosing Off silences the complete beat and all its subdivisions; re-enabling that beat restores all its clicks to On. Tapping an individual marker in the Rhythm sheet changes only that scheduled click.
 - The first click of each beat is initialized as Accent; the remaining subdivision clicks are initialized as On.
 - Dense beat grids paginate in groups of four beats and support touch swiping; the active page follows playback.
-- Visual state continues during Gap Training silence.
+- Visual state continues during Gap Trainer silence.
 - Beats, subdivision, standard accents, polyrhythm voices, sounds, and polyrhythm accents are edited in the scrollable Rhythm sheet. The primary screen remains uncluttered without removing those controls.
 
 The metronome does not model a time-signature denominator. `beats per bar` and `subdivisions per beat` are the actual current controls.
 
-### 4.3 Click sounds
+### 4.3 Sounds
 
-The app synthesizes eight click voices in the browser:
+The production library contains the nine choices approved in the standalone sound shortlist:
 
-- Classic Click
-- Woodblock
-- Rimshot
-- Cowbell
-- Hi-Hat
-- Electronic Beep
-- Soft Tone
-- Stick Click
+- Synthesized Classic Click, Woodblock, and Soft Tone
+- Recorded Cowbell and Hi-hat from VCSL
+- Recorded Shaker and Tambourine from FreePats, with round-robin variations for less mechanical repetition
+- Male Count and Female Count, covering 1–16 with pitch-preserving files for five tempo ranges
 
-Settings provides a compact two-column sound selection grid with immediate preview and a 0–100% master volume control.
+Recorded sounds load only when selected. Spoken counts name each main beat; subdivisions use a quiet woodblock. Every production sound is included in the installable app’s offline cache. Settings provides a compact two-column sound selection grid with immediate preview and a 0–100% master volume control. Existing saved sound choices migrate to the nearest retained sound.
 
 ### 4.4 Polyrhythm mode
 
 - Two rhythms can each be set from 1–16 pulses.
-- Each rhythm has its own synthesized click sound and per-pulse accent pattern.
+- Each rhythm has its own production sound and per-pulse accent pattern.
 - Rhythm 1 defines the cycle duration at the selected BPM; Rhythm 2 is distributed evenly over that same cycle.
 - Changing polyrhythm mode or either pulse count stops current playback before the configuration changes.
 
-Polyrhythm is an exclusive playback mode. Trainer configuration is preserved but paused while it is active, and the Training screen explains that state. Leaving Polyrhythm restores the Tempo Trainer start BPM and the first Subdivision Trainer stage when those trainers are enabled.
+Polyrhythm is an exclusive playback mode. Trainer configuration is preserved but paused while it is active, and the Practice tools screen explains that state. Leaving Polyrhythm restores the Tempo Trainer start BPM and the first Subdivision Trainer stage when those trainers are enabled.
 
-## 5. Training screen
+## 5. Practice tools screen
 
 All three trainers can be enabled together and share the standard metronome timeline.
 
-Each trainer is presented as a focused Pulse card with its own explanation, switch, and configuration. When Polyrhythm mode pauses training, the saved cards remain readable while their controls use native disabled behavior.
+Each trainer uses the selected Hoop Dial card with a slim steel hoop around an original pictogram, charcoal face, fine rim, and inline cylindrical number wheels. Titles use Gap Trainer, Tempo Trainer, and Subdivision Trainer, without numbered category labels. Gap uses the interrupted pulse loop (study C); Tempo and Subdivision use the note/up arrow and one-to-two-to-four divisions (study A). Header wheels edit click/silent bars and start/target BPM directly when enabled. Subdivision previews its saved clicks-per-beat sequence with arrows; only the current stage is highlighted during enabled, non-polyrhythm playback. Only Tempo's increase/interval and Subdivision's stage controls unfold; these remain mounted, collapsed and inert when disabled. Polyrhythm keeps configuration readable while disabling switches and making wheels read-only.
 
-### 5.1 Gap Training
+Wheels rotate horizontally with touch/mouse dragging and focused mouse/trackpad scrolling; arrow keys change one step, Page Up/Down ten, and Home/End select bounds. Grip texture and numbers move together; a square drum-key-style marker indicates the selected value. Animation is frame-batched and local to the wheel. Settings commit once on release or after 120 ms of scroll inactivity; keyboard steps commit immediately. Escape, touch cancellation, disabling or unmounting cancels pending gestures. Settings then follow the existing audio-engine bar-boundary rules. No audio engine or timer runs merely to animate an idle wheel.
+
+All three cards use the selected side-view throw-off switch, mounted flush to the right edge and anchored at the folded header while additional settings expand below it. Its stationary 64 × 114 px button controls trainer state immediately. The hardware slides down 3 px and swings outward when off, then rises and closes when on (270 ms release / 210 ms engagement). Accessible names and `aria-checked` replace visible On/Off wording. Keyboard activation, disabling and reduced motion are retained. Narrow cards place header wheels across the full available width; controls retain at least 44 px touch height.
+
+### 5.1 Gap Trainer
 
 - Alternates audible and silent phases indefinitely.
 - Audible bars: 1–16.
@@ -131,6 +132,7 @@ Each trainer is presented as a focused Pulse card with its own explanation, swit
 - Tempo changes occur only at bar boundaries and clamp at the target.
 - Reaching the target ends further tempo changes; metronome playback continues at the target.
 - Enabling or editing the trainer while stopped sets the metronome to the configured start BPM. During playback, the new start takes effect at the next bar boundary.
+- If enabled while stopped and then disabled before playback starts, the previous metronome BPM is restored, even if the trainer settings were edited. Once playback starts successfully, disabling keeps the current BPM, including after stopping. This preview undo is session-only, not persisted across reloads.
 
 While Tempo Trainer owns tempo in standard metronome mode, direct BPM entry, slider, `+`/`−`, Tap, and their global keyboard shortcuts are disabled. This prevents the same state from being changed through a secondary path.
 
@@ -138,7 +140,7 @@ While Tempo Trainer owns tempo in standard metronome mode, direct BPM entry, sli
 
 - Cycles continuously through two to four user-configured stages.
 - Each stage chooses a subdivision from 1–13 and lasts 1–16 bars.
-- The current stage and bar are shown during playback.
+- The current stage and bar are shown on the active stage card during playback, without a separate cycle summary.
 - Enabling the trainer while stopped applies Stage A immediately; enabling or editing it during playback applies the relevant change at a bar boundary.
 
 While Subdivision Trainer owns subdivision in standard metronome mode, the main subdivision selector is disabled.
@@ -168,7 +170,7 @@ Saved settings are applied while the audio engine is constructed, before the fir
 
 Drums Only is the active identity in this build. `src/brand/drumsOnly.js` supplies the product name, accessible logo, branded range-thumb asset, colors, and fonts through a validated, frozen contract. `PhoneFrame` converts that contract to semantic CSS custom properties.
 
-Metronome, Training, Settings, and the audio engine do not import the Drums Only definition. A future independent drum shop can provide a new definition and select it at the shell boundary without forking feature or playback code.
+Metronome, Practice tools, Settings, and the audio engine do not import the Drums Only definition. A future independent drum shop can provide a new definition and select it at the shell boundary without forking feature or playback code.
 
 The following remain Drums Only-specific until a reseller build pipeline is added: document title, PWA manifest metadata, public app icons, Apple touch icon, public brand images, deployment base path, and the existing settings storage namespace. See `BRANDING.md` for the exact boundary. The storage key must not change without a migration.
 
@@ -178,7 +180,7 @@ The current UI baseline includes:
 
 - Viewport zoom remains available; `viewport-fit=cover` supports modern iPhone safe areas.
 - Primary controls, navigation items, range inputs, switches, and beat/accent targets are designed around a 44 px touch area.
-- Form controls have programmatic labels; trainer toggles use switch semantics; disabled ownership states use native disabled controls.
+- Form controls have programmatic labels; trainer toggles use switch semantics. Disabled ownership states use native disabled buttons/fields and guarded `aria-disabled` spinbuttons removed from the tab order.
 - Play/stop, Tap, accent buttons, page selectors, and navigation expose accessible names and current states.
 - Keyboard focus has a visible high-contrast outline.
 - Global keyboard shortcuts ignore focused inputs, selects, buttons, links, sliders, and switches.
@@ -209,7 +211,7 @@ The native iOS drum-tuner concept in `drum-tuner-prd.md` is a separate future pr
 | Tempo ownership | Enabling Tempo Trainer disables every direct tempo path in standard mode, including Tap and keyboard shortcuts |
 | Trainer combination | Gap, Tempo, and Subdivision trainers can be enabled together and their states are all visible in playback status |
 | Mode preservation | Entering Polyrhythm stops playback without clearing configured trainers; returning to standard mode restores trainer-owned values |
-| Persistent transport | Playback can be started or stopped from Training and Settings, and its summary matches Metronome |
+| Persistent transport | Practice tools and Settings mirror Metronome's beat orbit and BPM; start/stop and ± controls use the same engine and tempo ownership rules |
 | Dense metronome layout | 16 beats and subdivision 13 remain usable through paging/scrolling without page-level horizontal overflow on supported mobile widths |
 | Pulse presentation | Orbit and beat progress use audio-timed engine callbacks; BPM editing and all playback controls continue to call the existing engine handlers |
 | Rhythm sheet | Standard accents and all polyrhythm controls remain reachable; focus is contained and restored; the sheet scrolls independently |

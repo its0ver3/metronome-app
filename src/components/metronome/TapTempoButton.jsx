@@ -1,11 +1,23 @@
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
-import { registerTempoTap, TAP_TEMPO_IDLE_RESET_MS } from './tapTempo'
+import { HandTapIcon } from '@phosphor-icons/react/dist/csr/HandTap'
+import {
+  registerTempoTap,
+  TAP_TEMPO_IDLE_RESET_MS,
+  TAP_TEMPO_MIN_TAPS,
+} from './tapTempo'
 
-const TapTempoButton = forwardRef(function TapTempoButton({ onBpmChange, disabled = false, className = '' }, ref) {
+const TapTempoButton = forwardRef(function TapTempoButton({
+  onBpmChange,
+  onTapFeedback,
+  disabled = false,
+  className = '',
+}, ref) {
   const tapsRef = useRef([])
   const resetTimerRef = useRef(null)
   const flashTimerRef = useRef(null)
   const [flash, setFlash] = useState(false)
+  const [tapStage, setTapStage] = useState(0)
+  const [pulseId, setPulseId] = useState(0)
 
   useEffect(() => {
     if (disabled) {
@@ -13,6 +25,7 @@ const TapTempoButton = forwardRef(function TapTempoButton({ onBpmChange, disable
       clearTimeout(resetTimerRef.current)
       clearTimeout(flashTimerRef.current)
       setFlash(false)
+      setTapStage(0)
     }
   }, [disabled])
 
@@ -33,10 +46,15 @@ const TapTempoButton = forwardRef(function TapTempoButton({ onBpmChange, disable
     clearTimeout(resetTimerRef.current)
     resetTimerRef.current = setTimeout(() => {
       tapsRef.current = []
+      setTapStage(0)
     }, TAP_TEMPO_IDLE_RESET_MS)
 
     const result = registerTempoTap(tapsRef.current, now)
     tapsRef.current = result.taps
+    const nextStage = Math.min(result.taps.length, TAP_TEMPO_MIN_TAPS)
+    setTapStage(nextStage)
+    setPulseId((current) => current + 1)
+    onTapFeedback?.(nextStage)
 
     if (result.bpm !== null) {
       onBpmChange?.(result.bpm)
@@ -47,13 +65,21 @@ const TapTempoButton = forwardRef(function TapTempoButton({ onBpmChange, disable
     click: handleTap,
   }))
 
+  const accessibleLabel = tapStage === 0
+    ? 'Tap tempo'
+    : tapStage < TAP_TEMPO_MIN_TAPS
+      ? `Tap tempo, ${tapStage} of ${TAP_TEMPO_MIN_TAPS} taps registered`
+      : 'Tap tempo, tempo set; keep tapping to refine'
+
   return (
     <button
       type="button"
       onClick={handleTap}
       disabled={disabled}
-      aria-label="Tap tempo"
+      aria-label={accessibleLabel}
       aria-keyshortcuts="T"
+      data-tap-stage={tapStage}
+      style={{ '--tap-reset-duration': `${TAP_TEMPO_IDLE_RESET_MS}ms` }}
       title={disabled ? 'Tempo is controlled by Tempo Trainer' : 'Tap four times to set tempo (T)'}
       className={`${className} ${
         disabled
@@ -63,11 +89,16 @@ const TapTempoButton = forwardRef(function TapTempoButton({ onBpmChange, disable
             : ''
       }`}
     >
+      <span className="pulse-tap-charge" aria-hidden="true">
+        {tapStage > 0 && (
+          <>
+            <span key={`fill-${pulseId}`} className="pulse-tap-fill" />
+            <span key={`wave-${pulseId}`} className="pulse-tap-wave" />
+          </>
+        )}
+      </span>
       <span className="pulse-tap-glyph" aria-hidden="true">
-        <span className="pulse-tap-ripple pulse-tap-ripple-one" />
-        <span className="pulse-tap-ripple pulse-tap-ripple-two" />
-        <span className="pulse-tap-stick" />
-        <span className="pulse-tap-pad" />
+        <HandTapIcon className="pulse-tap-hand" size={34} weight="regular" />
       </span>
     </button>
   )

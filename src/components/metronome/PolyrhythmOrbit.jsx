@@ -32,6 +32,7 @@ function RhythmArc({
   accentIndexForBeat,
   controlIndexForBeat,
   onCycleAccent,
+  interactive = true,
 }) {
   const stepAngle = sweepAngle / count
   const gapAngle = Math.min(3.5, stepAngle * 0.18)
@@ -99,7 +100,7 @@ function RhythmArc({
           }}
           aria-hidden="true"
         />
-        <path
+        {interactive && <path
           d={hitPath}
           className="pulse-orbit-segment-hit"
           role="button"
@@ -107,7 +108,7 @@ function RhythmArc({
           aria-label={`${description} accent: ${accent.toLowerCase()}. ${rhythm === 'standard' ? 'Activate to change the beat accent; Off silences all subdivisions.' : 'Activate to change.'}`}
           onClick={activate}
           onKeyDown={(event) => handleSegmentKeyDown(event, activate)}
-        />
+        />}
       </g>
     )
   })
@@ -120,13 +121,15 @@ export function StandardRhythmOrbit({
   activeBeat,
   isPlaying,
   onCycleBeatAccent,
+  interactive = true,
 }) {
   return (
     <svg
       className="pulse-segmented-orbit pulse-standard-orbit"
       viewBox="0 0 100 100"
-      role="group"
-      aria-label="Beat accent controls"
+      role={interactive ? 'group' : undefined}
+      aria-label={interactive ? 'Beat accent controls' : undefined}
+      aria-hidden={!interactive || undefined}
     >
       <RhythmArc
         rhythm="standard"
@@ -139,6 +142,7 @@ export function StandardRhythmOrbit({
         accentIndexForBeat={(beat) => getStandardOrbitAccentIndex(beat, subdivision)}
         controlIndexForBeat={(beat) => beat}
         onCycleAccent={onCycleBeatAccent}
+        interactive={interactive}
       />
     </svg>
   )
@@ -153,13 +157,15 @@ export default function PolyrhythmOrbit({
   accents1,
   accents2,
   onCycleAccent,
+  interactive = true,
 }) {
   return (
     <svg
       className="pulse-segmented-orbit pulse-poly-orbit"
       viewBox="0 0 100 100"
-      role="group"
-      aria-label="Polyrhythm accent controls"
+      role={interactive ? 'group' : undefined}
+      aria-label={interactive ? 'Polyrhythm accent controls' : undefined}
+      aria-hidden={!interactive || undefined}
     >
       <RhythmArc
         rhythm="one"
@@ -172,6 +178,7 @@ export default function PolyrhythmOrbit({
         accentIndexForBeat={(beat) => beat}
         controlIndexForBeat={(beat) => beat}
         onCycleAccent={(beat) => onCycleAccent(1, beat)}
+        interactive={interactive}
       />
       <RhythmArc
         rhythm="two"
@@ -184,6 +191,7 @@ export default function PolyrhythmOrbit({
         accentIndexForBeat={(beat) => beat}
         controlIndexForBeat={(beat) => beat}
         onCycleAccent={(beat) => onCycleAccent(2, beat)}
+        interactive={interactive}
       />
     </svg>
   )

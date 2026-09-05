@@ -1,0 +1,88 @@
+:root { color-scheme: dark; font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #e7ebed; background: #0b0d10; --accent: #b6bd63; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+button:disabled { cursor: default; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+button { transition: background 150ms ease, transform 100ms ease; }
+button:active:not(:disabled):not(.pulse-trainer-toggle) { transform: scale(.97); }
+.lab { max-width: 480px; margin: 0 auto; padding: 28px 14px; }
+.lab-heading { padding: 0 10px 22px; }
+.lab-heading > span { color: var(--accent); font-size: .875rem; }
+h1 { font-size: 1.65rem; letter-spacing: -.035em; margin: 8px 0; }
+.lab-heading p { color: #a4adb7; font-size: 1rem; line-height: 1.5; margin: 0; }
+.phone { background: #101318; border: 1px solid #252c34; border-radius: 30px; padding: 20px 12px 18px 18px; }
+.brand { display: flex; align-items: center; justify-content: space-between; padding: 0 16px 22px 0; gap: 16px; }
+.brand img { width: 140px; max-height: 58px; object-fit: contain; }
+.brand span { font-size: .875rem; color: #8d98a5; }
+.pulse-training-stack { display: grid; gap: 12px; }
+/* Trim only the atlas's empty canvas, keeping the visible throw-off and its shadow. */
+.phone .pulse-throwoff-mechanism { overflow: clip; overflow-clip-margin: 3px; }
+.pulse-training-stack > .pulse-trainer-card { padding: 12px 21px 12px 14px; border: 1px solid #384049; border-radius: 23px; background: linear-gradient(155deg, #20262d, #171c22); transition: border-color 210ms; }
+.pulse-trainer-card.is-enabled { border-color: #535943; }
+.card-header { display: grid; grid-template-columns: 50px minmax(0, 1fr); gap: 12px; align-items: center; min-height: 84px; }
+.hoop { width: 50px; height: 50px; display: grid; place-items: center; border-radius: 50%; border: 1px solid #90999f; box-shadow: 0 0 0 2px #14191e, 0 0 0 3px #424b52, inset 0 0 0 2px #2e363e; color: #a8b1ba; }
+.hoop svg { width: 24px; height: 24px; }
+.is-enabled .hoop { color: var(--accent); }
+.card-copy { min-width: 0; }
+.card-copy h2 { font-size: 1rem; line-height: 1.25; font-weight: 600; margin: 0 0 8px; letter-spacing: -.02em; }
+.metrics { display: flex; gap: 10px; }
+.metric { flex: 1; min-width: 0; display: flex; flex-direction: column-reverse; gap: 3px; }
+.metric > span { font-size: .875rem; color: #a5b0bb; line-height: 1.2; }
+.card-controls { border-top: 1px solid #ffffff0b; margin-top: 12px; padding-top: 10px; }
+.reveal { display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows 270ms cubic-bezier(.32,.06,.24,1), opacity 270ms, visibility 270ms; }
+.reveal > div { min-height: 0; overflow: hidden; }
+.is-enabled .reveal { grid-template-rows: 1fr; opacity: 1; visibility: visible; transition-duration: 210ms; transition-timing-function: cubic-bezier(.2,.74,.24,1); }
+.number-wheel { position: relative; container-type: inline-size; width: 100%; min-width: 44px; height: 52px; border-radius: 9px; border: 1px solid #384038; background: linear-gradient(to right, #0b1014, #232b2d 26%, #303938 46%, #252e2e 64%, #0b1014); box-shadow: inset 0 1px 3px #0008, inset 0 -1px 2px #0006; cursor: ew-resize; touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; transition: border-color 150ms, background 150ms; }
+.number-wheel:focus { outline: 1px solid var(--accent); outline-offset: 1px; border-color: #9aa457; }
+.number-wheel[aria-disabled='true'] { border-color: #30363d; background: linear-gradient(to right, #101419, #20262c 46%, #11161b); box-shadow: inset 0 1px 2px #0006; cursor: default; touch-action: auto; }
+.wheel-window { --wheel-radius: 54cqw; position: absolute; inset: 0; overflow: hidden; perspective: 320px; }
+/* Keep grouping effects off this parent so perspective stays constant during fades. */
+.wheel-texture { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
+.wheel-rib { position: absolute; top: 3px; bottom: 3px; left: calc(50% - 1px); width: 2px; background: linear-gradient(to right, #c2cec152, #0009); mask-image: linear-gradient(#000b, #000 14%, transparent 32%, transparent 68%, #000 86%, #000b); backface-visibility: hidden; }
+.wheel-surface { position: absolute; inset: 1px; border-radius: 7px; pointer-events: none; background: linear-gradient(to right, #0005, transparent 22%, #d6e1d708 43%, transparent 62%, #0005); box-shadow: inset 0 1px 0 #d5dfd71a, inset 0 -1px 0 #000a; }
+/* A fixed square drum-key head marks the selected number; the cylinder turns below it. */
+.wheel-index { position: absolute; top: 3px; left: calc(50% - 3px); width: 6px; height: 6px; border: 1px solid #b7c0a5; border-radius: 1px; background: linear-gradient(135deg, #c1c9b6, #616e5d 48%, #87947a); box-shadow: 0 1px 2px #000a, inset 0 0 0 1px #1118; pointer-events: none; transition: opacity 210ms ease, filter 210ms ease; }
+.wheel-index::after { content: ''; position: absolute; width: 1px; height: 2px; top: 6px; left: 1.5px; background: #b6bd6399; }
+.compact-wheel .wheel-index { top: 2px; }
+/* Equal angular steps around one cylinder: the side numbers naturally recede. */
+.wheel-digit { position: absolute; left: 33.333333%; width: 33.333333%; top: calc(50% - 11px); height: 22px; line-height: 22px; text-align: center; font-size: min(1.125rem, 24cqw); font-weight: 400; font-variant-numeric: tabular-nums; color: #d0d69a; white-space: nowrap; backface-visibility: hidden; text-shadow: 0 1px 1px #0008; }
+.number-wheel[data-long-range='true'] .wheel-digit { font-size: min(1.125rem, 20cqw); }
+.number-wheel:not(.is-moving) .wheel-digit, .number-wheel:not(.is-moving) .wheel-rib { transition: transform 170ms cubic-bezier(.2,.8,.25,1), opacity 170ms ease-out; }
+.number-wheel[aria-disabled='true'] .wheel-digit:not(.current) { opacity: 0 !important; }
+.number-wheel[aria-disabled='true'] .wheel-index { opacity: .35; filter: grayscale(1); }
+.number-wheel[aria-disabled='true'] .wheel-digit.current { color: #a4adb6; }
+.wheel-digit { transition: color 210ms ease; }
+.number-wheel:not(.is-moving) .wheel-digit { transition: transform 170ms cubic-bezier(.2,.8,.25,1), opacity 210ms ease-out, color 210ms ease; }
+.compact-wheel { height: 44px; }
+.compact-wheel .wheel-digit { font-size: min(1rem, 24cqw); }
+.tempo-extras { display: grid; gap: 6px; }
+.inline-setting { display: grid; grid-template-columns: minmax(0, 1fr) clamp(88px, 28vw, 112px) 30px; align-items: center; gap: 6px; color: #aeb8c2; font-size: .875rem; }
+.stage-summary { margin: 0; font-size: .875rem; line-height: 1.5; color: #a5b0bb; }
+.stages { display: grid; gap: 6px; }
+.stage, .stage-labels { display: grid; grid-template-columns: 32px minmax(44px, 1fr) minmax(44px, 1fr) 28px; gap: 8px; align-items: center; }
+.stage-labels { color: #a5b0bb; font-size: .75rem; margin-bottom: 8px; text-align: center; }
+.stage-number { color: #b3bec8; font-size: .875rem; text-align: center; }
+.remove-stage { border: 0; background: transparent; height: 44px; width: 44px; margin-left: -8px; color: #8c9aa7; font-size: 1.25rem; }
+.add-stage { background: transparent; border: 0; color: #b9c18a; min-height: 44px; font-size: .875rem; padding: 8px 0; }
+.prototype-note { font-size: .75rem; color: #8f9ba8; line-height: 1.5; text-align: center; margin: 22px 12px 0 0; }
+@media (max-width: 380px) {
+  .lab { padding-inline: 8px; }
+  .phone { padding-left: 12px; }
+  .card-header { grid-template-columns: 40px minmax(0, 1fr); gap: 10px; }
+  .hoop { width: 38px; height: 38px; }
+  .pulse-training-stack > .pulse-trainer-card { padding-left: 10px; padding-right: 17px; }
+  .metric > span { font-size: .8125rem; }
+  .stage, .stage-labels { gap: 5px; grid-template-columns: 26px minmax(44px, 1fr) minmax(44px, 1fr) 28px; }
+}
+@media (max-width: 360px) {
+  .card-header { grid-template-columns: 28px minmax(0, 1fr); gap: 8px 10px; }
+  .card-copy { display: contents; }
+  .hoop { width: 28px; height: 28px; }
+  .hoop svg { width: 18px; height: 18px; }
+  .card-copy h2 { margin: 0; }
+  .metrics { grid-column: 1 / -1; }
+  .metric > span { font-size: .875rem; }
+  .stage-labels { font-size: .75rem; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f4f1ea" />
+    <title>Drums Only Sound Shortlist</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="shortlist-shell">
+      <header class="page-heading">
+        <img src="../../logo.png" alt="Drums Only" />
+        <div>
+          <p class="eyebrow">Sound library decision</p>
+          <h1>Sound Shortlist</h1>
+          <p class="instructions">Tap a pill to hear it. Check the sounds worth keeping.</p>
+        </div>
+      </header>
+
+      <section class="sound-group" aria-labelledby="current-heading">
+        <header class="group-heading">
+          <div>
+            <p>01</p>
+            <h2 id="current-heading">Current app</h2>
+          </div>
+          <span>8 synthesized sounds</span>
+        </header>
+        <div id="current-grid" class="sound-grid"></div>
+      </section>
+
+      <section class="sound-group" aria-labelledby="candidate-heading">
+        <header class="group-heading">
+          <div>
+            <p>02</p>
+            <h2 id="candidate-heading">Recorded candidates</h2>
+          </div>
+          <span>7 sounds from the lab</span>
+        </header>
+        <div id="candidate-grid" class="sound-grid"></div>
+      </section>
+    </main>
+
+    <aside class="selection-status" aria-live="polite">
+      <span id="selection-count">2 selected</span>
+      <small id="audio-status">Choices save automatically</small>
+    </aside>
+  </body>
+</html>

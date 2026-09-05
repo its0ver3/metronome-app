@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <title>BPM Color Lab — Drums Only</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="lab-shell">
+      <header class="lab-header">
+        <img src="../../logo.png" alt="Drums Only" />
+        <div>
+          <p>Independent prototype</p>
+          <h1>BPM color lab</h1>
+          <span>Five ways for tempo to gather colour, texture, and energy.</span>
+        </div>
+      </header>
+
+      <nav class="scheme-tabs" aria-label="Choose a slider color direction">
+        <button type="button" data-scheme="blue-olive" aria-pressed="true"><b>01</b> Blue Olive</button>
+        <button type="button" data-scheme="backline"><b>02</b> Backline Glow</button>
+        <button type="button" data-scheme="warm-tape"><b>03</b> Warm Tape</button>
+        <button type="button" data-scheme="chrome"><b>04</b> Chrome Meter</button>
+        <button type="button" data-scheme="afterbeat"><b>05</b> Afterbeat</button>
+      </nav>
+
+      <section class="concept-stage scheme-blue-olive" id="concept-stage" aria-live="polite">
+        <div class="concept-copy">
+          <div>
+            <p id="concept-number">Direction 01</p>
+            <h2 id="concept-name">Blue Olive</h2>
+          </div>
+          <p id="concept-description">Pulled directly from the badge: deep teal, enamel blue, warm paper, and olive gold.</p>
+        </div>
+
+        <div class="metronome-card">
+          <div class="card-glow" aria-hidden="true"></div>
+
+          <div class="tempo-orbit" aria-hidden="true">
+            <div class="tempo-orbit-inner">
+              <strong id="bpm-readout">120</strong>
+              <span>BPM</span>
+            </div>
+          </div>
+
+          <div class="slider-area">
+            <div class="slider-track" aria-hidden="true">
+              <span class="track-shade"></span>
+              <span class="track-texture"></span>
+              <span class="thumb-aura"></span>
+            </div>
+            <input
+              id="tempo-slider"
+              type="range"
+              min="20"
+              max="300"
+              step="1"
+              value="120"
+              aria-label="Preview tempo"
+              aria-valuetext="120 beats per minute"
+            />
+          </div>
+
+          <div class="tempo-caption">
+            <span>20</span>
+            <strong id="energy-label">In the pocket</strong>
+            <span>300</span>
+          </div>
+
+          <div class="palette" id="palette" aria-label="Current color palette"></div>
+        </div>
+
+        <div class="concept-notes">
+          <div>
+            <span>Colour story</span>
+            <strong id="color-story">Badge-native and quietly playful</strong>
+          </div>
+          <div>
+            <span>Movement</span>
+            <strong id="motion-story">Clean enamel rail + brushed hatch</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="quick-compare" aria-labelledby="compare-title">
+        <div class="compare-heading">
+          <div>
+            <p>Quick compare</p>
+            <h2 id="compare-title">Same tempo, five personalities</h2>
+          </div>
+          <p>Tap a strip to bring it into the main preview.</p>
+        </div>
+        <div class="compare-grid" id="compare-grid"></div>
+      </section>
+
+      <p class="lab-footnote">This lab is isolated from the production metronome. Nothing selected here changes the app.</p>
+    </main>
+  </body>
+</html>

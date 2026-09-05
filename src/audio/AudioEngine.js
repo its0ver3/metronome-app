@@ -13,8 +13,24 @@ import {
   normalizeAccentLevel,
   buildDefaultSubdivisionAccents,
   buildDefaultPolyAccents,
+  normalizeSoundIndex,
 } from './constants.js'
 import SoundBank from './SoundBank.js'
+
+export const TAP_TEMPO_FEEDBACK_FREQUENCIES = Object.freeze([
+  261.63,
+  329.63,
+  392,
+  523.25,
+])
+
+export function tapTempoFeedbackFrequency(stage) {
+  const numericStage = Number(stage)
+  const normalizedStage = Number.isFinite(numericStage)
+    ? Math.max(1, Math.min(TAP_TEMPO_FEEDBACK_FREQUENCIES.length, Math.round(numericStage)))
+    : 1
+  return TAP_TEMPO_FEEDBACK_FREQUENCIES[normalizedStage - 1]
+}
 
 function normalizeSubdivisionTrainerStages(stages) {
   const source = Array.isArray(stages) ? stages : []
@@ -65,6 +81,7 @@ export default class AudioEngine {
     this._currentBar = 1
     this._timerId = null
     this._visualTimerIds = new Set()
+    this._soundSequence = 0
 
     // Gap training
     this.gapEnabled = false
@@ -82,6 +99,8 @@ export default class AudioEngine {
     this._tempoBarCount = 0
     this._tempoReached = false
     this._tempoPendingActivation = false
+    // A stopped activation previews the start tempo until playback commits it.
+    this._tempoPreviewBpm = null
 
     // Subdivision trainer
     this.subdivTrainerEnabled = false
@@ -177,6 +196,11 @@ export default class AudioEngine {
     if (!(await this._unlockAudio())) return
     if (!(await this.init())) return
 
+    const activeSoundIndexes = this.polyrhythmMode
+      ? [this.polySoundIndex1, this.polySoundIndex2]
+      : [this.soundIndex]
+    await Promise.all(activeSoundIndexes.map((index) => this.soundBank.prepareSound(index)))
+
     if (this.ctx.state === 'interrupted') {
       await this.ctx.resume().catch(() => {})
       if (this.ctx.state !== 'running') return
@@ -185,6 +209,7 @@ export default class AudioEngine {
     if (this.isPlaying) return
 
     this.isPlaying = true
+    this._tempoPreviewBpm = null
     this._currentBeat = 0
     this._currentSubdivision = 0
     this._currentBar = 1
@@ -197,6 +222,7 @@ export default class AudioEngine {
     this._subdivTrainerStageIndex = 0
     this._subdivTrainerPendingActivation = false
     this._subdivTrainerConfigDirty = false
+    this._soundSequence = 0
 
     if (this.subdivTrainerEnabled && !this.polyrhythmMode) {
       this.setSubdivision(this.subdivTrainerStages[0].subdivision)
@@ -237,6 +263,27 @@ export default class AudioEngine {
     this._onBpmChange?.(this.bpm)
   }
 
+  async playTapTempoFeedback(stage) {
+    if (!(await this._unlockAudio()) || !this._gainNode) return
+
+    const now = this.ctx.currentTime
+    const frequency = tapTempoFeedbackFrequency(stage)
+    const oscillator = this.ctx.createOscillator()
+    const toneGain = this.ctx.createGain()
+
+    oscillator.type = 'sine'
+    oscillator.frequency.setValueAtTime(frequency * 1.035, now)
+    oscillator.frequency.exponentialRampToValueAtTime(frequency, now + 0.055)
+    toneGain.gain.setValueAtTime(0.0001, now)
+    toneGain.gain.exponentialRampToValueAtTime(0.065, now + 0.008)
+    toneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14)
+
+    oscillator.connect(toneGain)
+    toneGain.connect(this._gainNode)
+    oscillator.start(now)
+    oscillator.stop(now + 0.16)
+  }
+
   setVolume(v) {
     this.volume = Math.max(0, Math.min(1, v))
     if (this._gainNode) {
@@ -245,14 +292,21 @@ export default class AudioEngine {
   }
 
   setSound(index) {
-    this.soundIndex = index
+    this.soundIndex = normalizeSoundIndex(index)
+    this.soundBank?.prepareSound(this.soundIndex).catch(() => {})
   }
 
   async preview(soundIndex) {
     if (!(await this._unlockAudio())) return
     if (!(await this.init())) return
+    const normalizedIndex = normalizeSoundIndex(soundIndex)
+    await this.soundBank.prepareSound(normalizedIndex)
 
-    const buffer = this.soundBank.getBuffer(soundIndex)
+    const buffer = this.soundBank.getBuffer(normalizedIndex, {
+      beatNumber: 1,
+      bpm: this.bpm,
+      sequenceIndex: 0,
+    })
     const source = this.ctx.createBufferSource()
     source.buffer = buffer
     source.connect(this._gainNode)
@@ -332,6 +386,9 @@ export default class AudioEngine {
   // Tempo trainer config
   setTempoTrainer(enabled, startBpm, targetBpm, increment, everyBars) {
     const wasEnabled = this.tempoTrainerEnabled
+    if (enabled && !wasEnabled) {
+      this._tempoPreviewBpm = !this.isPlaying && !this.polyrhythmMode ? this.bpm : null
+    }
     const configChanged = (startBpm !== undefined && this.tempoStartBpm !== startBpm)
       || (targetBpm !== undefined && this.tempoTargetBpm !== targetBpm)
       || (increment !== undefined && this.tempoIncrement !== increment)
@@ -344,9 +401,14 @@ export default class AudioEngine {
     if (everyBars !== undefined) this.tempoEveryBars = everyBars
 
     if (!enabled) {
+      const previousBpm = this._tempoPreviewBpm
+      this._tempoPreviewBpm = null
       this._tempoBarCount = 0
       this._tempoReached = false
       this._tempoPendingActivation = false
+      if (wasEnabled && !this.isPlaying && previousBpm !== null) {
+        this.setBpm(previousBpm)
+      }
       return
     }
 
@@ -442,8 +504,15 @@ export default class AudioEngine {
     }
   }
 
-  setPolySoundIndex1(index) { this.polySoundIndex1 = index }
-  setPolySoundIndex2(index) { this.polySoundIndex2 = index }
+  setPolySoundIndex1(index) {
+    this.polySoundIndex1 = normalizeSoundIndex(index)
+    this.soundBank?.prepareSound(this.polySoundIndex1).catch(() => {})
+  }
+
+  setPolySoundIndex2(index) {
+    this.polySoundIndex2 = normalizeSoundIndex(index)
+    this.soundBank?.prepareSound(this.polySoundIndex2).catch(() => {})
+  }
 
   _notifyAtAudioTime(time, callback) {
     const delayMs = Math.max(0, (time - this.ctx.currentTime) * 1000)
@@ -526,11 +595,19 @@ export default class AudioEngine {
     const accentLevel = normalizeAccentLevel(accentArr[beatIndex])
     const vol = ACCENT_LEVELS[accentLevel]?.volume ?? 0.4
     const isCycleDownbeat = beatIndex === 0
+    const effectiveBpm = rhythmIndex === 1
+      ? this.bpm
+      : this.bpm * (this.polyRhythm2 / this.polyRhythm1)
+    const soundOptions = {
+      beatNumber: beatIndex + 1,
+      bpm: effectiveBpm,
+      sequenceIndex: this._soundSequence++,
+    }
 
     if (vol > 0) {
       const buffer = isCycleDownbeat
-        ? this.soundBank.getDownbeatBuffer(soundIdx)
-        : this.soundBank.getBuffer(soundIdx)
+        ? this.soundBank.getDownbeatBuffer(soundIdx, soundOptions)
+        : this.soundBank.getBuffer(soundIdx, soundOptions)
       this._playSound(buffer, time, vol)
     }
 
@@ -561,15 +638,24 @@ export default class AudioEngine {
     // Determine if in gap
     const inGap = this.gapEnabled && this._inGap
     const shouldPlay = !inGap && accentVolume > 0
+    const soundOptions = {
+      beatNumber: beatIndex + 1,
+      bpm: this.bpm,
+      sequenceIndex: this._soundSequence++,
+    }
 
     if (shouldPlay) {
       if (isMainBeat) {
         const buffer = isCycleDownbeat
-          ? this.soundBank.getDownbeatBuffer(this.soundIndex)
-          : this.soundBank.getBuffer(this.soundIndex)
+          ? this.soundBank.getDownbeatBuffer(this.soundIndex, soundOptions)
+          : this.soundBank.getBuffer(this.soundIndex, soundOptions)
         this._playSound(buffer, time, accentVolume)
       } else {
-        this._playSound(this.soundBank.getSubdivisionBuffer(this.soundIndex), time, accentVolume)
+        this._playSound(
+          this.soundBank.getSubdivisionBuffer(this.soundIndex, soundOptions),
+          time,
+          accentVolume,
+        )
       }
     }
 

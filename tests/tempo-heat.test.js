@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import {
   FIRE_MIN_BPM,
   TEMPO_COLOR_STOPS,
+  TEMPO_SLIDER_COLOR_STOPS,
   TEMPO_SLIDER_GRADIENT,
   getTempoColor,
   getTempoHeat,
@@ -11,11 +12,10 @@ import {
 test('tempo color anchors span the full range and keep fire to the top ten BPM', () => {
   assert.equal(FIRE_MIN_BPM, 291)
   assert.deepEqual(TEMPO_COLOR_STOPS, [
-    { bpm: 20, label: 'Blue', color: '#3B82F6' },
-    { bpm: 110, label: 'Green', color: '#22C55E' },
-    { bpm: 200, label: 'Yellow', color: '#FACC15' },
-    { bpm: 290, label: 'Red', color: '#EF4444' },
-    { bpm: 300, label: 'Fire', color: '#FF6B00' },
+    { bpm: 20, label: 'Deep teal', color: '#154B55' },
+    { bpm: 110, label: 'Enamel blue', color: '#3D8790' },
+    { bpm: 213, label: 'Warm paper', color: '#D8D0B7' },
+    { bpm: 300, label: 'Olive gold', color: '#AAA14E' },
   ])
 
   assert.equal(getTempoHeat(290).id, 'gradient')
@@ -24,28 +24,46 @@ test('tempo color anchors span the full range and keep fire to the top ten BPM',
 })
 
 test('tempo color blends continuously between every anchor', () => {
-  assert.equal(getTempoColor(20), '#3B82F6')
-  assert.equal(getTempoColor(65), '#2FA4AA')
-  assert.equal(getTempoColor(110), '#22C55E')
-  assert.equal(getTempoColor(155), '#8EC93A')
-  assert.equal(getTempoColor(200), '#FACC15')
-  assert.equal(getTempoColor(245), '#F5882D')
-  assert.equal(getTempoColor(290), '#EF4444')
-  assert.equal(getTempoColor(295), '#F75822')
-  assert.equal(getTempoColor(300), '#FF6B00')
+  assert.equal(getTempoColor(20), '#154B55')
+  assert.equal(getTempoColor(65), '#296973')
+  assert.equal(getTempoColor(110), '#3D8790')
+  assert.equal(getTempoColor(155), '#81A7A1')
+  assert.equal(getTempoColor(200), '#C4C7B2')
+  assert.equal(getTempoColor(245), '#C7BF90')
+  assert.equal(getTempoColor(290), '#AFA65A')
+  assert.equal(getTempoColor(295), '#ADA454')
+  assert.equal(getTempoColor(300), '#AAA14E')
 
-  for (let bpm = 21; bpm <= 300; bpm += 1) {
-    assert.notEqual(getTempoColor(bpm), getTempoColor(bpm - 1))
+  const colors = new Set()
+  for (let bpm = 20; bpm <= 300; bpm += 1) {
+    const color = getTempoColor(bpm)
+    colors.add(color)
+
+    if (bpm > 20) {
+      const previous = getTempoColor(bpm - 1)
+      const channels = [1, 3, 5].map((index) => Math.abs(
+        Number.parseInt(color.slice(index, index + 2), 16)
+        - Number.parseInt(previous.slice(index, index + 2), 16),
+      ))
+      assert.ok(Math.max(...channels) <= 2)
+    }
   }
+  assert.ok(colors.size > 240)
 })
 
-test('tempo slider uses the same gradient and progress across 20–300 BPM', () => {
-  assert.match(TEMPO_SLIDER_GRADIENT, /#3B82F6 0%/)
-  assert.match(TEMPO_SLIDER_GRADIENT, /#EF4444 96\.42857142857143%/)
-  assert.match(TEMPO_SLIDER_GRADIENT, /#FF6B00 100%/)
+test('tempo slider uses the Blue Olive gradient and progress across 20–300 BPM', () => {
+  assert.strictEqual(TEMPO_SLIDER_COLOR_STOPS, TEMPO_COLOR_STOPS)
+  assert.deepEqual(TEMPO_SLIDER_COLOR_STOPS, [
+    { bpm: 20, label: 'Deep teal', color: '#154B55' },
+    { bpm: 110, label: 'Enamel blue', color: '#3D8790' },
+    { bpm: 213, label: 'Warm paper', color: '#D8D0B7' },
+    { bpm: 300, label: 'Olive gold', color: '#AAA14E' },
+  ])
+  assert.match(TEMPO_SLIDER_GRADIENT, /#154B55 0%/)
+  assert.match(TEMPO_SLIDER_GRADIENT, /#AAA14E 100%/)
   assert.equal(getTempoHeat(20).sliderProgress, 0)
   assert.equal(getTempoHeat(160).sliderProgress, 50)
   assert.equal(getTempoHeat(300).sliderProgress, 100)
-  assert.equal(getTempoHeat(999).color, '#FF6B00')
-  assert.equal(getTempoHeat(-10).color, '#3B82F6')
+  assert.equal(getTempoHeat(999).color, '#AAA14E')
+  assert.equal(getTempoHeat(-10).color, '#154B55')
 })

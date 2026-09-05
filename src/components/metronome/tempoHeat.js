@@ -3,12 +3,13 @@ import { MAX_BPM, MIN_BPM, clampBpm } from '../../audio/constants.js'
 export const FIRE_MIN_BPM = MAX_BPM - 9
 
 export const TEMPO_COLOR_STOPS = Object.freeze([
-  Object.freeze({ bpm: MIN_BPM, label: 'Blue', color: '#3B82F6' }),
-  Object.freeze({ bpm: 110, label: 'Green', color: '#22C55E' }),
-  Object.freeze({ bpm: 200, label: 'Yellow', color: '#FACC15' }),
-  Object.freeze({ bpm: FIRE_MIN_BPM - 1, label: 'Red', color: '#EF4444' }),
-  Object.freeze({ bpm: MAX_BPM, label: 'Fire', color: '#FF6B00' }),
+  Object.freeze({ bpm: MIN_BPM, label: 'Deep teal', color: '#154B55' }),
+  Object.freeze({ bpm: 110, label: 'Enamel blue', color: '#3D8790' }),
+  Object.freeze({ bpm: 213, label: 'Warm paper', color: '#D8D0B7' }),
+  Object.freeze({ bpm: MAX_BPM, label: 'Olive gold', color: '#AAA14E' }),
 ])
+
+export const TEMPO_SLIDER_COLOR_STOPS = TEMPO_COLOR_STOPS
 
 function hexToRgb(hex) {
   return [
@@ -37,7 +38,7 @@ function getSliderProgress(bpm) {
   return ((bpm - MIN_BPM) / (MAX_BPM - MIN_BPM)) * 100
 }
 
-export const TEMPO_SLIDER_GRADIENT = `linear-gradient(to right, ${TEMPO_COLOR_STOPS
+export const TEMPO_SLIDER_GRADIENT = `linear-gradient(to right, ${TEMPO_SLIDER_COLOR_STOPS
   .map(({ bpm, color }) => `${color} ${getSliderProgress(bpm)}%`)
   .join(', ')})`
 

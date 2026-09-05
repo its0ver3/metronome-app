@@ -1,10 +1,22 @@
-import { normalizeAccentLevel } from '../audio/constants.js'
+import {
+  LEGACY_SOUND_INDEX_MAP,
+  getSoundIdByIndex,
+  getSoundIndexById,
+  normalizeAccentLevel,
+  normalizeSoundIndex,
+} from '../audio/constants.js'
 
 const STORAGE_KEY = 'drums-only-metronome-settings'
 
 export function saveSettings(settings) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...settings, version: 3 }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      ...settings,
+      soundId: getSoundIdByIndex(settings.soundIndex),
+      polySoundId1: getSoundIdByIndex(settings.polySoundIndex1),
+      polySoundId2: getSoundIdByIndex(settings.polySoundIndex2),
+      version: 4,
+    }))
   } catch (e) {
     // localStorage might be full or unavailable
   }
@@ -21,6 +33,16 @@ export function loadSettings() {
     if (!data) return null
     const settings = JSON.parse(data)
 
+    if (settings.version >= 4) {
+      settings.soundIndex = getSoundIndexById(settings.soundId)
+      settings.polySoundIndex1 = getSoundIndexById(settings.polySoundId1)
+      settings.polySoundIndex2 = getSoundIndexById(settings.polySoundId2)
+    } else {
+      settings.soundIndex = migrateLegacySoundIndex(settings.soundIndex)
+      settings.polySoundIndex1 = migrateLegacySoundIndex(settings.polySoundIndex1)
+      settings.polySoundIndex2 = migrateLegacySoundIndex(settings.polySoundIndex2)
+    }
+
     if (settings.subdivisionAccents) {
       settings.subdivisionAccents = migrateAccentArray(settings.subdivisionAccents)
     }
@@ -35,4 +57,9 @@ export function loadSettings() {
   } catch (e) {
     return null
   }
+}
+
+function migrateLegacySoundIndex(index) {
+  if (index === undefined) return undefined
+  return LEGACY_SOUND_INDEX_MAP[Number(index)] ?? normalizeSoundIndex(index)
 }

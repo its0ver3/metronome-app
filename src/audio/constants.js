@@ -47,16 +47,36 @@ export const DEFAULT_SUBDIVISION_TRAINER_STAGES = [
   { subdivision: 2, bars: 2 },
 ]
 
-export const SOUND_NAMES = [
-  'Classic Click',
-  'Woodblock',
-  'Rimshot',
-  'Cowbell',
-  'Hi-Hat',
-  'Electronic Beep',
-  'Soft Tone',
-  'Stick Click',
+export const SOUND_OPTIONS = [
+  { id: 'classic-click', name: 'Classic Click', kind: 'synth' },
+  { id: 'woodblock', name: 'Woodblock', kind: 'synth' },
+  { id: 'soft-tone', name: 'Soft Tone', kind: 'synth' },
+  { id: 'cowbell', name: 'Cowbell', kind: 'sample' },
+  { id: 'hi-hat', name: 'Hi-hat', kind: 'sample' },
+  { id: 'shaker', name: 'Shaker', kind: 'sample' },
+  { id: 'tambourine', name: 'Tambourine', kind: 'sample' },
+  { id: 'male-count', name: 'Male Count', kind: 'voice' },
+  { id: 'female-count', name: 'Female Count', kind: 'voice' },
 ]
+
+export const SOUND_NAMES = SOUND_OPTIONS.map(({ name }) => name)
+
+export const LEGACY_SOUND_INDEX_MAP = [0, 1, 0, 3, 4, 0, 2, 0]
+
+export function getSoundIndexById(id) {
+  const index = SOUND_OPTIONS.findIndex((sound) => sound.id === id)
+  return index >= 0 ? index : 0
+}
+
+export function getSoundIdByIndex(index) {
+  return SOUND_OPTIONS[normalizeSoundIndex(index)].id
+}
+
+export function normalizeSoundIndex(index) {
+  const numericIndex = Number(index)
+  if (!Number.isInteger(numericIndex)) return 0
+  return Math.max(0, Math.min(SOUND_OPTIONS.length - 1, numericIndex))
+}
 
 export const POLYRHYTHM_MAX = 16
 

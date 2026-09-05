@@ -1,0 +1,166 @@
+.pulse-training-stack {
+  --throwoff-target-width: 64px;
+  --throwoff-gutter: 45px;
+  --throwoff-clearance: 27px;
+  --trainer-engage-duration: 210ms;
+  --trainer-engage-ease: cubic-bezier(0.2, 0.74, 0.24, 1);
+  --trainer-disengage-duration: 270ms;
+  --trainer-disengage-ease: cubic-bezier(0.32, 0.06, 0.24, 1);
+  padding-right: var(--throwoff-gutter);
+}
+
+.pulse-training-stack > .pulse-trainer-card {
+  position: relative;
+  min-width: 0;
+  min-height: 114px;
+  padding-right: var(--throwoff-clearance);
+  overflow: visible;
+}
+
+/* Preserve 44px step buttons; stack complete groups before they get cramped. */
+.pulse-training-stack .pulse-step-grid,
+.pulse-training-stack .pulse-stage-controls {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr));
+}
+
+.pulse-training-stack .pulse-number-input {
+  min-width: 0;
+}
+
+.pulse-trainer-toggle {
+  position: absolute;
+  /* Stay centered on the folded card while the settings unfold below it. */
+  top: 57px;
+  right: calc(-1 * var(--throwoff-gutter));
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--throwoff-target-width);
+  height: 114px;
+  border: 0;
+  border-radius: 12px;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transform: translateY(-50%);
+}
+
+.pulse-trainer-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* Only the artwork slides. The card, hit target, and focus ring stay still. */
+.pulse-throwoff-mechanism {
+  --throwoff-art-scale: 0.07;
+  --throwoff-art-left: 0.6px;
+  --throwoff-art-top: 5px;
+  --throwoff-slide-distance: 3px;
+  position: relative;
+  display: block;
+  width: 64px;
+  height: 90px;
+  pointer-events: none;
+  transform: translateY(var(--throwoff-slide-distance));
+  transition: transform var(--trainer-disengage-duration) var(--trainer-disengage-ease);
+}
+
+.pulse-trainer-toggle[aria-checked="true"] .pulse-throwoff-mechanism {
+  transform: translateY(0);
+  transition: transform var(--trainer-engage-duration) var(--trainer-engage-ease);
+}
+
+.pulse-throwoff-art {
+  --throwoff-pivot-x: 903px;
+  --throwoff-pivot-y: 1083px;
+  --throwoff-offset-x: -387px;
+  --throwoff-offset-y: -190px;
+  --throwoff-lever-scale: 0.84;
+  position: absolute;
+  width: 1254px;
+  height: 1254px;
+  left: var(--throwoff-art-left);
+  top: var(--throwoff-art-top);
+  transform: scale(var(--throwoff-art-scale));
+  transform-origin: 0 0;
+}
+
+.pulse-throwoff-body-mount,
+.pulse-throwoff-body,
+.pulse-throwoff-lever {
+  position: absolute;
+  inset: 0;
+}
+
+.pulse-throwoff-body,
+.pulse-throwoff-lever {
+  /* The component imports the atlas so its URL always includes Vite's base. */
+  background-image: var(--throwoff-atlas);
+  background-position: 0 0;
+  background-size: 1254px 1254px;
+  background-repeat: no-repeat;
+}
+
+/* Original atlas retained unchanged; clip its baked background at display time. */
+.pulse-throwoff-body {
+  opacity: 0.8;
+  transition: opacity 150ms ease-out;
+  clip-path: path("M 375 67 C 321 67 288 76 282 105 L 282 168 Q 283 194 302 201 L 318 203 L 318 261 L 298 264 Q 278 266 278 286 L 278 1094 Q 278 1146 302 1151 L 486 1155 Q 518 1155 536 1123 Q 549 1093 532 1060 Q 517 1032 489 1028 L 489 1000 L 478 1000 L 478 975 Q 480 957 507 957 C 551 962 580 934 580 895 C 581 857 552 825 518 825 Q 491 825 489 784 L 478 783 L 487 780 L 487 303 Q 487 279 432 252 L 432 201 L 449 198 Q 470 191 470 165 L 470 109 C 468 81 435 67 375 67 Z");
+}
+
+.pulse-throwoff-body-mount {
+  filter: drop-shadow(-14px 10px 14px #00000070);
+}
+
+.pulse-throwoff-lever {
+  --throwoff-angle: 26deg;
+  opacity: 0.88;
+  clip-path: path("M 873 148 Q 846 147 843 172 L 843 335 Q 843 346 851 366 L 865 403 Q 872 423 870 449 L 854 966 Q 854 1008 838 1038 Q 822 1058 822 1085 Q 821 1122 848 1144 Q 868 1157 895 1150 Q 927 1147 939 1119 Q 949 1098 941 1062 Q 935 1038 925 1023 L 917 462 Q 915 420 927 387 Q 937 359 937 338 L 937 186 Q 937 154 908 151 Z");
+  transform-origin: var(--throwoff-pivot-x) var(--throwoff-pivot-y);
+  transform: translate(var(--throwoff-offset-x), var(--throwoff-offset-y)) rotate(var(--throwoff-angle)) scale(var(--throwoff-lever-scale));
+  transition: transform var(--trainer-disengage-duration) var(--trainer-disengage-ease), opacity 150ms ease-out;
+}
+
+.pulse-trainer-toggle[aria-checked="true"] .pulse-throwoff-body,
+.pulse-trainer-toggle[aria-checked="true"] .pulse-throwoff-lever {
+  opacity: 1;
+}
+
+.pulse-trainer-toggle[aria-checked="true"] .pulse-throwoff-lever {
+  --throwoff-angle: 0deg;
+  transition: transform var(--trainer-engage-duration) var(--trainer-engage-ease), opacity 120ms ease-out;
+}
+
+.pulse-trainer-toggle:not(:disabled):active[aria-checked="false"] .pulse-throwoff-lever {
+  --throwoff-angle: 24deg;
+}
+
+.pulse-trainer-toggle:not(:disabled):active[aria-checked="true"] .pulse-throwoff-lever {
+  --throwoff-angle: 2deg;
+}
+
+.pulse-trainer-toggle:not(:disabled):active .pulse-throwoff-lever {
+  opacity: 1;
+  transition: transform 65ms ease-out, opacity 65ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-throwoff-mechanism,
+  .pulse-trainer-toggle[aria-checked="true"] .pulse-throwoff-mechanism,
+  .pulse-throwoff-body,
+  .pulse-throwoff-lever,
+  .pulse-trainer-toggle[aria-checked="true"] .pulse-throwoff-lever,
+  .pulse-trainer-toggle:not(:disabled):active .pulse-throwoff-lever {
+    transition: none;
+  }
+
+  .pulse-trainer-toggle:not(:disabled):active[aria-checked="false"] .pulse-throwoff-lever {
+    --throwoff-angle: 26deg;
+  }
+
+  .pulse-trainer-toggle:not(:disabled):active[aria-checked="true"] .pulse-throwoff-lever {
+    --throwoff-angle: 0deg;
+  }
+}

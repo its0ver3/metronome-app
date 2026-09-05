@@ -1,0 +1,235 @@
+/* Hoop Dial — production card surfaces and selected pictograms.
+   Hardware geometry/timing remains owned by trainerThrowoff.css. */
+.pulse-training-stack {
+  --trainer-accent: var(--tempo-heat-color, var(--brand-color-accent, #3D8790));
+  --trainer-face-top: var(--brand-color-trainer-surface, #1d2228);
+  --trainer-face-bottom: var(--brand-color-trainer-surface-low, #15181d);
+  --trainer-control-well: var(--brand-color-trainer-well, #101419);
+  --trainer-control: var(--brand-color-trainer-control, #191f25);
+  --trainer-label: color-mix(in srgb, var(--brand-color-ink) 68%, #637281);
+  gap: 12px;
+}
+
+.pulse-training-stack > .pulse-trainer-card {
+  container-type: inline-size;
+  border-radius: 23px;
+  /* Share the Settings panel surface, border and shadow via .pulse-panel. */
+}
+
+.pulse-training-stack > .pulse-trainer-card.is-enabled {
+  border-color: color-mix(in srgb, var(--trainer-accent) 20%, transparent);
+}
+
+.pulse-trainer-card-header {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  align-items: center;
+  min-height: 84px;
+  gap: 14px;
+}
+
+.pulse-trainer-card-header .pulse-panel-copy {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+}
+
+.pulse-trainer-card-header .pulse-panel-copy h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.25;
+  color: color-mix(in srgb, var(--brand-color-ink) 88%, #93a6b5);
+}
+
+.pulse-trainer-heading { min-width: 0; }
+.pulse-trainer-card-header .pulse-trainer-description {
+  margin: 4px 0 0;
+  color: var(--trainer-label);
+  font-size: .75rem;
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+.pulse-trainer-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.pulse-trainer-metrics > div {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: end;
+  min-width: 0;
+  gap: 1px;
+}
+
+.pulse-trainer-metrics > div + div {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.pulse-trainer-metrics dt {
+  text-align: center;
+  color: var(--trainer-label);
+  font-size: 0.75rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.pulse-trainer-metrics dd {
+  margin: 0;
+  color: var(--brand-color-ink);
+  font-size: 1.4rem;
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  transition: color var(--trainer-disengage-duration) ease;
+}
+
+.pulse-trainer-card.is-enabled .pulse-trainer-metrics dd {
+  color: color-mix(in srgb, var(--trainer-accent) 75%, var(--brand-color-ink));
+  transition-duration: var(--trainer-engage-duration);
+}
+
+.pulse-trainer-glyph {
+  position: relative;
+  display: grid;
+  width: 60px;
+  height: 60px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--trainer-label);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.22));
+  transition: color var(--trainer-disengage-duration) ease;
+}
+
+.pulse-trainer-hoop-ears,
+.pulse-trainer-hoop-flange,
+.pulse-trainer-hoop-head {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.pulse-trainer-hoop-ears i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 3px;
+  border: 0.5px solid #767b7e;
+  border-radius: 2px 2px 1px 1px;
+  background: linear-gradient(105deg, #62686d, #9a9fa1 48%, #5f666b);
+  transform: translate(-50%, -50%) rotate(var(--ear-angle)) translateY(-27px);
+}
+
+.pulse-trainer-hoop-ears i::after {
+  position: absolute;
+  top: 0.5px;
+  left: 50%;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  background: #23282c;
+  content: '';
+  transform: translateX(-50%);
+}
+
+.pulse-trainer-hoop-flange {
+  inset: 3px;
+  border: 0.5px solid #777f84;
+  background: linear-gradient(135deg, #969ea3, #626b72 24%, #353e45 48%, #8b9297 72%, #434b52);
+  box-shadow: inset 0 0 0 0.5px rgb(223 231 236 / 0.17);
+}
+
+.pulse-trainer-hoop-flange::before {
+  position: absolute;
+  inset: 0.5px;
+  border: 0.5px solid rgb(205 214 219 / 0.27);
+  border-radius: 50%;
+  content: '';
+}
+
+.pulse-trainer-hoop-head {
+  inset: 1.25px;
+  display: grid;
+  place-items: center;
+  border: 0.5px solid #22282d;
+  background: color-mix(in srgb, var(--trainer-face-top) 50%, var(--trainer-control-well));
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.15);
+  transition: border-color var(--trainer-disengage-duration) ease, background-color var(--trainer-disengage-duration) ease;
+}
+
+.pulse-trainer-card.is-enabled .pulse-trainer-glyph {
+  color: var(--trainer-accent);
+  transition-duration: var(--trainer-engage-duration);
+}
+
+.pulse-trainer-card.is-enabled .pulse-trainer-hoop-head {
+  border-color: color-mix(in srgb, var(--trainer-accent) 24%, transparent);
+  background: color-mix(in srgb, var(--trainer-accent) 6%, var(--trainer-face-bottom));
+  transition-duration: var(--trainer-engage-duration);
+}
+
+.pulse-trainer-pictogram {
+  display: block;
+  width: 32px;
+  height: 32px;
+}
+
+/* Only the existing controls unfold; the header and switch never recenter. */
+.pulse-trainer-card .pulse-trainer-settings {
+  margin: 12px 0 0;
+  border: 1px solid rgb(150 168 180 / 0.11);
+  border-radius: 13px;
+  padding: 12px;
+  background: var(--trainer-control-well);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.18);
+}
+
+
+.pulse-trainer-card .pulse-stage-progress { color: var(--trainer-accent); font-size: 0.75rem; }
+.pulse-trainer-card .pulse-stage-card header strong { font-size: 0.875rem; }
+.pulse-trainer-card .pulse-add-stage { color: var(--trainer-label); font-size: 0.875rem; }
+.pulse-trainer-card .pulse-owned-note { font-size: 0.75rem; }
+
+@media (max-width: 360px) {
+  .pulse-trainer-card-header { gap: 10px; }
+}
+
+/* Inline wheels replace duplicated forms. The throw-off remains header-anchored. */
+.pulse-trainer-summary { margin: 0; color: var(--trainer-label); font-size: .875rem; line-height: 1.5; }
+.pulse-trainer-sequence { min-width: 0; }
+.pulse-trainer-sequence ol { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.pulse-trainer-sequence li { display: flex; align-items: center; gap: 5px; }
+.pulse-trainer-sequence-value { color: var(--trainer-label); font-size: 1.4rem; font-weight: 500; line-height: 1.3; font-variant-numeric: tabular-nums; transition: color 160ms ease; }
+.pulse-trainer-sequence li[aria-current="step"] .pulse-trainer-sequence-value { color: color-mix(in srgb, var(--trainer-accent) 50%, var(--brand-color-ink)); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.pulse-trainer-sequence-arrow { color: var(--trainer-label); opacity: .55; font-size: .875rem; }
+.pulse-trainer-sequence p { margin: 5px 0 0; color: var(--trainer-label); font-size: .75rem; line-height: 1.25; }
+@media (prefers-reduced-motion: reduce) { .pulse-trainer-sequence-value { transition: none; } }
+.pulse-training-stack .pulse-throwoff-mechanism { overflow: clip; overflow-clip-margin: 3px; }
+.pulse-trainer-card .pulse-tempo-wheel-settings,
+.pulse-trainer-card .pulse-subdivision-wheel-settings { padding: 12px 0 0; border: 0; border-top: 1px solid #ffffff0b; border-radius: 0; background: none; box-shadow: none; min-width: 0; }
+.pulse-tempo-wheel-settings { display: grid; gap: 6px; }
+.pulse-inline-wheel-setting { display: grid; grid-template-columns: minmax(0, 1fr) clamp(88px, 28cqw, 112px) 30px; align-items: center; gap: 6px; font-size: .875rem; color: var(--trainer-label); }
+.pulse-trainer-card .pulse-wheel-stage,
+.pulse-wheel-stage-labels { display: grid; grid-template-columns: 26px minmax(44px, 1fr) minmax(44px, 1fr) 28px; gap: 6px; align-items: center; }
+.pulse-trainer-card .pulse-wheel-stage { padding: 3px 0; border: 1px solid transparent; background: none; }
+.pulse-trainer-card .pulse-wheel-stage.is-active { border-color: color-mix(in srgb, var(--trainer-accent) 35%, transparent); background: color-mix(in srgb, var(--trainer-accent) 5%, transparent); }
+.pulse-wheel-stage-labels { margin-bottom: 7px; color: var(--trainer-label); text-align: center; font-size: .75rem; }
+.pulse-wheel-stage-name { color: var(--trainer-label); text-align: center; font-size: .875rem; }
+.pulse-wheel-stage-remove { width: 44px; height: 44px; margin-left: -8px; border: 0; background: none; color: var(--trainer-label); font-size: 1.25rem; cursor: pointer; touch-action: manipulation; }
+.pulse-wheel-stage .pulse-stage-progress { grid-column: 1 / -1; padding: 2px 8px; }
+.pulse-trainer-card .pulse-add-stage { min-height: 44px; }
+@container (max-width: 340px) {
+  .pulse-trainer-card-header { grid-template-columns: 38px minmax(0, 1fr); gap: 16px 12px; }
+  .pulse-trainer-card-header .pulse-panel-copy { display: contents; }
+  .pulse-trainer-glyph { width: 38px; height: 38px; }
+  .pulse-trainer-hoop-ears i { transform: translate(-50%, -50%) rotate(var(--ear-angle)) translateY(-16px); }
+  .pulse-trainer-pictogram { width: 23px; height: 23px; }
+  .pulse-trainer-metrics, .pulse-trainer-summary, .pulse-trainer-sequence { grid-column: 1 / -1; }
+}

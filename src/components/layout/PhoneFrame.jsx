@@ -26,10 +26,7 @@ export default function PhoneFrame({ children, brand = activeBrand }) {
           borderColor: 'var(--brand-color-border)',
         }}
       >
-        <header
-          className="app-brand-header"
-          style={{ borderBottomColor: 'color-mix(in srgb, var(--brand-color-surface) 50%, transparent)' }}
-        >
+        <header className="app-brand-header">
           <img src={logoSrc} alt={brand.logo.alt} className="app-brand-logo" />
         </header>
         {children}

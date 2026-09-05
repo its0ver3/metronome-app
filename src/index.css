@@ -92,7 +92,6 @@ textarea,
   justify-content: center;
   min-height: 0;
   padding: 1.3rem 0.75rem 0.04rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--brand-color-ink, #F5F0E8) 7%, transparent);
 }
 
 .app-brand-logo {
@@ -229,36 +228,34 @@ input[type="number"] {
 }
 
 @keyframes pulse-sheet-in {
-  from { transform: translateY(18%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from { transform: translate3d(0, calc(100% + 1px), 0); opacity: 0.92; }
+  to { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+
+@keyframes pulse-sheet-out {
+  from { transform: translate3d(0, 0, 0); opacity: 1; }
+  to { transform: translate3d(0, calc(100% + 1px), 0); opacity: 0.92; }
+}
+
+@keyframes pulse-sheet-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse-sheet-backdrop-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 @keyframes pulse-fire-flicker {
   0%, 100% {
-    fill: #ff3b30;
-    stroke: #ff3b30;
-    filter: drop-shadow(0 0 3px rgb(255 59 48 / 0.68));
+    filter: brightness(1);
   }
   48% {
-    fill: #ff7a00;
-    stroke: #ff7a00;
-    filter: drop-shadow(0 0 7px rgb(255 122 0 / 0.82));
+    filter: brightness(1.2);
   }
   72% {
-    fill: #ffd60a;
-    stroke: #ffd60a;
-    filter: drop-shadow(0 0 5px rgb(255 214 10 / 0.78));
-  }
-}
-
-@keyframes pulse-fire-dot {
-  0%, 100% {
-    background: #ff3b30;
-    box-shadow: 0 0 5px rgb(255 59 48 / 0.66);
-  }
-  55% {
-    background: #ffd60a;
-    box-shadow: 0 0 10px rgb(255 122 0 / 0.86);
+    filter: brightness(0.92);
   }
 }
 
@@ -277,17 +274,6 @@ input[type="number"] {
     fill: #22d3ee;
     stroke: #22d3ee;
     filter: drop-shadow(0 0 5px rgb(34 211 238 / 0.8));
-  }
-}
-
-@keyframes pulse-cool-fire-dot {
-  0%, 100% {
-    background: #7c3aed;
-    box-shadow: 0 0 5px rgb(124 58 237 / 0.68);
-  }
-  55% {
-    background: #22d3ee;
-    box-shadow: 0 0 10px rgb(59 130 246 / 0.88);
   }
 }
 
@@ -340,7 +326,6 @@ input[type="number"] {
 .pulse-poly-label,
 .pulse-tap-control > span,
 .pulse-rhythm-readout,
-.pulse-sheet-header span,
 .pulse-owned-note {
   font-family: var(--brand-font-body);
 }
@@ -583,17 +568,17 @@ input[type="number"] {
 .pulse-transport-row {
   display: grid;
   width: 100%;
-  max-width: 330px;
-  grid-template-columns: 50px minmax(0, 1fr) 50px;
+  max-width: 346px;
+  grid-template-columns: 56px minmax(0, 1fr) 56px;
   align-items: center;
-  gap: 12px;
-  margin-top: 14px;
+  gap: 14px;
+  margin-top: 40px;
 }
 
 .pulse-nudge,
 .pulse-transport {
   display: flex;
-  min-height: 50px;
+  min-height: 56px;
   align-items: center;
   justify-content: center;
   border: 0;
@@ -601,11 +586,22 @@ input[type="number"] {
 }
 
 .pulse-nudge {
-  width: 50px;
+  width: 56px;
   border-radius: 50%;
   background: var(--pulse-surface-raised);
-  font-size: 21px;
+  font-size: 24px;
   font-weight: 700;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 140ms ease-out, background-color 140ms ease-out;
+}
+
+.pulse-nudge:not(:disabled):active {
+  transform: scale(0.95);
+  background-color: color-mix(in srgb, var(--pulse-surface-raised) 90%, var(--brand-color-ink));
+  /* Respond on contact, then ease back on release without a bounce. */
+  transition-duration: 0ms;
 }
 
 .pulse-nudge:disabled {
@@ -614,19 +610,19 @@ input[type="number"] {
 }
 
 .pulse-transport {
-  gap: 9px;
+  gap: 10px;
   border: 1px solid color-mix(in srgb, var(--brand-color-ink) 12%, transparent);
-  border-radius: 16px;
+  border-radius: 18px;
   background: color-mix(in srgb, var(--brand-color-surface) 82%, var(--brand-color-ink) 4%);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .pulse-transport svg {
-  width: 19px;
-  height: 19px;
+  width: 20px;
+  height: 20px;
 }
 
 .pulse-metronome-screen.is-playing .pulse-transport {
@@ -635,113 +631,69 @@ input[type="number"] {
 }
 
 .pulse-tempo-slider {
+  --tempo-slider-thumb-width: 50px;
   max-width: 346px;
   gap: 0;
-  padding: 2px 5px 0;
+  margin-top: 22px;
+  padding: 0 5px;
+}
+
+.pulse-tempo-slider-track {
+  position: relative;
+}
+
+.pulse-tempo-slider-rail {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  right: calc(var(--tempo-slider-thumb-width) / 2);
+  left: calc(var(--tempo-slider-thumb-width) / 2);
+  height: 8px;
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      to right,
+      transparent 0 var(--tempo-slider-progress),
+      var(--brand-color-muted) var(--tempo-slider-progress) 100%
+    ),
+    repeating-linear-gradient(
+      105deg,
+      transparent 0 7px,
+      rgb(255 255 255 / 0.16) 7px 8px
+    ),
+    var(--tempo-slider-gradient);
+  pointer-events: none;
+  transform: translateY(-50%);
 }
 
 .pulse-tempo-slider input[type="range"] {
-  height: 40px;
+  --tempo-thumb-tilt: 0deg;
+  position: relative;
+  z-index: 1;
+  height: 48px;
 }
 
 .pulse-tempo-slider input[type="range"]::-webkit-slider-runnable-track {
-  background:
-    linear-gradient(
-      to right,
-      transparent 0 var(--tempo-slider-progress),
-      var(--brand-color-muted) var(--tempo-slider-progress) 100%
-    ),
-    var(--tempo-slider-gradient);
+  background: transparent;
 }
 
 .pulse-tempo-slider input[type="range"]::-moz-range-track {
-  background:
-    linear-gradient(
-      to right,
-      transparent 0 var(--tempo-slider-progress),
-      var(--brand-color-muted) var(--tempo-slider-progress) 100%
-    ),
-    var(--tempo-slider-gradient);
+  background: transparent;
 }
 
 .pulse-tempo-slider input[type="range"]::-webkit-slider-thumb {
-  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--tempo-heat-color) 58%, transparent));
-  transition: filter 120ms linear;
+  width: var(--tempo-slider-thumb-width);
+  height: 39px;
+  margin-top: -15.5px;
+  transform: rotate(var(--tempo-thumb-tilt));
+  transition: transform 120ms ease-out;
 }
 
 .pulse-tempo-slider input[type="range"]::-moz-range-thumb {
-  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--tempo-heat-color) 58%, transparent));
-  transition: filter 120ms linear;
-}
-
-.pulse-beat-preview {
-  display: grid;
-  min-height: 20px;
-  max-width: 100%;
-  align-content: center;
-  justify-items: center;
-  gap: 3px;
-  padding: 1px 0;
-}
-
-.pulse-beat-preview-row {
-  display: flex;
-  min-height: 9px;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.pulse-beat-preview-label {
-  width: 18px;
-  color: color-mix(in srgb, var(--brand-color-ink) 48%, transparent);
-  font-size: 8px;
-  font-weight: 750;
-  letter-spacing: 0.08em;
-}
-
-.pulse-beat-preview-dots {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-
-.pulse-preview-dot {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 auto;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-ink)) 34%, transparent);
-  transition: transform 110ms ease, background-color 110ms ease, box-shadow 110ms ease;
-}
-
-.pulse-preview-dot.is-active {
-  background: var(--tempo-heat-color, var(--brand-color-accent));
-  box-shadow: 0 0 8px color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 52%, transparent);
-  transform: scale(1.5);
-}
-
-.pulse-beat-preview-row[data-rhythm-preview="two"] .pulse-preview-dot {
-  background: color-mix(in srgb, var(--pulse-rhythm-two-color) 34%, transparent);
-}
-
-.pulse-beat-preview-row[data-rhythm-preview="two"] .pulse-preview-dot.is-active {
-  background: var(--pulse-rhythm-two-color);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--pulse-rhythm-two-color) 52%, transparent);
-}
-
-.pulse-metronome-screen[data-tempo-heat="fire"] .pulse-preview-dot.is-active {
-  animation: pulse-fire-dot 520ms ease-in-out infinite;
-}
-
-.pulse-metronome-screen[data-tempo-heat="fire"] .pulse-beat-preview-row[data-rhythm-preview="two"] .pulse-preview-dot.is-active {
-  animation-name: pulse-cool-fire-dot;
-}
-
-.pulse-preview-dot.is-active[data-gap="true"] {
-  opacity: 0.35;
+  width: var(--tempo-slider-thumb-width);
+  height: 39px;
+  transform: rotate(var(--tempo-thumb-tilt));
+  transition: transform 120ms ease-out;
 }
 
 .pulse-quickbar {
@@ -765,14 +717,17 @@ input[type="number"] {
 
 .pulse-rhythm-readout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 14px;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: 5px;
   padding: 8px 7px;
 }
 
 .pulse-tap-button {
+  --tap-charge-fill: transparent;
+  --tap-charge-ring: transparent;
+  --tap-charge-scale: 0;
   position: relative;
+  isolation: isolate;
   display: grid;
   overflow: hidden;
   width: 100%;
@@ -788,100 +743,104 @@ input[type="number"] {
   transition: background-color 140ms ease, box-shadow 140ms ease, transform 90ms ease;
 }
 
+.pulse-tap-button[data-tap-stage="1"] {
+  --tap-charge-fill: color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 24%, transparent);
+  --tap-charge-ring: color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 72%, transparent);
+  --tap-charge-scale: 0.28;
+}
+
+.pulse-tap-button[data-tap-stage="2"] {
+  --tap-charge-fill: color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 26%, transparent);
+  --tap-charge-ring: color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 76%, transparent);
+  --tap-charge-scale: 0.52;
+}
+
+.pulse-tap-button[data-tap-stage="3"] {
+  --tap-charge-fill: color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 29%, transparent);
+  --tap-charge-ring: color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 80%, transparent);
+  --tap-charge-scale: 0.76;
+}
+
+.pulse-tap-button[data-tap-stage="4"] {
+  --tap-charge-fill: color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 34%, transparent);
+  --tap-charge-ring: color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 88%, transparent);
+  --tap-charge-scale: 1.08;
+}
+
 .pulse-tap-button:not(:disabled):active {
   transform: scale(0.97);
 }
 
 .pulse-tap-button.is-flashing {
-  background: color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 12%, var(--pulse-surface-raised));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 28%, transparent);
+}
+
+.pulse-tap-charge {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate3d(-50%, -50%, 0) scale(var(--tap-charge-scale));
+  transition: transform 240ms cubic-bezier(0.2, 0.82, 0.3, 1);
+  will-change: transform;
+}
+
+.pulse-tap-fill {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--tap-charge-ring);
+  border-radius: 50%;
+  background: var(--tap-charge-fill);
+  animation: pulse-tap-decay var(--tap-reset-duration, 2000ms) linear both;
+}
+
+.pulse-tap-wave {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--tap-charge-ring);
+  border-radius: 50%;
+  animation: pulse-tap-wave 360ms ease-out both;
 }
 
 .pulse-tap-glyph {
   position: relative;
-  display: block;
-  width: 50px;
-  height: 42px;
-}
-
-.pulse-tap-pad {
-  position: absolute;
-  right: 4px;
-  bottom: 5px;
-  width: 36px;
-  height: 11px;
-  border: 3px solid currentColor;
-  border-radius: 50%;
-  background: color-mix(in srgb, currentColor 8%, transparent);
-  transform: rotate(-4deg);
-}
-
-.pulse-tap-stick {
-  position: absolute;
-  z-index: 2;
-  top: 1px;
-  left: 14px;
-  width: 5px;
-  height: 31px;
-  border-radius: 999px;
-  background: currentColor;
-  box-shadow: 0 1px 0 color-mix(in srgb, var(--brand-color-canvas) 22%, transparent);
-  transform: rotate(-43deg);
-  transform-origin: 50% 90%;
-  transition: transform 80ms cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-
-.pulse-tap-stick::after {
-  position: absolute;
-  right: 0;
-  bottom: -3px;
-  left: 0;
-  height: 8px;
-  border-radius: 50%;
-  background: currentColor;
-  content: '';
-}
-
-.pulse-tap-button.is-flashing .pulse-tap-stick {
-  transform: translate(5px, 4px) rotate(-34deg);
-}
-
-.pulse-tap-ripple {
-  position: absolute;
   z-index: 1;
-  right: 18px;
-  bottom: 12px;
-  width: 8px;
-  height: 8px;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-  opacity: 0;
-  pointer-events: none;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
 }
 
-.pulse-tap-ripple-two {
-  margin: -4px;
-  width: 16px;
-  height: 16px;
+.pulse-tap-hand {
+  position: relative;
+  z-index: 1;
+  display: block;
+  transform: translateY(1px);
+  transition: transform 90ms cubic-bezier(0.2, 0.8, 0.3, 1);
 }
 
-.pulse-tap-button.is-flashing .pulse-tap-ripple-one {
-  animation: pulse-tap-ripple 320ms ease-out;
+.pulse-tap-button.is-flashing .pulse-tap-hand {
+  transform: translateY(3px) scale(0.96);
 }
 
-.pulse-tap-button.is-flashing .pulse-tap-ripple-two {
-  animation: pulse-tap-ripple 360ms 35ms ease-out;
-}
-
-@keyframes pulse-tap-ripple {
+@keyframes pulse-tap-wave {
   0% {
     opacity: 0.72;
-    transform: scale(0.45);
+    transform: scale(0.9);
   }
   100% {
     opacity: 0;
-    transform: scale(1.65);
+    transform: scale(1.08);
   }
+}
+
+@keyframes pulse-tap-decay {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 .pulse-rhythm-readout-pair {
@@ -924,14 +883,6 @@ input[type="number"] {
   background: color-mix(in srgb, var(--brand-color-ink) 12%, transparent);
 }
 
-.pulse-rhythm-readout-chevron {
-  color: color-mix(in srgb, var(--brand-color-ink) 44%, transparent);
-  font-size: 18px;
-  line-height: 1;
-  text-align: center;
-  transform: translateY(-1px);
-}
-
 .pulse-rhythm-readout-pair.is-polyrhythm {
   gap: 7px;
 }
@@ -959,34 +910,54 @@ input[type="number"] {
   inset: 0;
   border: 0;
   background: rgb(0 0 0 / 0.66);
-  backdrop-filter: blur(3px);
+  will-change: opacity;
+  animation: pulse-sheet-backdrop-in 300ms ease both;
+}
+
+.pulse-sheet-backdrop.is-closing {
+  pointer-events: none;
+  animation: pulse-sheet-backdrop-out 300ms ease both;
 }
 
 .pulse-control-sheet {
-  --color-primary: var(--brand-color-canvas);
-  --color-secondary: color-mix(in srgb, var(--brand-color-canvas) 9%, var(--brand-color-ink));
-  --color-dark: var(--brand-color-canvas);
-  --color-light: var(--brand-color-ink);
-  --color-muted: color-mix(in srgb, var(--brand-color-canvas) 14%, var(--brand-color-ink));
-  --tw-ring-offset-color: var(--brand-color-ink);
+  --color-primary: var(--tempo-heat-color, var(--brand-color-accent));
+  --color-secondary: color-mix(in srgb, var(--brand-color-surface) 86%, var(--brand-color-ink) 4%);
+  --color-dark: var(--brand-color-ink);
+  --color-light: var(--brand-color-canvas);
+  --color-muted: var(--brand-color-muted);
+  --tw-ring-offset-color: var(--brand-color-canvas);
   position: absolute;
   z-index: 40;
   right: 0;
   bottom: 0;
   left: 0;
   display: flex;
-  max-height: min(78%, 660px);
+  height: min(78%, 660px);
   flex-direction: column;
   overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 30%, transparent);
+  border-bottom: 0;
   border-radius: 24px 24px 0 0;
-  background: var(--brand-color-ink);
-  color: var(--brand-color-canvas);
-  box-shadow: 0 -22px 70px rgb(0 0 0 / 0.42);
-  animation: pulse-sheet-in 180ms ease-out;
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 13%, transparent), transparent 34%),
+    linear-gradient(180deg, color-mix(in srgb, var(--brand-color-surface) 72%, var(--brand-color-canvas)), var(--brand-color-canvas) 58%);
+  color: var(--brand-color-ink);
+  backface-visibility: hidden;
+  box-shadow:
+    0 -22px 70px rgb(0 0 0 / 0.54),
+    0 -1px 24px color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 12%, transparent);
+  transform-origin: bottom center;
+  will-change: transform, opacity;
+  animation: pulse-sheet-in 440ms cubic-bezier(0.22, 0.8, 0.28, 1) both;
+}
+
+.pulse-control-sheet.is-closing {
+  pointer-events: none;
+  animation: pulse-sheet-out 440ms cubic-bezier(0.22, 0.8, 0.28, 1) both;
 }
 
 .pulse-control-sheet :where(button, input, select, [tabindex]):focus-visible {
-  outline-color: var(--brand-color-canvas);
+  outline-color: var(--tempo-heat-color, var(--brand-color-focus));
 }
 
 .pulse-sheet-handle {
@@ -996,7 +967,7 @@ input[type="number"] {
   align-self: center;
   margin-top: 8px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--brand-color-canvas) 22%, transparent);
+  background: color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 68%, transparent);
 }
 
 .pulse-sheet-header {
@@ -1006,20 +977,12 @@ input[type="number"] {
   justify-content: space-between;
   gap: 16px;
   padding: 9px 18px 11px;
-  border-bottom: 1px solid color-mix(in srgb, var(--brand-color-canvas) 10%, transparent);
-}
-
-.pulse-sheet-header span {
-  display: block;
-  color: color-mix(in srgb, var(--brand-color-canvas) 56%, transparent);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  border-bottom: 1px solid color-mix(in srgb, var(--brand-color-ink) 8%, transparent);
 }
 
 .pulse-sheet-header h2 {
-  margin: 1px 0 0;
+  margin: 0;
+  color: var(--brand-color-ink);
   font-family: var(--brand-font-body);
   font-size: 25px;
   font-weight: 750;
@@ -1031,13 +994,15 @@ input[type="number"] {
   min-height: 44px;
   border: 0;
   border-radius: 13px;
-  background: var(--brand-color-canvas);
-  color: var(--brand-color-ink);
+  background: var(--tempo-heat-color, var(--brand-color-accent));
+  color: var(--brand-color-canvas);
+  box-shadow: 0 5px 18px color-mix(in srgb, var(--tempo-heat-color, var(--brand-color-accent)) 18%, transparent);
   font-size: 12px;
   font-weight: 800;
 }
 
 .pulse-sheet-scroll {
+  flex: 1 1 auto;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
@@ -1046,8 +1011,10 @@ input[type="number"] {
 }
 
 .pulse-sheet-section {
+  border: 1px solid color-mix(in srgb, var(--brand-color-ink) 6%, transparent);
   border-radius: 18px;
-  background: color-mix(in srgb, var(--brand-color-canvas) 7%, var(--brand-color-ink));
+  background: color-mix(in srgb, var(--brand-color-surface) 82%, var(--brand-color-ink) 3%);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--brand-color-ink) 3%, transparent);
 }
 
 .pulse-polyrhythm-toggle {
@@ -1056,12 +1023,14 @@ input[type="number"] {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 0 4px 8px;
-  border-bottom: 1px solid color-mix(in srgb, var(--brand-color-canvas) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand-color-ink) 6%, transparent);
+  border-radius: 16px;
+  padding: 3px 7px 3px 12px;
+  background: color-mix(in srgb, var(--brand-color-surface) 82%, var(--brand-color-ink) 3%);
 }
 
 .pulse-polyrhythm-toggle > span {
-  color: color-mix(in srgb, var(--brand-color-canvas) 56%, transparent);
+  color: color-mix(in srgb, var(--brand-color-ink) 64%, transparent);
   font-size: 10px;
   font-weight: 750;
   letter-spacing: 0.12em;
@@ -1086,7 +1055,7 @@ input[type="number"] {
   width: 46px;
   height: 26px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--brand-color-canvas) 22%, var(--brand-color-ink));
+  background: color-mix(in srgb, var(--brand-color-ink) 16%, var(--brand-color-surface));
   transition: background-color 140ms ease;
 }
 
@@ -1097,18 +1066,18 @@ input[type="number"] {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--brand-color-ink);
+  background: color-mix(in srgb, var(--brand-color-ink) 76%, var(--brand-color-surface));
   box-shadow: 0 2px 6px rgb(0 0 0 / 0.18);
   transition: transform 140ms ease, background-color 140ms ease;
 }
 
 .pulse-mode-switch[aria-checked="true"] .pulse-mode-switch-track {
-  background: var(--brand-color-canvas);
+  background: var(--tempo-heat-color, var(--brand-color-accent));
 }
 
 .pulse-mode-switch[aria-checked="true"] .pulse-mode-switch-thumb {
   transform: translateX(20px);
-  background: var(--brand-color-ink);
+  background: var(--brand-color-canvas);
 }
 
 .pulse-pattern-heading strong {
@@ -1117,7 +1086,7 @@ input[type="number"] {
 }
 
 .pulse-pattern-heading span {
-  color: color-mix(in srgb, var(--brand-color-canvas) 56%, transparent);
+  color: color-mix(in srgb, var(--brand-color-ink) 52%, transparent);
   font-size: 10px;
 }
 
@@ -1138,7 +1107,7 @@ input[type="number"] {
 
 .pulse-owned-note {
   margin: 8px 8px 0;
-  color: color-mix(in srgb, var(--brand-color-canvas) 62%, transparent);
+  color: color-mix(in srgb, var(--brand-color-ink) 58%, transparent);
   font-size: 10px;
   text-align: center;
 }
@@ -1160,6 +1129,15 @@ input[type="number"] {
   --tw-ring-color: var(--pulse-rhythm-two-color, var(--brand-color-rhythm-two, #2563eb));
 }
 
+.pulse-control-sheet select {
+  color-scheme: dark;
+}
+
+.pulse-control-sheet option {
+  background: var(--brand-color-surface);
+  color: var(--brand-color-ink);
+}
+
 /* Pulse Core — shared Training and Settings surfaces */
 .pulse-feature-screen {
   --pulse-surface-raised: color-mix(in srgb, var(--brand-color-surface) 82%, var(--brand-color-ink) 4%);
@@ -1169,9 +1147,7 @@ input[type="number"] {
   min-height: 0;
   overflow: hidden;
   color: var(--brand-color-ink);
-  background:
-    radial-gradient(circle at 50% 4%, color-mix(in srgb, var(--brand-color-accent) 6%, transparent), transparent 28%),
-    var(--brand-color-canvas);
+  background: var(--brand-color-canvas);
   font-family: var(--brand-font-body);
 }
 
@@ -1191,9 +1167,7 @@ input[type="number"] {
 .pulse-feature-header > span,
 .pulse-panel-copy > span,
 .pulse-control-label,
-.pulse-number-control > span,
-.pulse-cycle-summary > span,
-.pulse-global-summary > span {
+.pulse-number-control > span {
   color: color-mix(in srgb, var(--brand-color-ink) 46%, transparent);
   font-size: 9px;
   font-weight: 750;
@@ -1261,12 +1235,47 @@ input[type="number"] {
 }
 
 .pulse-trainer-card {
+  display: grid;
+  align-content: start;
   transition: border-color 150ms ease, background-color 150ms ease;
 }
 
-.pulse-trainer-card.is-enabled {
-  border-color: color-mix(in srgb, var(--brand-color-accent) 26%, transparent);
-  background: color-mix(in srgb, var(--brand-color-surface) 76%, var(--brand-color-ink) 6%);
+.pulse-trainer-settings-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    grid-template-rows var(--trainer-disengage-duration) var(--trainer-disengage-ease),
+    opacity var(--trainer-disengage-duration) ease-out,
+    visibility 0s linear var(--trainer-disengage-duration);
+}
+
+.pulse-trainer-settings-reveal.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    grid-template-rows var(--trainer-engage-duration) var(--trainer-engage-ease),
+    opacity var(--trainer-engage-duration) ease-out,
+    visibility 0s linear;
+}
+
+.pulse-trainer-settings-clip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.pulse-trainer-settings-clip > .pulse-trainer-settings {
+  transform: translateY(-6px);
+  transition: transform var(--trainer-disengage-duration) var(--trainer-disengage-ease);
+}
+
+.pulse-trainer-settings-reveal.is-open .pulse-trainer-settings {
+  transform: translateY(0);
+  transition: transform var(--trainer-engage-duration) var(--trainer-engage-ease);
 }
 
 .pulse-panel-header {
@@ -1274,6 +1283,15 @@ input[type="number"] {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-trainer-settings-reveal,
+  .pulse-trainer-settings-reveal.is-open,
+  .pulse-trainer-settings-clip > .pulse-trainer-settings,
+  .pulse-trainer-settings-reveal.is-open .pulse-trainer-settings {
+    transition: none;
+  }
 }
 
 .pulse-panel-copy {
@@ -1287,54 +1305,6 @@ input[type="number"] {
   font-weight: 760;
   line-height: 1.15;
   letter-spacing: -0.025em;
-}
-
-.pulse-switch {
-  position: relative;
-  width: 52px;
-  height: 44px;
-  flex: 0 0 52px;
-  border: 0;
-  border-radius: 999px;
-  padding: 0;
-  background: transparent;
-}
-
-.pulse-switch:disabled {
-  cursor: not-allowed;
-}
-
-.pulse-switch-track {
-  position: absolute;
-  top: 8px;
-  right: 0;
-  width: 50px;
-  height: 28px;
-  border: 1px solid color-mix(in srgb, var(--brand-color-ink) 8%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--brand-color-ink) 13%, transparent);
-  transition: background-color 140ms ease;
-}
-
-.pulse-switch-thumb {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--brand-color-ink) 72%, var(--brand-color-surface));
-  box-shadow: 0 2px 7px rgb(0 0 0 / 0.28);
-  transition: transform 140ms ease, background-color 140ms ease;
-}
-
-.pulse-switch[aria-checked="true"] .pulse-switch-track {
-  background: var(--brand-color-accent);
-}
-
-.pulse-switch[aria-checked="true"] .pulse-switch-thumb {
-  transform: translateX(22px);
-  background: var(--brand-color-canvas);
 }
 
 .pulse-step-grid,
@@ -1424,51 +1394,9 @@ input[type="number"] {
   transition: opacity 140ms ease;
 }
 
-.pulse-cycle-summary {
-  display: grid;
-  gap: 7px;
-  border-radius: 14px;
-  padding: 10px;
-  background: color-mix(in srgb, var(--brand-color-canvas) 34%, transparent);
-}
-
-.pulse-cycle-summary > div {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 5px;
-}
-
-.pulse-cycle-summary [role="listitem"] {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.pulse-cycle-summary [role="listitem"] > span {
-  border-radius: 999px;
-  padding: 5px 8px;
-  background: color-mix(in srgb, var(--brand-color-ink) 8%, transparent);
-  color: color-mix(in srgb, var(--brand-color-ink) 62%, transparent);
-  font-size: 10px;
-  font-weight: 750;
-}
-
-.pulse-cycle-summary [role="listitem"] > span.is-active {
-  background: var(--brand-color-accent);
-  color: var(--brand-color-canvas);
-}
-
-.pulse-cycle-summary i {
-  color: color-mix(in srgb, var(--brand-color-ink) 25%, transparent);
-  font-size: 10px;
-  font-style: normal;
-}
-
 .pulse-stage-list {
   display: grid;
   gap: 8px;
-  margin-top: 8px;
 }
 
 .pulse-stage-card {
@@ -1650,67 +1578,124 @@ input[type="number"] {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-color-canvas) 14%, transparent);
 }
 
+.pulse-app-content { position: relative; min-height: 0; }
+/* Keep the last settings reachable above the floating transport and its handle. */
+.has-mini-transport .pulse-feature-scroll { padding-bottom: 148px; }
+.pulse-global-dock {
+  --pulse-rhythm-two-color: color-mix(in srgb, var(--brand-color-rhythm-two, #3b82f6) 45%, #a855f7 55%);
+  --pulse-orbit-canvas: color-mix(in srgb, var(--brand-color-canvas) 96%, var(--brand-color-surface));
+  position: absolute;
+  z-index: 5;
+  bottom: 8px;
+  left: 12px;
+  right: 12px;
+  min-height: 44px;
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--brand-color-ink) 8%, transparent);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--brand-color-surface) 28%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--brand-color-ink);
+  transition: background-color 220ms ease, border-color 220ms ease;
+}
+.pulse-global-dock.is-collapsed { background: transparent; border-color: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; pointer-events: none; }
+.pulse-global-handle {
+  position: absolute;
+  z-index: 1;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand-color-surface) 65%, transparent);
+  color: color-mix(in srgb, var(--brand-color-ink) 65%, transparent);
+  cursor: pointer;
+  touch-action: manipulation;
+  pointer-events: auto;
+}
+.is-collapsed .pulse-global-handle { top: 0; }
+.pulse-global-handle svg { width: 22px; height: 22px; transition: transform 220ms ease; }
+.is-collapsed .pulse-global-handle svg { transform: rotate(180deg); }
+.pulse-global-reveal { display: grid; grid-template-rows: 1fr; opacity: 1; visibility: visible; transition: grid-template-rows 220ms ease, opacity 180ms ease, visibility 0s; }
+.is-collapsed .pulse-global-reveal { grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows 220ms ease, opacity 180ms ease, visibility 0s 220ms; }
+.pulse-global-clip { min-height: 0; overflow: hidden; }
 .pulse-global-transport {
   display: flex;
-  min-height: 60px;
   flex: 0 0 auto;
   align-items: center;
-  gap: 10px;
-  margin: 0 12px 8px;
-  border: 1px solid color-mix(in srgb, var(--brand-color-ink) 8%, transparent);
-  border-radius: 16px;
-  padding: 7px 8px 7px 12px;
-  background: color-mix(in srgb, var(--brand-color-surface) 86%, var(--brand-color-ink) 4%);
-  box-shadow: 0 13px 30px rgb(0 0 0 / 0.28);
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px;
   color: var(--brand-color-ink);
 }
-
-.pulse-global-summary {
+.pulse-global-orbit {
+  position: relative;
   display: grid;
-  min-width: 0;
-  flex: 1 1 auto;
-  gap: 1px;
-  border: 0;
-  border-radius: 9px;
-  padding: 0;
-  background: transparent;
-  color: var(--brand-color-ink);
-  font-family: var(--brand-font-body);
-  text-align: left;
-}
-
-.pulse-global-summary strong,
-.pulse-global-summary small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.pulse-global-summary strong {
-  font-size: 13px;
-  font-weight: 720;
-}
-
-.pulse-global-summary small {
-  color: color-mix(in srgb, var(--brand-color-ink) 50%, transparent);
-  font-size: 9px;
-}
-
-.pulse-global-play {
-  display: grid;
-  width: 46px;
-  height: 46px;
-  flex: 0 0 46px;
   place-items: center;
+  width: 76px;
+  height: 76px;
+  flex: 0 0 76px;
+  padding: 0;
   border: 0;
   border-radius: 50%;
+  background: var(--pulse-orbit-canvas);
+  color: var(--brand-color-ink);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.pulse-global-orbit > span {
+  position: relative;
+  font-family: var(--brand-font-body);
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums;
+}
+.pulse-global-orbit .pulse-segmented-orbit { pointer-events: none; }
+.pulse-global-controls { display: flex; align-items: center; gap: 10px; }
+.pulse-global-play, .pulse-global-nudge {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 120ms ease, background-color 120ms ease;
+}
+.pulse-global-nudge {
+  background: color-mix(in srgb, var(--brand-color-ink) 6%, transparent);
+  color: var(--brand-color-ink);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+.pulse-global-play {
+  width: 56px;
+  height: 56px;
   background: var(--brand-color-accent);
   color: var(--brand-color-canvas);
 }
-
-.pulse-global-play svg {
-  width: 18px;
-  height: 18px;
+.pulse-global-play svg { width: 24px; height: 24px; }
+.pulse-global-nudge:disabled { opacity: .3; cursor: default; }
+.pulse-global-play:active, .pulse-global-nudge:not(:disabled):active { transform: scale(.94); }
+.pulse-global-dock button:focus-visible { outline: 2px solid var(--brand-color-focus); outline-offset: 3px; }
+@media (max-width: 360px) {
+  .pulse-global-transport { gap: 10px; padding: 10px 12px; }
+  .pulse-global-controls { gap: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pulse-global-play, .pulse-global-nudge, .pulse-global-dock, .pulse-global-handle svg,
+  .pulse-global-reveal, .is-collapsed .pulse-global-reveal { transition: none; }
 }
 
 .pulse-bottom-nav {
@@ -1723,7 +1708,6 @@ input[type="number"] {
 }
 
 .pulse-bottom-nav > button {
-  position: relative;
   display: flex;
   min-width: 0;
   min-height: 60px;
@@ -1738,6 +1722,7 @@ input[type="number"] {
   font-family: var(--brand-font-body);
   font-size: 10px;
   font-weight: 680;
+  transition: color 140ms ease;
 }
 
 .pulse-nav-icon {
@@ -1746,7 +1731,6 @@ input[type="number"] {
   height: 28px;
   place-items: center;
   border-radius: 999px;
-  transition: background-color 140ms ease, color 140ms ease;
 }
 
 .pulse-nav-icon svg {
@@ -1756,20 +1740,6 @@ input[type="number"] {
 
 .pulse-bottom-nav > button.is-active {
   color: var(--brand-color-ink);
-}
-
-.pulse-bottom-nav > button.is-active .pulse-nav-icon {
-  background: color-mix(in srgb, var(--brand-color-ink) 10%, transparent);
-}
-
-.pulse-bottom-nav > button.is-active::before {
-  position: absolute;
-  top: 0;
-  width: 28px;
-  height: 2px;
-  border-radius: 999px;
-  background: var(--brand-color-accent);
-  content: "";
 }
 
 .pulse-bottom-nav > button:focus-visible {
@@ -1804,11 +1774,15 @@ input[type="number"] {
   }
 
   .pulse-transport-row {
-    margin-top: 9px;
+    margin-top: 24px;
+  }
+
+  .pulse-tempo-slider {
+    margin-top: 14px;
   }
 
   .pulse-tempo-slider input[type="range"] {
-    height: 35px;
+    height: 44px;
   }
 
   .pulse-quickbar {
@@ -1858,6 +1832,10 @@ input[type="number"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .pulse-nudge:not(:disabled):active {
+    transform: none;
+  }
+
   .pulse-metronome-screen *,
   .pulse-metronome-screen *::before,
   .pulse-metronome-screen *::after,

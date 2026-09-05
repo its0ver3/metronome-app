@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#090a0d" />
+    <title>Trainer Card Studio</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="lab-shell">
+      <header class="lab-header">
+        <div>
+          <span class="lab-kicker">Trainer card study</span>
+          <h1>Three ways to hold a practice tool.</h1>
+        </div>
+        <p>Switch directions, then use the throw-offs to compare the folded and active states.</p>
+      </header>
+
+      <nav class="concept-switcher" aria-label="Trainer card design">
+        <button type="button" class="is-selected" data-concept="plate" aria-pressed="true">
+          <span>01</span>
+          Instrument Plate
+        </button>
+        <button type="button" data-concept="dial" aria-pressed="false">
+          <span>02</span>
+          Hoop Dial
+        </button>
+        <button type="button" data-concept="stick" aria-pressed="false">
+          <span>03</span>
+          Stick Rail
+        </button>
+      </nav>
+
+      <section class="studio-stage">
+        <div class="phone" data-concept="plate">
+          <header class="app-bar">
+            <img src="../../logo.png" alt="Drums Only" />
+          </header>
+
+          <div class="icon-comparison" hidden>
+            <div class="icon-comparison-copy"><span>Icons</span><strong id="iconSetName">Simple shapes</strong></div>
+            <div class="icon-switcher" role="group" aria-label="Compare trainer icon sets">
+              <button type="button" data-icon-set="a" aria-pressed="true" aria-label="Icon set A: Simple shapes">A</button>
+              <button type="button" data-icon-set="b" aria-pressed="false" aria-label="Icon set B: Music symbols">B</button>
+              <button type="button" data-icon-set="c" aria-pressed="false" aria-label="Icon set C: Pulse diagrams">C</button>
+            </div>
+          </div>
+
+          <div class="app-scroll">
+            <header class="screen-heading">
+              <span>Practice tools</span>
+              <h2>Training</h2>
+              <p>Build steadier time with focused challenges.</p>
+            </header>
+            <div class="trainer-stack" id="trainerStack"></div>
+          </div>
+
+          <nav class="app-nav" aria-label="App preview">
+            <button type="button" aria-label="Metronome">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 20h8M6.5 20 9 4h6l2.5 16M12 7v8m0 0 3-4" /></svg>
+              <span>Metronome</span>
+            </button>
+            <button type="button" class="is-active" aria-current="page">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18V9m7 9V5m7 13v-6M3 18h4m3 0h4m3 0h4" /></svg>
+              <span>Training</span>
+            </button>
+            <button type="button" aria-label="Settings">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M19 13.5v-3l-2-.8-.7-1.7.8-2-2.1-2.1-2 .8L11.5 4h-3l-.8 2-1.7.7-2-.8L1.9 8l.8 2-.7 1.5v3l2 .8.7 1.7-.8 2L6 21.1l2-.8 1.5.7h3l.8-2 1.7-.7 2 .8 2.1-2.1-.8-2 .7-1.5Z" /></svg>
+              <span>Settings</span>
+            </button>
+          </nav>
+        </div>
+
+        <aside class="concept-card" aria-live="polite">
+          <span id="conceptNumber">01</span>
+          <h2 id="conceptName">Instrument Plate</h2>
+          <p id="conceptDescription">A compact, tactile faceplate: one strong readout when folded, with the controls revealed as an attached instrument panel.</p>
+          <dl>
+            <div><dt>Best at</dt><dd id="conceptStrength">Clarity + tactility</dd></div>
+            <div><dt>Reference</dt><dd id="conceptReference">Instrument hardware</dd></div>
+          </dl>
+        </aside>
+      </section>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

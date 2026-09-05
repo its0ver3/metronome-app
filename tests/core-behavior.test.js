@@ -1,7 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import AudioEngine from '../src/audio/AudioEngine.js'
-import SoundBank from '../src/audio/SoundBank.js'
+import AudioEngine, {
+  TAP_TEMPO_FEEDBACK_FREQUENCIES,
+  tapTempoFeedbackFrequency,
+} from '../src/audio/AudioEngine.js'
+import SoundBank, { voiceTierForBpm } from '../src/audio/SoundBank.js'
 import {
   ACCENT_LEVELS,
   ACCENT_ORDER,
@@ -11,6 +14,7 @@ import {
   clampBpm,
   cycleAccentLevel,
   normalizeAccentLevel,
+  SOUND_OPTIONS,
 } from '../src/audio/constants.js'
 import { restoreEngineSettings } from '../src/audio/engineSettings.js'
 import {
@@ -184,7 +188,49 @@ test('beat 1 uses the distinct downbeat voice in standard and polyrhythm playbac
   assert.deepEqual(events.map(({ downbeat }) => downbeat), [true, false, true, false])
 })
 
-test('every selectable click sound has its own synthesized downbeat companion', async () => {
+test('tap tempo feedback rises through four light boops and uses master volume', async () => {
+  assert.deepEqual(TAP_TEMPO_FEEDBACK_FREQUENCIES, [261.63, 329.63, 392, 523.25])
+  assert.equal(tapTempoFeedbackFrequency(0), 261.63)
+  assert.equal(tapTempoFeedbackFrequency(3), 392)
+  assert.equal(tapTempoFeedbackFrequency(5), 523.25)
+
+  const events = []
+  const masterGain = { id: 'master' }
+  const toneGain = {
+    gain: {
+      setValueAtTime: (value, time) => events.push(['gain-set', value, time]),
+      exponentialRampToValueAtTime: (value, time) => events.push(['gain-ramp', value, time]),
+    },
+    connect: (destination) => events.push(['gain-connect', destination]),
+  }
+  const oscillator = {
+    type: '',
+    frequency: {
+      setValueAtTime: (value, time) => events.push(['frequency-set', value, time]),
+      exponentialRampToValueAtTime: (value, time) => events.push(['frequency-ramp', value, time]),
+    },
+    connect: (destination) => events.push(['oscillator-connect', destination]),
+    start: (time) => events.push(['start', time]),
+    stop: (time) => events.push(['stop', time]),
+  }
+  const engine = new AudioEngine()
+  engine.ctx = {
+    currentTime: 2,
+    state: 'running',
+    createOscillator: () => oscillator,
+    createGain: () => toneGain,
+  }
+  engine._gainNode = masterGain
+
+  await engine.playTapTempoFeedback(4)
+
+  assert.equal(oscillator.type, 'sine')
+  assert.ok(events.some(([event, frequency]) => event === 'frequency-ramp' && frequency === 523.25))
+  assert.ok(events.some(([event, destination]) => event === 'gain-connect' && destination === masterGain))
+  assert.ok(events.some(([event, time]) => event === 'stop' && time === 2.16))
+})
+
+test('the production sound bank matches the nine checked shortlist choices', async () => {
   const context = {
     sampleRate: 48000,
     createBuffer: (_channels, length, sampleRate) => {
@@ -200,9 +246,77 @@ test('every selectable click sound has its own synthesized downbeat companion', 
 
   await soundBank.init()
 
-  assert.equal(soundBank.buffers.length, 8)
-  assert.equal(soundBank.downbeatBuffers.length, 8)
-  soundBank.buffers.forEach((buffer, index) => {
-    assert.notStrictEqual(soundBank.getDownbeatBuffer(index), buffer)
+  assert.deepEqual(SOUND_OPTIONS.map(({ name }) => name), [
+    'Classic Click',
+    'Woodblock',
+    'Soft Tone',
+    'Cowbell',
+    'Hi-hat',
+    'Shaker',
+    'Tambourine',
+    'Male Count',
+    'Female Count',
+  ])
+  assert.equal(soundBank.buffers.length, 9)
+  assert.equal(soundBank.downbeatBuffers.length, 9)
+  SOUND_OPTIONS.forEach((sound, index) => {
+    if (sound.kind === 'synth') {
+      assert.notStrictEqual(soundBank.getDownbeatBuffer(index), soundBank.getBuffer(index))
+    }
   })
+})
+
+test('recorded and spoken sounds lazy-load the right production assets', async () => {
+  const fetched = []
+  const previousFetch = globalThis.fetch
+  globalThis.fetch = async (url) => {
+    fetched.push(url)
+    return {
+      ok: true,
+      arrayBuffer: async () => new TextEncoder().encode(url).buffer,
+    }
+  }
+
+  const context = {
+    sampleRate: 48000,
+    createBuffer: (_channels, length, sampleRate) => ({
+      length,
+      sampleRate,
+      getChannelData: () => new Float32Array(length),
+    }),
+    decodeAudioData: async (bytes) => new TextDecoder().decode(bytes),
+  }
+
+  try {
+    const soundBank = new SoundBank(context)
+    await soundBank.init()
+    assert.equal(fetched.length, 0)
+
+    await soundBank.prepareSound(3)
+    assert.equal(fetched.length, 3)
+    assert.match(soundBank.getSubdivisionBuffer(3), /cowbell-soft\.wav$/)
+    assert.match(soundBank.getBuffer(3), /cowbell-main\.wav$/)
+    assert.match(soundBank.getDownbeatBuffer(3), /cowbell-accent\.wav$/)
+
+    await soundBank.prepareSound(7)
+    assert.equal(fetched.length, 84)
+    assert.match(
+      soundBank.getBuffer(7, { beatNumber: 16, bpm: 300 }),
+      /voice-male\/max-16\.wav$/,
+    )
+    assert.match(soundBank.getSubdivisionBuffer(7), /wood-soft\.wav$/)
+  } finally {
+    globalThis.fetch = previousFetch
+  }
+})
+
+test('spoken counts select pitch-preserving files for the active tempo', () => {
+  assert.equal(voiceTierForBpm(20), '')
+  assert.equal(voiceTierForBpm(110), '')
+  assert.equal(voiceTierForBpm(111), 'fast-')
+  assert.equal(voiceTierForBpm(155), 'fast-')
+  assert.equal(voiceTierForBpm(156), 'faster-')
+  assert.equal(voiceTierForBpm(191), 'rapid-')
+  assert.equal(voiceTierForBpm(251), 'max-')
+  assert.equal(voiceTierForBpm(300), 'max-')
 })

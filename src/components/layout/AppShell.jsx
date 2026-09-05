@@ -40,6 +40,7 @@ function getSettingsSnapshot(engine) {
 
 export default function AppShell() {
   const [activeTab, setActiveTab] = useState('metronome')
+  const [transportCollapsed, setTransportCollapsed] = useState(false)
   const [initialSettings] = useState(() => loadSettings())
   const audio = useAudioEngine(initialSettings)
 
@@ -132,6 +133,10 @@ export default function AppShell() {
     await engine.preview(index)
   }, [engine])
 
+  const handleTapFeedback = useCallback((stage) => {
+    engine.playTapTempoFeedback(stage).catch(() => {})
+  }, [engine])
+
   const handleGapChange = (enabled, clickBars, silentBars) => {
     audio.setGapTraining(enabled, clickBars, silentBars)
     syncFromEngine()
@@ -204,7 +209,7 @@ export default function AppShell() {
 
   return (
     <>
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className={`pulse-app-content flex-1 flex flex-col overflow-hidden ${activeTab !== 'metronome' ? 'has-mini-transport' : ''}`}>
         {activeTab === 'metronome' && (
           <MetronomeScreen
               bpm={audio.bpm}
@@ -239,11 +244,13 @@ export default function AppShell() {
               onPolySoundIndex1Change={handlePolySoundIndex1Change}
               onPolySoundIndex2Change={handlePolySoundIndex2Change}
               onSoundPreview={handleSoundPreview}
+              onTapFeedback={handleTapFeedback}
               playbackStatus={playbackStatus}
             />
         )}
         {activeTab === 'training' && (
           <TrainingScreen
+            bpm={audio.bpm}
             gapEnabled={gapEnabled}
             gapClickBars={gapClickBars}
             gapSilentBars={gapSilentBars}
@@ -272,14 +279,25 @@ export default function AppShell() {
             onVolumeChange={handleVolumeChange}
           />
         )}
-      </div>
       {activeTab !== 'metronome' && (
         <GlobalTransport
           {...playbackStatus}
+          collapsed={transportCollapsed}
+          onCollapsedChange={setTransportCollapsed}
+          subdivision={subdivision}
+          subdivisionAccents={subdivisionAccents}
+          polyRhythm1={polyRhythm1}
+          polyRhythm2={polyRhythm2}
+          polyBeat1={audio.polyBeat1}
+          polyBeat2={audio.polyBeat2}
+          polyAccents1={polyAccents1}
+          polyAccents2={polyAccents2}
+          onBpmChange={audio.changeBpm}
           onToggle={audio.toggle}
           onOpenMetronome={() => setActiveTab('metronome')}
         />
       )}
+      </div>
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </>
   )

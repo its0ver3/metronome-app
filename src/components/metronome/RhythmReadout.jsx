@@ -67,7 +67,6 @@ export default function RhythmReadout({
           </span>
         </span>
       )}
-      <span className="pulse-rhythm-readout-chevron" aria-hidden="true">⌃</span>
     </button>
   )
 }

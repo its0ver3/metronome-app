@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#ebe7de" />
+    <title>Drums Only Sound Lab</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="lab-shell">
+      <header class="lab-heading">
+        <div>
+          <p class="eyebrow">Independent audio prototype</p>
+          <h1>Sound Library Lab</h1>
+        </div>
+        <p class="intro">Compare the five shortlisted percussion sounds plus new male and female count voices in the same sixteenth-note context.</p>
+      </header>
+
+      <nav class="palette-switcher" aria-label="Choose a sound family">
+        <button type="button" data-palette="cowbell" aria-pressed="true">
+          <span class="palette-icon is-cowbell" aria-hidden="true"></span>
+          <span><strong>Cowbell</strong><small>Bold + musical</small></span>
+        </button>
+        <button type="button" data-palette="hihat" aria-pressed="false">
+          <span class="palette-icon is-hihat" aria-hidden="true"></span>
+          <span><strong>Hi-hat</strong><small>VCSL · selected</small></span>
+        </button>
+        <button type="button" data-palette="cajon" aria-pressed="false">
+          <span class="palette-icon is-token" aria-hidden="true">CJ</span>
+          <span><strong>Cajón</strong><small>VCSL · selected</small></span>
+        </button>
+        <button type="button" data-palette="shaker" aria-pressed="false">
+          <span class="palette-icon is-token" aria-hidden="true">SH</span>
+          <span><strong>Shaker</strong><small>New · 9 hits</small></span>
+        </button>
+        <button type="button" data-palette="tamb" aria-pressed="false">
+          <span class="palette-icon is-token" aria-hidden="true">TB</span>
+          <span><strong>Tambourine</strong><small>New · 9 hits</small></span>
+        </button>
+        <button type="button" data-palette="voice-male" aria-pressed="false">
+          <span class="palette-icon is-count" aria-hidden="true">M</span>
+          <span><strong>Male count</strong><small>New voice</small></span>
+        </button>
+        <button type="button" data-palette="voice-female" aria-pressed="false">
+          <span class="palette-icon is-count" aria-hidden="true">F</span>
+          <span><strong>Female count</strong><small>New voice</small></span>
+        </button>
+      </nav>
+
+      <section class="comparison-context" aria-live="polite">
+        <div>
+          <p id="palette-position">Option 1 of 7</p>
+          <h2 id="palette-name">Cowbell</h2>
+        </div>
+        <p id="palette-description">Muted supporting strikes with a more open, unmistakable first beat.</p>
+      </section>
+
+      <div class="device-stage">
+        <section class="device-frame" aria-label="Interactive metronome sound prototype">
+          <div class="sound-screen">
+            <header class="screen-brand">
+              <img src="../../logo.png" alt="Drums Only" />
+              <span id="load-status" role="status">Tap play to load sounds</span>
+            </header>
+
+            <section class="tempo-panel" aria-label="Tempo">
+              <div class="tempo-readout">
+                <button type="button" class="tempo-step" data-action="bpm-down" aria-label="Decrease tempo">−</button>
+                <div>
+                  <strong id="bpm-value">120</strong>
+                  <span>BPM</span>
+                </div>
+                <button type="button" class="tempo-step" data-action="bpm-up" aria-label="Increase tempo">+</button>
+              </div>
+              <input id="bpm-slider" type="range" min="20" max="300" value="120" aria-label="Tempo in beats per minute" />
+            </section>
+
+            <section class="orbit-wrap">
+              <div id="beat-orbit" class="beat-orbit" aria-hidden="true"></div>
+              <button id="transport" class="transport" type="button" data-action="toggle-play" aria-label="Start metronome">
+                <span class="transport-icon" aria-hidden="true"></span>
+                <span id="transport-label">Play</span>
+              </button>
+              <div class="voice-number" id="voice-number" aria-hidden="true"></div>
+            </section>
+
+            <section class="rhythm-controls" aria-label="Rhythm settings">
+              <label>
+                <span>Beats</span>
+                <select id="beats-select" aria-label="Beats per bar">
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4" selected>4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                </select>
+              </label>
+              <div class="rhythm-static" aria-label="Sixteenth-note playback, four clicks per beat">
+                <span>Playback</span>
+                <strong>Sixteenths</strong>
+                <small>4 / beat</small>
+              </div>
+            </section>
+
+            <p class="mode-note" id="mode-note">Beat one is accented; every beat is filled with four sixteenth-note clicks.</p>
+
+            <footer class="screen-footer">
+              <button type="button" data-action="previous-palette" aria-label="Previous sound family">←</button>
+              <span><b id="footer-name">Cowbell</b><small>VCSL · CC0</small></span>
+              <button type="button" data-action="next-palette" aria-label="Next sound family">→</button>
+            </footer>
+          </div>
+        </section>
+      </div>
+
+      <p class="lab-note">Hi-hat and cajón use the selected VCSL recordings. Shaker and tambourine rotate through three recordings for each role. Both voices use pre-rendered tempo variants so their pitch stays fixed from 20–300 BPM.</p>
+    </main>
+  </body>
+</html>

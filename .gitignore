@@ -2,3 +2,9 @@ dist/
 node_modules/
 .DS_Store
 *.log
+
+# Local scratch files and generated prototype exports
+/tmp/
+/:memory:.ses
+/mockups/designer-audit-hosted/
+/mockups/designer-audit/designer-audit-bundle.zip

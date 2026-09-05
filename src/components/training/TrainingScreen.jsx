@@ -1,8 +1,10 @@
 import GapTraining from './GapTraining'
 import TempoTrainer from './TempoTrainer'
 import SubdivisionTrainer from './SubdivisionTrainer'
+import { getTempoColor } from '../metronome/tempoHeat'
 
 export default function TrainingScreen({
+  bpm = 120,
   gapEnabled,
   gapClickBars,
   gapSilentBars,
@@ -22,14 +24,8 @@ export default function TrainingScreen({
   isPlaying,
 }) {
   return (
-    <section className="pulse-feature-screen pulse-training-screen" aria-labelledby="training-title">
+    <section className="pulse-feature-screen pulse-training-screen" aria-label="Practice tools" style={{ '--tempo-heat-color': getTempoColor(bpm) }}>
       <div className="pulse-feature-scroll">
-        <header className="pulse-feature-header">
-          <span>Practice tools</span>
-          <h1 id="training-title">Training</h1>
-          <p>Build steadier time with focused, repeatable challenges.</p>
-        </header>
-
         {polyrhythmMode && (
           <div className="pulse-feature-notice" role="status">
             <strong>Training paused</strong>

@@ -22,6 +22,8 @@ const FOCUSABLE = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(',')
 
+const RHYTHM_SHEET_MOTION_MS = 440
+
 function TransportIcon({ isPlaying }) {
   if (isPlaying) {
     return (
@@ -36,65 +38,6 @@ function TransportIcon({ isPlaying }) {
     <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
       <path d="M8 5v14l11-7z" />
     </svg>
-  )
-}
-
-function BeatPreviewRow({ label, count, activeBeat, isPlaying, inGap, rhythm }) {
-  return (
-    <div className="pulse-beat-preview-row" data-rhythm-preview={rhythm}>
-      {label && <span className="pulse-beat-preview-label">{label}</span>}
-      <div className="pulse-beat-preview-dots">
-      {Array.from({ length: count }, (_, beat) => (
-        <span
-          key={beat}
-          className={`pulse-preview-dot ${isPlaying && activeBeat === beat ? 'is-active' : ''}`}
-          data-beat={beat}
-          data-gap={inGap ? 'true' : undefined}
-        />
-      ))}
-      </div>
-    </div>
-  )
-}
-
-function StandardBeatPreview({ beatsPerBar, currentBeat, isPlaying, inGap }) {
-  return (
-    <div className="pulse-beat-preview" aria-hidden="true">
-      <BeatPreviewRow
-        count={beatsPerBar}
-        activeBeat={currentBeat}
-        isPlaying={isPlaying}
-        inGap={inGap}
-        rhythm="standard"
-      />
-    </div>
-  )
-}
-
-function PolyrhythmBeatPreview({
-  rhythm1,
-  rhythm2,
-  activeBeat1,
-  activeBeat2,
-  isPlaying,
-}) {
-  return (
-    <div className="pulse-beat-preview is-polyrhythm" aria-hidden="true">
-      <BeatPreviewRow
-        label="R1"
-        count={rhythm1}
-        activeBeat={activeBeat1}
-        isPlaying={isPlaying}
-        rhythm="one"
-      />
-      <BeatPreviewRow
-        label="R2"
-        count={rhythm2}
-        activeBeat={activeBeat2}
-        isPlaying={isPlaying}
-        rhythm="two"
-      />
-    </div>
   )
 }
 
@@ -131,14 +74,17 @@ export default function MetronomeScreen({
   onPolySoundIndex1Change,
   onPolySoundIndex2Change,
   onSoundPreview,
+  onTapFeedback,
   playbackStatus,
 }) {
   const [rhythmOpen, setRhythmOpen] = useState(false)
+  const [rhythmClosing, setRhythmClosing] = useState(false)
   const tapRef = useRef(null)
   const screenRef = useRef(null)
   const contentRef = useRef(null)
   const sheetRef = useRef(null)
   const openerRef = useRef(null)
+  const closeTimerRef = useRef(null)
 
   const handleTap = useCallback(() => {
     tapRef.current?.click()
@@ -154,12 +100,30 @@ export default function MetronomeScreen({
 
   const openRhythm = useCallback((event) => {
     openerRef.current = event.currentTarget
+    setRhythmClosing(false)
     setRhythmOpen(true)
   }, [])
 
   const closeRhythm = useCallback(() => {
-    setRhythmOpen(false)
-    requestAnimationFrame(() => openerRef.current?.focus())
+    if (closeTimerRef.current !== null) return
+
+    // Keep focus on a stationary element while the controls slide away. Safari
+    // otherwise tries to follow the focused Done button and visibly shifts the app.
+    sheetRef.current?.focus({ preventScroll: true })
+    setRhythmClosing(true)
+    const motionDuration = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+      ? 0
+      : RHYTHM_SHEET_MOTION_MS
+    closeTimerRef.current = window.setTimeout(() => {
+      closeTimerRef.current = null
+      setRhythmOpen(false)
+      setRhythmClosing(false)
+      requestAnimationFrame(() => openerRef.current?.focus({ preventScroll: true }))
+    }, motionDuration)
+  }, [])
+
+  useEffect(() => () => {
+    if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current)
   }, [])
 
   useKeyboard({
@@ -181,7 +145,9 @@ export default function MetronomeScreen({
 
     contentRef.current?.setAttribute('inert', '')
     outsideElements.forEach((element) => element.setAttribute('inert', ''))
-    requestAnimationFrame(() => sheet?.querySelector('[data-sheet-autofocus]')?.focus())
+    // Enter the dialog without asking the browser to scroll toward a control that
+    // is still moving up from below the viewport.
+    requestAnimationFrame(() => sheet?.focus({ preventScroll: true }))
 
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
@@ -330,29 +296,13 @@ export default function MetronomeScreen({
             disabled={tempoEnabled}
             className="pulse-tempo-slider"
           />
-
-          {polyrhythmMode ? (
-            <PolyrhythmBeatPreview
-              rhythm1={polyRhythm1}
-              rhythm2={polyRhythm2}
-              activeBeat1={polyBeat1}
-              activeBeat2={polyBeat2}
-              isPlaying={isPlaying}
-            />
-          ) : (
-            <StandardBeatPreview
-              beatsPerBar={beatsPerBar}
-              currentBeat={currentBeat}
-              isPlaying={isPlaying}
-              inGap={inGap}
-            />
-          )}
         </div>
 
         <div className="pulse-quickbar">
           <TapTempoButton
             ref={tapRef}
             onBpmChange={onBpmChange}
+            onTapFeedback={onTapFeedback}
             disabled={tempoEnabled}
             className="pulse-tap-button"
           />
@@ -362,7 +312,7 @@ export default function MetronomeScreen({
             subdivision={subdivision}
             polyRhythm1={polyRhythm1}
             polyRhythm2={polyRhythm2}
-            expanded={rhythmOpen}
+            expanded={rhythmOpen && !rhythmClosing}
             controlsId="pulse-rhythm-controls"
             onOpen={openRhythm}
           />
@@ -373,7 +323,7 @@ export default function MetronomeScreen({
         <>
           <button
             type="button"
-            className="pulse-sheet-backdrop"
+            className={`pulse-sheet-backdrop ${rhythmClosing ? 'is-closing' : ''}`}
             onClick={closeRhythm}
             aria-label="Close rhythm controls"
             tabIndex={-1}
@@ -381,17 +331,15 @@ export default function MetronomeScreen({
           <section
             ref={sheetRef}
             id="pulse-rhythm-controls"
-            className="pulse-control-sheet"
+            className={`pulse-control-sheet ${rhythmClosing ? 'is-closing' : ''}`}
             role="dialog"
+            tabIndex={-1}
             aria-modal="true"
             aria-labelledby="pulse-rhythm-title"
           >
             <div className="pulse-sheet-handle" aria-hidden="true" />
             <header className="pulse-sheet-header">
-              <div>
-                <span>Shape the click</span>
-                <h2 id="pulse-rhythm-title">Rhythm</h2>
-              </div>
+              <h2 id="pulse-rhythm-title">Shape the click</h2>
               <button type="button" onClick={closeRhythm} data-sheet-autofocus>Done</button>
             </header>
 
