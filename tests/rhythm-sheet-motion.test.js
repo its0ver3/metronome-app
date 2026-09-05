@@ -25,3 +25,11 @@ test('rhythm sheet motion does not repaint or scroll the background app', () => 
   assert.doesNotMatch(screenSource, /StandardBeatPreview|PolyrhythmBeatPreview|pulse-beat-preview/)
   assert.doesNotMatch(cssSource, /pulse-preview-dot|pulse-beat-preview/)
 })
+
+test('sheet swipe owns only the fixed header and preserves scrollable controls', () => {
+  assert.match(screenSource, /className="pulse-sheet-drag-area" \{\.\.\.sheetDragHandlers\}/)
+  assert.match(cssSource, /\.pulse-sheet-drag-area\s*\{[^}]*touch-action: none/s)
+  assert.match(cssSource, /\.pulse-sheet-scroll\s*\{[^}]*overflow-y: auto/s)
+  assert.match(cssSource, /from \{ transform: translate3d\(0, var\(--sheet-drag-y, 0px\), 0\)/)
+  assert.match(cssSource, /prefers-reduced-motion: reduce\)\s*\{\s*\.pulse-control-sheet\[data-drag-state="settling"\]:not\(\.is-closing\)\s*\{\s*transition: none/)
+})

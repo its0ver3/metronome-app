@@ -189,3 +189,11 @@ test('grip fading never flattens the 3D parent and production has no mockup depe
   assert.match(source, /memo\(function CylinderFace/)
   assert.doesNotMatch(source + css, /mockups\//)
 })
+
+test('wheel activation does not launch texture, number, or filter fades', async () => {
+  const css = await readFile(new URL('../src/components/training/numberWheel.css', import.meta.url), 'utf8')
+  const transitions = [...css.matchAll(/transition:\s*([^;}]+)/g)].map(([, value]) => value)
+  assert.ok(transitions.some(value => value.startsWith('transform 170ms')), 'Rotation still settles into place')
+  transitions.forEach(value => assert.doesNotMatch(value, /opacity|color|background|filter/))
+  assert.match(css, /prefers-reduced-motion: reduce/)
+})

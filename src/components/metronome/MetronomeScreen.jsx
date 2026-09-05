@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import BpmDisplay from './BpmDisplay'
 import BpmControls from './BpmControls'
 import TapTempoButton from './TapTempoButton'
@@ -13,6 +13,7 @@ import RhythmReadout from './RhythmReadout.jsx'
 import { getPlaybackSummary } from './PlaybackStatus'
 import { getTempoHeat } from './tempoHeat'
 import useKeyboard from '../../hooks/useKeyboard'
+import { createSheetDragHandlers } from './sheetDrag.js'
 
 const FOCUSABLE = [
   'button:not([disabled])',
@@ -121,6 +122,11 @@ export default function MetronomeScreen({
       requestAnimationFrame(() => openerRef.current?.focus({ preventScroll: true }))
     }, motionDuration)
   }, [])
+
+  const sheetDragHandlers = useMemo(
+    () => createSheetDragHandlers(() => sheetRef.current, closeRhythm),
+    [closeRhythm, rhythmOpen],
+  )
 
   useEffect(() => () => {
     if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current)
@@ -337,11 +343,13 @@ export default function MetronomeScreen({
             aria-modal="true"
             aria-labelledby="pulse-rhythm-title"
           >
-            <div className="pulse-sheet-handle" aria-hidden="true" />
-            <header className="pulse-sheet-header">
-              <h2 id="pulse-rhythm-title">Shape the click</h2>
-              <button type="button" onClick={closeRhythm} data-sheet-autofocus>Done</button>
-            </header>
+            <div className="pulse-sheet-drag-area" {...sheetDragHandlers}>
+              <div className="pulse-sheet-handle" aria-hidden="true" />
+              <header className="pulse-sheet-header">
+                <h2 id="pulse-rhythm-title">Shape the click</h2>
+                <button type="button" onClick={closeRhythm} data-sheet-autofocus>Done</button>
+              </header>
+            </div>
 
             <div className="pulse-sheet-scroll">
               <PolyrhythmToggle enabled={polyrhythmMode} onToggle={onPolyrhythmModeToggle} />

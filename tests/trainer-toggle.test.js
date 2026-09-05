@@ -374,8 +374,8 @@ test('approved housing sits flush at the card edge and controls retain clearance
   const target = number(stack, '--throwoff-target-width')
   const gutter = number(stack, '--throwoff-gutter')
   const clearance = number(stack, '--throwoff-clearance')
-  const frame = block('.pulse-throwoff-mechanism')
-  const housingRear = 278 * number(frame, '--throwoff-art-scale') + number(frame, '--throwoff-art-left')
+  const body = block('.pulse-throwoff-body')
+  const housingRear = number(body, 'left') + (278 - 200) * 0.07
   assert.ok(Math.abs(-1 + gutter - target + housingRear) < 0.1)
   assert.ok(clearance + gutter - target >= 8)
   for (const viewport of [320, 360, 375, 390, 430]) {
@@ -394,27 +394,31 @@ test('approved housing sits flush at the card edge and controls retain clearance
 })
 
 test('the complete lever arc and 3px slide fit inside the stationary touch target', () => {
-  const art = block('.pulse-throwoff-art')
+  const lever = css.match(/\.pulse-throwoff-lever \{\s*--throwoff-angle[^}]+/)[0]
   const frame = block('.pulse-throwoff-mechanism')
-  const scale = number(frame, '--throwoff-art-scale')
-  const left = number(frame, '--throwoff-art-left')
-  const top = number(frame, '--throwoff-art-top')
+  const left = number(lever, 'left')
+  const top = number(lever, 'top')
   const slide = number(frame, '--throwoff-slide-distance')
   const height = number(block('.pulse-trainer-toggle'), 'height')
   const frameHeight = number(frame, 'height')
   const width = number(frame, 'width')
-  const pivot = [number(art, '--throwoff-pivot-x'), number(art, '--throwoff-pivot-y')]
-  const offset = [number(art, '--throwoff-offset-x'), number(art, '--throwoff-offset-y')]
-  const leverScale = number(art, '--throwoff-lever-scale')
-  assert.deepEqual(pivot.map((value, axis) => value + offset[axis]), [516, 893])
+  const pivot = lever.match(/transform-origin:\s*([\d.]+)px ([\d.]+)px/).slice(1).map(Number)
+  assert.ok(Math.abs(left + pivot[0] - (516 * 0.07 + 0.6)) < 0.0001)
+  assert.ok(Math.abs(top + pivot[1] - (893 * 0.07 + 5)) < 0.0001)
   assert.equal(slide, 3)
   for (let degrees = 0; degrees <= 26; degrees += 0.5) {
     const angle = degrees * Math.PI / 180
     for (const [x, y] of [[821, 147], [949, 147], [821, 1157], [949, 1157]]) {
-      const dx = (x - pivot[0]) * leverScale
-      const dy = (y - pivot[1]) * leverScale
-      const screenX = (pivot[0] + offset[0] + dx * Math.cos(angle) - dy * Math.sin(angle)) * scale + left
-      const screenY = (pivot[1] + offset[1] + dx * Math.sin(angle) + dy * Math.cos(angle)) * scale + top + (height - frameHeight) / 2
+      const dx = (x - 800) * 0.0588 - pivot[0]
+      const dy = (y - 125) * 0.0588 - pivot[1]
+      const screenX = left + pivot[0] + dx * Math.cos(angle) - dy * Math.sin(angle)
+      const screenY = top + pivot[1] + dx * Math.sin(angle) + dy * Math.cos(angle) + (height - frameHeight) / 2
+      // The optimized geometry must reproduce the old atlas at every angle,
+      // not just stay inside the hit target at its two endpoints.
+      const oldX = (516 + (x - 903) * 0.84 * Math.cos(angle) - (y - 1083) * 0.84 * Math.sin(angle)) * 0.07 + 0.6
+      const oldY = (893 + (x - 903) * 0.84 * Math.sin(angle) + (y - 1083) * 0.84 * Math.cos(angle)) * 0.07 + 5 + (height - frameHeight) / 2
+      assert.ok(Math.abs(screenX - oldX) < 0.0001)
+      assert.ok(Math.abs(screenY - oldY) < 0.0001)
       assert.ok(screenX >= 0 && screenX <= width)
       assert.ok(screenY >= 0 && screenY + slide <= height)
     }
@@ -430,17 +434,24 @@ test('the complete lever arc and 3px slide fit inside the stationary touch targe
   assert.match(reducedMotion, /--throwoff-angle: 0deg/)
 })
 
-test('production owns its asset and does not depend on the removable mockup', async () => {
-  assert.match(css, /background-image: var\(--throwoff-atlas\)/)
+test('production uses tiny transparent sprites without runtime masks or filters', async () => {
+  assert.doesNotMatch(css, /clip-path:|filter:|1254px|scale\(/)
   assert.doesNotMatch(css, /url\(/)
   assert.doesNotMatch(css, /mockups\//)
-  const asset = await readFile(new URL('../src/assets/trainer-throwoff.png', import.meta.url))
-  assert.equal(asset.subarray(1, 4).toString(), 'PNG')
-  assert.equal(asset.readUInt32BE(16), 1254)
-  assert.equal(asset.readUInt32BE(20), 1254)
-  assert.ok(asset.length < 3 * 1024 * 1024, 'Keep artwork inside the offline cache size limit')
+  let bytes = 0, pixels = 0
+  for (const [part, width, height] of [['body', 91, 255], ['lever', 29, 186]]) {
+    const asset = await readFile(new URL(`../src/assets/trainer-throwoff-${part}.png`, import.meta.url))
+    assert.equal(asset.subarray(1, 4).toString(), 'PNG')
+    assert.equal(asset.readUInt32BE(16), width)
+    assert.equal(asset.readUInt32BE(20), height)
+    assert.equal(asset[25], 6, 'RGBA sprites retain baked transparency')
+    bytes += asset.length
+    pixels += width * height
+  }
+  assert.ok(bytes < 40_000, 'The two production sprites stay below 40 KB combined')
+  assert.ok(pixels < 30_000, 'Decoded sprites stay below 30,000 pixels combined')
   const source = await readFile(new URL('../src/components/training/TrainerToggle.jsx', import.meta.url), 'utf8')
-  assert.match(source, /import throwoffAtlas from '\.\.\/\.\.\/assets\/trainer-throwoff\.png'/)
+  assert.doesNotMatch(source, /trainer-throwoff\.png|throwoff-atlas/)
   assert.doesNotMatch(source, /mockups\/|setTimeout|requestAnimationFrame|localStorage|AudioContext|useState/)
 })
 
@@ -448,13 +459,16 @@ test('both artwork layers receive the bundled image URL, independent of the page
   for (const enabled of [false, true]) {
     const button = TrainerToggle({ enabled, label: 'Enable Gap Trainer', onToggle() {} })
     const art = button.props.children.props.children
-    const image = art.props.style['--throwoff-atlas']
-    assert.match(image, /^url\("\/metronome-app\/assets\/trainer-throwoff-[\w-]+\.png"\)$/)
-    assert.equal(art.props.children[0].props.children.props.className, 'pulse-throwoff-body')
-    assert.equal(art.props.children[1].props.className, 'pulse-throwoff-lever')
-    for (const path of ['/metronome-app/', '/metronome-app/?view=training']) {
-      const imagePath = image.slice(5, -2)
-      assert.equal(new URL(imagePath, `http://localhost:5176${path}`).pathname, imagePath)
+    for (const [index, part] of ['body', 'lever'].entries()) {
+      const image = art.props.children[index]
+      assert.equal(image.type, 'img')
+      assert.equal(image.props.alt, '')
+      assert.equal(image.props.draggable, false)
+      assert.equal(image.props.className, `pulse-throwoff-${part}`)
+      assert.match(image.props.src, new RegExp(`^/metronome-app/assets/trainer-throwoff-${part}-[\\w-]+\\.png$`))
+      for (const path of ['/metronome-app/', '/metronome-app/?view=training']) {
+        assert.equal(new URL(image.props.src, `http://localhost:5176${path}`).pathname, image.props.src)
+      }
     }
   }
 })

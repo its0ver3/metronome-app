@@ -1,10 +1,12 @@
 # Trainer throw-off artwork
 
-`trainer-throwoff.png` is original unbranded artwork generated once with the built-in image-generation tool, selected in the standalone trainer-toggle lab, and copied unchanged into production. The lab was removed after approval of the production version; this asset and its provenance remain part of the app.
+`trainer-throwoff.png` is original unbranded artwork generated once with the built-in image-generation tool and selected in the standalone trainer-toggle lab. The unchanged master is retained for reproducibility but is no longer imported into the app or its offline cache. The lab was removed after approval of the production version.
 
-The 1254 × 1254 RGB PNG has no alpha channel. Although transparency was requested, the output contains a baked checkerboard. `src/components/training/trainerThrowoff.css` clips the two silhouettes at display time; no background-removal script or image edit was used. No external product photography, footage, or manufacturer branding is bundled.
+The 1254 × 1254 RGB master has no alpha channel and contains a baked checkerboard. `scripts/bake-throwoff.mjs` now compiles the previously approved CSS silhouettes into two transparent RGBA PNGs, with the housing shadow baked in. This is a deterministic rendering of the existing artwork and masks, not regenerated artwork. No external product photography, footage, or manufacturer branding is bundled.
 
-`TrainerToggle.jsx` imports the atlas and supplies its resolved URL through `--throwoff-atlas`. Both clipped layers inherit that value. This keeps the image base-path-aware in local development and the production build, without a relative CSS image path resolving against the app page.
+`TrainerToggle.jsx` imports `trainer-throwoff-body.png` (91 × 255) and `trainer-throwoff-lever.png` (29 × 186) directly into decorative, non-draggable images. Vite resolves both URLs against the app base path. Together they are 34,243 bytes and 28,599 decoded pixels, replacing the 1,399,060-byte master in the production bundle. Runtime masking, shadow filtering, and the 1254 px scaled layers are gone; only small-image transforms and opacity animate.
+
+The sprites are sampled at at least 3x their CSS display size. To rebuild them, run `node scripts/bake-throwoff.mjs` with Sharp available in the development runtime (or via `NODE_PATH`). Sharp is an offline asset-compilation tool, not a new app dependency. The body crop is `(200, 0, 430, 1210)` at scale 0.07; the lever crop is `(800, 125, 160, 1050)` at scale 0.0588. The CSS dimensions and pivot account for those crops, preserving the original geometry through the entire swing. Keep the checked-in PNGs; normal app builds do not regenerate them.
 
 This is a side-angle/three-quarter UI interpretation, not a precise 90-degree rendering, branded replica, or mechanical simulation. The detached lever pivot (903, 1083) registers to the housing hinge (516, 893), with lever scale 0.84 and a 26-degree release. The full assembly uses scale 0.07. Its rear housing edge sits within 0.1 px of the card's outer border, using a 45 px external gutter and 27 px internal clearance.
 

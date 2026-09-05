@@ -54,9 +54,6 @@
 
 /* Only the artwork slides. The card, hit target, and focus ring stay still. */
 .pulse-throwoff-mechanism {
-  --throwoff-art-scale: 0.07;
-  --throwoff-art-left: 0.6px;
-  --throwoff-art-top: 5px;
   --throwoff-slide-distance: 3px;
   position: relative;
   display: block;
@@ -73,53 +70,37 @@
 }
 
 .pulse-throwoff-art {
-  --throwoff-pivot-x: 903px;
-  --throwoff-pivot-y: 1083px;
-  --throwoff-offset-x: -387px;
-  --throwoff-offset-y: -190px;
-  --throwoff-lever-scale: 0.84;
-  position: absolute;
-  width: 1254px;
-  height: 1254px;
-  left: var(--throwoff-art-left);
-  top: var(--throwoff-art-top);
-  transform: scale(var(--throwoff-art-scale));
-  transform-origin: 0 0;
-}
-
-.pulse-throwoff-body-mount,
-.pulse-throwoff-body,
-.pulse-throwoff-lever {
   position: absolute;
   inset: 0;
 }
 
 .pulse-throwoff-body,
 .pulse-throwoff-lever {
-  /* The component imports the atlas so its URL always includes Vite's base. */
-  background-image: var(--throwoff-atlas);
-  background-position: 0 0;
-  background-size: 1254px 1254px;
-  background-repeat: no-repeat;
+  position: absolute;
+  display: block;
+  max-width: none;
 }
 
-/* Original atlas retained unchanged; clip its baked background at display time. */
+/* Original silhouettes baked into small 3x transparent sprites. These positions
+   preserve the approved atlas geometry without full-size layers or live masks. */
 .pulse-throwoff-body {
+  left: 14.6px;
+  top: 5px;
+  width: 30.1px;
+  height: 84.7px;
   opacity: 0.8;
   transition: opacity 150ms ease-out;
-  clip-path: path("M 375 67 C 321 67 288 76 282 105 L 282 168 Q 283 194 302 201 L 318 203 L 318 261 L 298 264 Q 278 266 278 286 L 278 1094 Q 278 1146 302 1151 L 486 1155 Q 518 1155 536 1123 Q 549 1093 532 1060 Q 517 1032 489 1028 L 489 1000 L 478 1000 L 478 975 Q 480 957 507 957 C 551 962 580 934 580 895 C 581 857 552 825 518 825 Q 491 825 489 784 L 478 783 L 487 780 L 487 303 Q 487 279 432 252 L 432 201 L 449 198 Q 470 191 470 165 L 470 109 C 468 81 435 67 375 67 Z");
-}
-
-.pulse-throwoff-body-mount {
-  filter: drop-shadow(-14px 10px 14px #00000070);
 }
 
 .pulse-throwoff-lever {
   --throwoff-angle: 26deg;
+  left: 30.6636px;
+  top: 11.1796px;
+  width: 9.408px;
+  height: 61.74px;
   opacity: 0.88;
-  clip-path: path("M 873 148 Q 846 147 843 172 L 843 335 Q 843 346 851 366 L 865 403 Q 872 423 870 449 L 854 966 Q 854 1008 838 1038 Q 822 1058 822 1085 Q 821 1122 848 1144 Q 868 1157 895 1150 Q 927 1147 939 1119 Q 949 1098 941 1062 Q 935 1038 925 1023 L 917 462 Q 915 420 927 387 Q 937 359 937 338 L 937 186 Q 937 154 908 151 Z");
-  transform-origin: var(--throwoff-pivot-x) var(--throwoff-pivot-y);
-  transform: translate(var(--throwoff-offset-x), var(--throwoff-offset-y)) rotate(var(--throwoff-angle)) scale(var(--throwoff-lever-scale));
+  transform-origin: 6.0564px 56.3304px;
+  transform: rotate(var(--throwoff-angle));
   transition: transform var(--trainer-disengage-duration) var(--trainer-disengage-ease), opacity 150ms ease-out;
 }
 

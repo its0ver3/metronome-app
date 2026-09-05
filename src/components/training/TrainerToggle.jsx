@@ -1,4 +1,5 @@
-import throwoffAtlas from '../../assets/trainer-throwoff.png'
+import throwoffBody from '../../assets/trainer-throwoff-body.png'
+import throwoffLever from '../../assets/trainer-throwoff-lever.png'
 import './trainerThrowoff.css'
 
 export default function TrainerToggle({
@@ -21,14 +22,9 @@ export default function TrainerToggle({
       className="pulse-trainer-toggle"
     >
       <span className="pulse-throwoff-mechanism" aria-hidden="true">
-        <span
-          className="pulse-throwoff-art"
-          style={{ '--throwoff-atlas': `url("${throwoffAtlas}")` }}
-        >
-          <span className="pulse-throwoff-body-mount">
-            <span className="pulse-throwoff-body" />
-          </span>
-          <span className="pulse-throwoff-lever" />
+        <span className="pulse-throwoff-art">
+          <img className="pulse-throwoff-body" src={throwoffBody} alt="" draggable={false} />
+          <img className="pulse-throwoff-lever" src={throwoffLever} alt="" draggable={false} />
         </span>
       </span>
     </button>
