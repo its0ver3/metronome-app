@@ -43,10 +43,10 @@ test('tempo transport remains large and clearly separated from the wheel and sli
   const tempoSliderRailRule = cssSource.match(/\.pulse-tempo-slider-rail\s*\{([^}]*)\}/)?.[1] || ''
 
   assert.match(transportRowRule, /max-width:\s*346px/)
-  assert.match(transportRowRule, /grid-template-columns:\s*56px minmax\(0, 1fr\) 56px/)
+  assert.match(transportRowRule, /grid-template-columns:\s*var\(--pulse-transport-size\) minmax\(0, 1fr\) var\(--pulse-transport-size\)/)
   assert.match(transportRowRule, /gap:\s*14px/)
   assert.match(transportRowRule, /margin-top:\s*40px/)
-  assert.match(transportButtonsRule, /min-height:\s*56px/)
+  assert.match(transportButtonsRule, /min-height:\s*var\(--pulse-transport-size\)/)
   assert.match(tempoSliderRule, /margin-top:\s*22px/)
   assert.match(tempoSliderRule, /--tempo-slider-thumb-width:\s*50px/)
   assert.match(tempoSliderInputRule, /height:\s*48px/)
@@ -56,6 +56,18 @@ test('tempo transport remains large and clearly separated from the wheel and sli
   assert.match(tempoSliderRailRule, /left:\s*calc\(var\(--tempo-slider-thumb-width\) \/ 2\)/)
   assert.match(tempoSliderRailRule, /var\(--tempo-slider-progress\)/)
   assert.match(controlsSource, /<span className="pulse-tempo-slider-rail" aria-hidden="true" \/>/)
+})
+
+test('metronome proportions follow app width rather than browser height', () => {
+  assert.match(cssSource, /\.app-phone-frame\s*\{\s*container-type: inline-size/)
+  for (const selector of ['app-brand-logo', 'pulse-orbit']) {
+    const rules = [...cssSource.matchAll(new RegExp(`\\.${selector}\\s*\\{([^}]*)\\}`, 'g'))]
+    assert.equal(rules.length, 1, `${selector} has no alternate height-based sizing`)
+    assert.match(rules[0][1], /cqw/)
+    assert.doesNotMatch(rules[0][1], /\d(?:dvh|vh|vw)/)
+  }
+  assert.match(cssSource, /--pulse-transport-size: clamp\(44px, 13\.1cqw, 56px\)/)
+  assert.match(cssSource, /\.pulse-performance\s*\{[^}]*flex: 1 0 auto/)
 })
 
 test('tempo nudge buttons respond immediately and settle without bounce or layout changes', () => {

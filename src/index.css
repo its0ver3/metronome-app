@@ -71,6 +71,7 @@ textarea,
 }
 
 .app-phone-frame {
+  container-type: inline-size;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -97,7 +98,7 @@ textarea,
 .app-brand-logo {
   display: block;
   width: auto;
-  height: clamp(4.25rem, 9.8vh, 5.6rem);
+  height: clamp(4.25rem, 20.35cqw, 5.6rem);
   border-radius: 0.25rem;
   object-fit: contain;
 }
@@ -137,24 +138,16 @@ textarea,
     padding-bottom: 0.02rem;
   }
 
-  .app-brand-logo {
-    height: clamp(3.75rem, 9dvh, 4.95rem);
-  }
-
   /* AppShell renders the primary navigation as the frame's last child. */
   .app-phone-frame > nav:last-child {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
 
-@media (max-height: 700px) {
+@media (max-height: 760px) {
   .app-brand-header {
     padding-top: max(0.75rem, calc(env(safe-area-inset-top, 0px) + 0.3rem));
     padding-bottom: 0.02rem;
-  }
-
-  .app-brand-logo {
-    height: 3.5rem;
   }
 
 }
@@ -278,6 +271,7 @@ input[type="number"] {
 }
 
 .pulse-metronome-screen {
+  --pulse-transport-size: clamp(44px, 13.1cqw, 56px);
   --pulse-surface-raised: color-mix(in srgb, var(--brand-color-surface) 82%, var(--brand-color-ink) 4%);
   --pulse-rhythm-two-color: color-mix(in srgb, var(--brand-color-rhythm-two, #3b82f6) 45%, #a855f7 55%);
   --pulse-orbit-canvas: color-mix(in srgb, var(--brand-color-canvas) 96%, var(--brand-color-surface));
@@ -397,8 +391,7 @@ input[type="number"] {
 
 .pulse-performance {
   display: flex;
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 1 0 auto;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -408,7 +401,7 @@ input[type="number"] {
 .pulse-orbit {
   position: relative;
   display: grid;
-  width: min(70vw, 36dvh, 286px);
+  width: min(66.83cqw, 286px);
   flex: 0 0 auto;
   aspect-ratio: 1;
   place-items: center;
@@ -533,13 +526,13 @@ input[type="number"] {
 .pulse-orbit .text-center button,
 .pulse-orbit .text-center input {
   min-width: 0;
-  width: min(44vw, 180px);
+  width: min(42.06cqw, 180px);
   min-height: 64px;
   padding: 0;
   border-color: var(--brand-color-accent);
   color: var(--brand-color-ink);
   font-family: var(--brand-font-body);
-  font-size: clamp(4.15rem, 16vw, 5.75rem);
+  font-size: min(21.5cqw, 5.75rem);
   font-weight: 500;
   line-height: 0.9;
   letter-spacing: -0.075em;
@@ -569,7 +562,7 @@ input[type="number"] {
   display: grid;
   width: 100%;
   max-width: 346px;
-  grid-template-columns: 56px minmax(0, 1fr) 56px;
+  grid-template-columns: var(--pulse-transport-size) minmax(0, 1fr) var(--pulse-transport-size);
   align-items: center;
   gap: 14px;
   margin-top: 40px;
@@ -578,7 +571,7 @@ input[type="number"] {
 .pulse-nudge,
 .pulse-transport {
   display: flex;
-  min-height: 56px;
+  min-height: var(--pulse-transport-size);
   align-items: center;
   justify-content: center;
   border: 0;
@@ -586,7 +579,7 @@ input[type="number"] {
 }
 
 .pulse-nudge {
-  width: 56px;
+  width: var(--pulse-transport-size);
   border-radius: 50%;
   background: var(--pulse-surface-raised);
   font-size: 24px;
@@ -697,7 +690,7 @@ input[type="number"] {
 }
 
 .pulse-quickbar {
-  --pulse-quick-action-height: clamp(56px, 8dvh, 68px);
+  --pulse-quick-action-height: clamp(56px, 15.89cqw, 68px);
   display: grid;
   flex: 0 0 auto;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1751,7 +1744,7 @@ input[type="number"] {
   outline-offset: 2px;
 }
 
-@media (max-height: 700px) {
+@media (max-height: 760px) {
   .pulse-screen-topbar {
     min-height: 40px;
     padding-top: 4px;
@@ -1763,26 +1756,12 @@ input[type="number"] {
     padding-top: 1px;
   }
 
-  .pulse-orbit {
-    width: min(64vw, 33dvh, 220px);
-  }
-
-  .pulse-orbit .text-center button,
-  .pulse-orbit .text-center input {
-    min-height: 56px;
-    font-size: clamp(3.7rem, 15vw, 4.7rem);
-  }
-
   .pulse-transport-row {
     margin-top: 24px;
   }
 
   .pulse-tempo-slider {
     margin-top: 14px;
-  }
-
-  .pulse-tempo-slider input[type="range"] {
-    height: 44px;
   }
 
   .pulse-quickbar {
