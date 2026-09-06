@@ -1,6 +1,6 @@
 # Drums Only Metronome
 
-A mobile-first metronome app designed to help drummers practise. The current product has three screens: Metronome, Practice tools, and Settings.
+A mobile-first metronome app designed to help drummers practise. The current product has three screens: Metronome, Training, and Settings.
 
 ## Product vision
 
@@ -8,7 +8,7 @@ The business goal is to sell branded versions of this app to local drum shops. E
 
 This is intentionally a metronome app, not a general practice platform. The metronome is the product; training modes and polyrhythms make it more useful to drummers without changing that focus.
 
-The production app uses the selected **Pulse Core** direction across Metronome, Practice tools, Settings, transport, and navigation. The Metronome combines a distance-readable tempo orbit, compact transport, an icon-led rhythm readout, and an accessible mobile rhythm sheet; Practice tools and Settings use the same premium card and control language. Everything is powered by the existing audio engine rather than the standalone mockup timer.
+The production app uses the selected **Pulse Core** direction across Metronome, Training, Settings, transport, and navigation. The Metronome combines a distance-readable tempo orbit, compact transport, an icon-led rhythm readout, and an accessible mobile rhythm sheet; Training and Settings use the same premium card and control language. Everything is powered by the existing audio engine rather than the standalone mockup timer.
 
 ## Current feature set
 
@@ -23,7 +23,7 @@ The production app uses the selected **Pulse Core** direction across Metronome, 
 - Gap, tempo, and subdivision trainers that can run together in standard metronome mode
 - Side-mounted throw-off switches on all three trainer cards, with subtle lever/slide feedback and accessible native switch behavior
 - Two-voice polyrhythm mode with independent counts, accents, and sounds
-- A compact metronome transport on Practice tools and Settings, with a live segmented BPM orbit and minus/start-stop/plus controls. Tap the orbit to open Metronome; tempo nudges remain locked while Tempo Trainer owns BPM.
+- A compact metronome transport on Training and Settings, with a live segmented BPM orbit and minus/start-stop/plus controls. Tap the orbit to open Metronome; tempo nudges remain locked while Tempo Trainer owns BPM.
 - Mobile safe-area handling, visible keyboard focus, semantic control states, and touch-friendly primary controls
 - Config-driven identity for future local-drum-shop versions
 
@@ -65,9 +65,9 @@ See [BRANDING.md](BRANDING.md) for the current Drums Only brand contract and the
 
 Third-party icon and audio notices are recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-The selected side-view throw-off is implemented in the real Practice tools screen using a shared `TrainerToggle` component and independently bundled artwork. [Artwork provenance and motion notes](src/assets/trainer-throwoff.md) are retained with the production asset. The trainer-toggle comparison mockup was removed after approval of the production version.
+The selected side-view throw-off is implemented in the real Training screen using a shared `TrainerToggle` component and independently bundled artwork. [Artwork provenance and motion notes](src/assets/trainer-throwoff.md) are retained with the production asset. The trainer-toggle comparison mockup was removed after approval of the production version.
 
-Practice tools uses the selected Hoop Dial cards and inline cylindrical number wheels. Gap uses icon C (interrupted pulse loop); Tempo and Subdivision use icon A (note/up arrow and one-to-two-to-four divisions). Gap's click/silent bars and Tempo's start/target BPM are editable directly in the header when enabled. Tempo's wider increase/interval wheels and Subdivision's stage controls unfold with the throw-off. Subdivision stages use compact musical-note dropdowns; bar counts retain number wheels. The Subdivision header previews the saved sequence as note groups with arrows and highlights the current stage during playback; the highlight clears when stopped, disabled, or paused by Polyrhythm. Disabled values stay readable; folded settings remain mounted and inert, and Polyrhythm disables editing without discarding configuration.
+Training uses the selected Hoop Dial cards and inline cylindrical number wheels. Gap uses icon C (interrupted pulse loop); Tempo and Subdivision use icon A (note/up arrow and one-to-two-to-four divisions). Gap's click/silent bars and Tempo's start/target BPM are editable directly in the header when enabled. Tempo's wider increase/interval wheels and Subdivision's stage controls unfold with the throw-off. Subdivision stages use compact musical-note dropdowns; bar counts retain number wheels. The Subdivision header previews the saved sequence as note groups with arrows and highlights the current stage during playback; the highlight clears when stopped, disabled, or paused by Polyrhythm. Disabled values stay readable; folded settings remain mounted and inert, and Polyrhythm disables editing without discarding configuration.
 
 The rhythm pill pairs a stacked time signature with subdivision notation. Compact 76 × 44 px selectors keep the rhythm sheet small; only the meter and subdivision selectors plus applicable grouping choices are shown. Common presets are 4/4, 3/4, 2/4, then 5/8, 6/8, 7/8, 9/8, and 12/8. Grouping choices appear for 5/8 and 7/8. The orbit and detailed accents reflect actual group lengths, including unequal pulses. Previously saved custom signatures remain readable, but there is no custom-meter editor.
 

@@ -2,9 +2,9 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 
-test('Practice tools opens directly on the cards without an introductory heading', async () => {
+test('Training opens directly on the cards without an introductory heading', async () => {
   const source = await readFile(new URL('../src/components/training/TrainingScreen.jsx', import.meta.url), 'utf8')
-  assert.match(source, /aria-label="Practice tools"/)
+  assert.match(source, /aria-label="Training"/)
   assert.doesNotMatch(source, /training-title|pulse-feature-header|Build steadier time/)
 })
 

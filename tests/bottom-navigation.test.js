@@ -12,6 +12,6 @@ test('bottom navigation selection only brightens the icon and label', async () =
   assert.match(css, /\.pulse-bottom-nav > button:focus-visible \.pulse-nav-icon\s*\{[^}]*outline: 2px solid/)
   assert.match(source, /aria-current=\{isActive \? 'page' : undefined\}/)
   assert.match(source, /stroke="currentColor"/)
-  assert.match(source, /label: 'Practice tools'/)
-  assert.doesNotMatch(source, /label: 'Training'/)
+  assert.match(source, /label: 'Training'/)
+  assert.doesNotMatch(source, /label: 'Practice tools'/)
 })

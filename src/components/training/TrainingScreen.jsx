@@ -27,7 +27,7 @@ export default function TrainingScreen({
   isPlaying,
 }) {
   return (
-    <section className="pulse-feature-screen pulse-training-screen" aria-label="Practice tools" style={{ '--tempo-heat-color': getTempoColor(bpm, maxBpm) }}>
+    <section className="pulse-feature-screen pulse-training-screen" aria-label="Training" style={{ '--tempo-heat-color': getTempoColor(bpm, maxBpm) }}>
       <div className="pulse-feature-scroll">
         {polyrhythmMode && (
           <div className="pulse-feature-notice" role="status">

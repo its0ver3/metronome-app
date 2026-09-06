@@ -18,7 +18,7 @@ The primary target is iPhone-sized portrait viewports. Tablet and desktop users 
 The current navigation contains exactly three screens:
 
 1. Metronome
-2. Practice tools
+2. Training
 3. Settings
 
 Setlists, Journal, and Groove are removed from the current product. Reintroducing any of them requires a new product and interaction design rather than restoring the previous implementation.
@@ -44,10 +44,10 @@ On browsers that require it, including iOS Safari, the audio context is created 
 - iPhone top, left, right, and bottom safe-area insets are respected.
 - The desktop frame is capped at 430 × 932 px.
 - The bottom navigation exposes the three current screens and identifies the active screen semantically. Selection only brightens the icon and label, without a background highlight or indicator line; keyboard focus remains visible.
-- Practice tools and Settings show a compact metronome transport: the same segmented beat orbit with BPM centered inside, followed by minus, start/stop, and plus controls. The orbit mirrors saved accents and live standard/polyrhythm beats without its own timer; tapping it opens Metronome. No mode, ready, or trainer-summary text is shown. BPM nudges respect the active tempo range and Tempo Trainer ownership.
+- Training and Settings show a compact metronome transport: the same segmented beat orbit with BPM centered inside, followed by minus, start/stop, and plus controls. The orbit mirrors saved accents and live standard/polyrhythm beats without its own timer; tapping it opens Metronome. No mode, ready, or trainer-summary text is shown. BPM nudges respect the active tempo range and Tempo Trainer ownership.
 - Its translucent card floats over the scrollable content, with scroll-end clearance keeping all settings reachable. The chevron sits on the card edge without adding height; it collapses and reopens the card without changing playback. Hidden controls are inert; the shared collapse state survives tab navigation but resets on reload.
 - Metronome omits an idle title/status row so the tempo surface begins immediately below the shared brand mark. Active trainer ownership appears through compact chips only when needed.
-- Metronome, Practice tools, Settings, the persistent transport, and bottom navigation share the Pulse Core surface, typography, spacing, and control language.
+- Metronome, Training, Settings, the persistent transport, and bottom navigation share the Pulse Core surface, typography, spacing, and control language.
 - A compact Drums Only mark remains in the shell. The mark, palette, and fonts come from the active brand definition rather than metronome feature code.
 
 ## 4. Metronome screen
@@ -103,9 +103,9 @@ Recorded sounds load only when selected. Spoken counts name each main beat; subd
 - Rhythm 1 defines the cycle duration at the selected BPM; Rhythm 2 is distributed evenly over that same cycle.
 - Changing polyrhythm mode or either pulse count stops current playback before the configuration changes.
 
-Polyrhythm is an exclusive playback mode. Trainer configuration is preserved but paused while it is active, and the Practice tools screen explains that state. Leaving Polyrhythm restores the Tempo Trainer start BPM and the first Subdivision Trainer stage when those trainers are enabled.
+Polyrhythm is an exclusive playback mode. Trainer configuration is preserved but paused while it is active, and the Training screen explains that state. Leaving Polyrhythm restores the Tempo Trainer start BPM and the first Subdivision Trainer stage when those trainers are enabled.
 
-## 5. Practice tools screen
+## 5. Training screen
 
 All three trainers can be enabled together and share the standard metronome timeline.
 
@@ -181,7 +181,7 @@ Saved settings are applied while the audio engine is constructed, before the fir
 
 Drums Only is the active identity in this build. `src/brand/drumsOnly.js` supplies the product name, accessible logo, branded range-thumb asset, colors, and fonts through a validated, frozen contract. `PhoneFrame` converts that contract to semantic CSS custom properties.
 
-Metronome, Practice tools, Settings, and the audio engine do not import the Drums Only definition. A future independent drum shop can provide a new definition and select it at the shell boundary without forking feature or playback code.
+Metronome, Training, Settings, and the audio engine do not import the Drums Only definition. A future independent drum shop can provide a new definition and select it at the shell boundary without forking feature or playback code.
 
 The following remain Drums Only-specific until a reseller build pipeline is added: document title, PWA manifest metadata, public app icons, Apple touch icon, public brand images, deployment base path, and the existing settings storage namespace. See `BRANDING.md` for the exact boundary. The storage key must not change without a migration.
 
@@ -222,7 +222,7 @@ The native iOS drum-tuner concept in `drum-tuner-prd.md` is a separate future pr
 | Tempo ownership | Enabling Tempo Trainer disables every direct tempo path in standard mode, including Tap and keyboard shortcuts |
 | Trainer combination | Gap, Tempo, and Subdivision trainers can be enabled together and their states are all visible in playback status |
 | Mode preservation | Entering Polyrhythm stops playback without clearing configured trainers; returning to standard mode restores trainer-owned values |
-| Persistent transport | Practice tools and Settings mirror Metronome's beat orbit and BPM; start/stop and ± controls use the same engine and tempo ownership rules |
+| Persistent transport | Training and Settings mirror Metronome's beat orbit and BPM; start/stop and ± controls use the same engine and tempo ownership rules |
 | Dense metronome layout | 16 beats and subdivision 13 remain usable through paging/scrolling without page-level horizontal overflow on supported mobile widths |
 | Pulse presentation | Orbit and beat progress use audio-timed engine callbacks; BPM editing and all playback controls continue to call the existing engine handlers |
 | Rhythm sheet | Standard accents and all polyrhythm controls remain reachable; focus is contained and restored; the sheet scrolls independently |

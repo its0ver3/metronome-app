@@ -9,7 +9,7 @@ export default function PracticeStatusRack({ onOpenTraining, ...props }) {
   const Row = onOpenTraining ? 'button' : 'div'
   if (props.polyrhythmMode) return <section className="pulse-practice-rack is-paused" aria-label="Active training status">
     <Row className="pulse-practice-row" {...(onOpenTraining ? { type: 'button', onClick: onOpenTraining } : {})}>
-      <span className="pulse-practice-copy"><span className="pulse-practice-name">Practice tools</span><strong>{activeCount} {activeCount === 1 ? 'trainer' : 'trainers'} paused</strong></span>
+      <span className="pulse-practice-copy"><span className="pulse-practice-name">Training</span><strong>{activeCount} {activeCount === 1 ? 'trainer' : 'trainers'} paused</strong></span>
       <span className="pulse-practice-progress">Polyrhythm on</span>
     </Row>
   </section>
@@ -21,7 +21,7 @@ export default function PracticeStatusRack({ onOpenTraining, ...props }) {
         ? `Stage ${row.value}, ${getSubdivisionLabel(row.subdivision, row.denominator)}` : row.value
       const progress = row.progressLabel || `Bar ${row.bar} of ${row.total}`
       return <Row key={row.id} className="pulse-practice-row"
-        aria-label={`${row.name}: ${value}. ${progress}.${onOpenTraining ? ' Open practice tools.' : ''}`}
+        aria-label={`${row.name}: ${value}. ${progress}.${onOpenTraining ? ' Open Training.' : ''}`}
         {...(onOpenTraining ? { type: 'button', onClick: onOpenTraining } : {})}>
         <span className="pulse-practice-copy">
           <span className="pulse-practice-name">{row.name}</span>

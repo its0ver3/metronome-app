@@ -29,7 +29,7 @@ const defaults = {
 }
 const render = props => renderToStaticMarkup(createElement(Rack, props))
 
-test('rack shows every enabled combination and opens practice tools from its rows', () => {
+test('rack shows every enabled combination and opens Training from its rows', () => {
   for (let mask = 0; mask < 8; mask++) {
     let opened = 0
     const props = { ...defaults, gapEnabled: Boolean(mask & 1), tempoEnabled: Boolean(mask & 2), subdivTrainerEnabled: Boolean(mask & 4), onOpenTraining: () => { opened++ } }
