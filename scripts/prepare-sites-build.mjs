@@ -1,33 +1,24 @@
-import { copyFile, mkdir, writeFile } from 'node:fs/promises'
+import { access, copyFile, mkdir, readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url))
-const serverDirectory = fileURLToPath(new URL('../dist/server/', import.meta.url))
 const hostingDirectory = fileURLToPath(new URL('../dist/.openai/', import.meta.url))
 
-const worker = `export default {
-  async fetch(request, env) {
-    const response = await env.ASSETS.fetch(request)
-
-    if (response.status !== 404 || request.method !== 'GET') {
-      return response
-    }
-
-    const acceptsHtml = request.headers.get('accept')?.includes('text/html')
-    if (!acceptsHtml) return response
-
-    const indexUrl = new URL('/index.html', request.url)
-    return env.ASSETS.fetch(new Request(indexUrl, request))
-  },
+// Sites must publish Vite's output as static assets. A Worker archive with
+// these files at its root can deploy successfully while serving empty 404s.
+const hosting = JSON.parse(await readFile(new URL('../.openai/hosting.json', import.meta.url), 'utf8'))
+if (hosting.static?.directory !== 'dist') {
+  throw new Error('The metronome Sites build requires static.directory = dist')
 }
-`
+const html = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8')
+for (const [, assetPath] of html.matchAll(/(?:src|href)="(\/[^\"]+)"/g)) {
+  await access(new URL(`../dist${assetPath}`, import.meta.url))
+}
 
-await mkdir(serverDirectory, { recursive: true })
 await mkdir(hostingDirectory, { recursive: true })
-await writeFile(new URL('../dist/server/index.js', import.meta.url), worker)
 await copyFile(
   new URL('../.openai/hosting.json', import.meta.url),
   new URL('../dist/.openai/hosting.json', import.meta.url),
 )
 
-console.log(`Prepared Sites build from ${projectRoot}`)
+console.log(`Prepared static Sites build from ${projectRoot}`)
