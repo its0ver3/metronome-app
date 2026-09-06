@@ -1,5 +1,7 @@
 export function restoreEngineSettings(engine, saved) {
   if (!saved) return engine
+  engine.setPumpTheJam(saved.pumpTheJam === true)
+  if (saved.sessionSettings) engine.setSessionSettings(saved.sessionSettings)
 
   if (saved.bpm !== undefined) engine.setBpm(saved.bpm)
   if (saved.soundIndex !== undefined) engine.setSound(saved.soundIndex)
@@ -16,7 +18,7 @@ export function restoreEngineSettings(engine, saved) {
     engine.setPolyrhythmMode(saved.polyrhythmMode)
   }
   if (saved.gapEnabled !== undefined) {
-    engine.setGapTraining(saved.gapEnabled, saved.gapClickBars, saved.gapSilentBars)
+    engine.setGapTraining(saved.gapEnabled, saved.gapClickBars, saved.gapSilentBars, saved.gapPattern)
   }
   if (saved.tempoEnabled !== undefined) {
     engine.setTempoTrainer(

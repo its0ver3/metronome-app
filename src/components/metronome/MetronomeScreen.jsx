@@ -11,7 +11,9 @@ import PolyrhythmPickers from './PolyrhythmPickers'
 import PolyrhythmIndicators from './PolyrhythmIndicators'
 import PolyrhythmOrbit, { StandardRhythmOrbit } from './PolyrhythmOrbit'
 import RhythmReadout from './RhythmReadout.jsx'
-import { getPlaybackSummary } from './PlaybackStatus'
+import PracticeStatusRack from './PracticeStatusRack'
+import SessionStatus from './SessionStatus'
+import SessionSettings from '../settings/SessionSettings'
 import { getTempoHeat } from './tempoHeat'
 import useKeyboard from '../../hooks/useKeyboard'
 import { createSheetDragHandlers } from './sheetDrag.js'
@@ -45,6 +47,7 @@ function TransportIcon({ isPlaying }) {
 
 export default function MetronomeScreen({
   bpm,
+  maxBpm,
   isPlaying,
   currentBeat,
   currentSubdivision,
@@ -57,6 +60,8 @@ export default function MetronomeScreen({
   onCycleSubdivisionAccent,
   onCycleBeatAccent,
   meter = normalizeMeter(null, beatsPerBar),
+  sessionSettings,
+  onSessionSettingsChange,
   onMeterChange,
   onSubdivisionChange,
   tempoEnabled,
@@ -79,6 +84,7 @@ export default function MetronomeScreen({
   onSoundPreview,
   onTapFeedback,
   playbackStatus,
+  onOpenTraining,
 }) {
   const [rhythmOpen, setRhythmOpen] = useState(false)
   const groupIndex = meterGroups(meter).findIndex(group => currentBeat >= group.start && currentBeat < group.end)
@@ -193,7 +199,7 @@ export default function MetronomeScreen({
     }
   }, [closeRhythm, rhythmOpen])
 
-  const summary = getPlaybackSummary(playbackStatus || {
+  const trainingStatus = playbackStatus || {
     bpm,
     isPlaying,
     currentBar: 0,
@@ -203,9 +209,9 @@ export default function MetronomeScreen({
     tempoEnabled,
     subdivTrainerEnabled,
     polyrhythmMode,
-  })
+  }
 
-  const tempoHeat = getTempoHeat(bpm)
+  const tempoHeat = getTempoHeat(bpm, maxBpm)
 
   return (
     <section
@@ -219,11 +225,8 @@ export default function MetronomeScreen({
       }}
     >
       <div ref={contentRef} className="pulse-screen-content">
-        {summary.chips.length > 0 && (
-          <div className="pulse-status-chips" aria-label="Active training status">
-            {summary.chips.map((chip) => <span key={chip}>{chip}</span>)}
-          </div>
-        )}
+        <PracticeStatusRack {...trainingStatus} onOpenTraining={onOpenTraining} />
+        <SessionStatus session={trainingStatus.session} />
 
         <div className="pulse-performance">
           <div
@@ -259,7 +262,7 @@ export default function MetronomeScreen({
             <div
               className="pulse-orbit-value"
             >
-              <BpmDisplay bpm={bpm} onBpmChange={onBpmChange} disabled={tempoEnabled} tempoUnit={polyrhythmMode ? undefined : meter.tempoUnit} />
+              <BpmDisplay bpm={bpm} maxBpm={maxBpm} onBpmChange={onBpmChange} disabled={tempoEnabled} tempoUnit={polyrhythmMode ? undefined : meter.tempoUnit} />
               {polyrhythmMode && <span className="pulse-poly-label">{polyRhythm1} against {polyRhythm2}</span>}
             </div>
           </div>
@@ -301,6 +304,7 @@ export default function MetronomeScreen({
           </div>
 
           <BpmControls
+            maxBpm={maxBpm}
             bpm={bpm}
             onBpmChange={onBpmChange}
             disabled={tempoEnabled}
@@ -423,6 +427,13 @@ export default function MetronomeScreen({
                   />
                 </div>
               )}
+              <div className="pulse-sheet-session">
+                <SessionSettings
+                  settings={sessionSettings}
+                  isPlaying={isPlaying}
+                  onChange={onSessionSettingsChange}
+                />
+              </div>
             </div>
           </section>
         </>

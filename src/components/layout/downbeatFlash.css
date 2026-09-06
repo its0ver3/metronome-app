@@ -1,0 +1,8 @@
+.pulse-downbeat-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 10000;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+}

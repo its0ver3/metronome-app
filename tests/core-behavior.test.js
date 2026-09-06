@@ -26,7 +26,7 @@ import {
   parallelSegmentPath,
 } from '../src/components/metronome/orbitGeometry.js'
 
-test('tempo values are constrained to the single 20–300 BPM range', () => {
+test('tempo values default to the 20–300 BPM range', () => {
   assert.equal(clampBpm(19), 20)
   assert.equal(clampBpm(137.6), 138)
   assert.equal(clampBpm(301), 300)
@@ -122,7 +122,7 @@ test('opposing orbit segment cuts are parallel at every break', () => {
   assert.doesNotMatch(parallelSegmentPath(-90, 0, gapDistance, 48, 37.5), /NaN/)
 })
 
-test('restored trainer tempos cannot reintroduce the removed extended range', () => {
+test('restored trainer tempos stay within 300 unless Pump the Jam is enabled', () => {
   const engine = restoreEngineSettings(new AudioEngine(), {
     bpm: 600,
     tempoEnabled: true,

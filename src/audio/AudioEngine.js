@@ -2,6 +2,8 @@ import {
   LOOKAHEAD_MS,
   SCHEDULE_AHEAD_S,
   DEFAULT_BPM,
+  MAX_BPM,
+  JAM_MAX_BPM,
   DEFAULT_BEATS_PER_BAR,
   ACCENT_LEVELS,
   SUBDIVISION_OPTIONS,
@@ -14,9 +16,14 @@ import {
   buildDefaultSubdivisionAccents,
   buildDefaultPolyAccents,
   normalizeSoundIndex,
+  getSoundIndexById,
 } from './constants.js'
 import SoundBank from './SoundBank.js'
+import { getGapPattern } from './gapPatterns.js'
 import { normalizeMeter, meterGroups, meterAccents, writtenNoteSeconds } from './meter.js'
+import { normalizeSessionSettings } from './sessionSettings.js'
+
+const COUNT_IN_SOUND = getSoundIndexById('female-count')
 
 export const TAP_TEMPO_FEEDBACK_FREQUENCIES = Object.freeze([
   261.63,
@@ -67,6 +74,7 @@ export default class AudioEngine {
 
     // Timing state
     this.bpm = DEFAULT_BPM
+    this.pumpTheJam = false
     this.beatsPerBar = DEFAULT_BEATS_PER_BAR
     this.meter = normalizeMeter()
     this._meterGroups = meterGroups(this.meter)
@@ -87,11 +95,28 @@ export default class AudioEngine {
     this._soundSequence = 0
     this._sources = new Set()
     this._startGeneration = 0
+    this.sessionSettings = normalizeSessionSettings()
+    this._activeSession = null
+    this._sessionStartTime = null
+    this._sessionEndTime = Infinity
+    this._sessionEndTimer = null
+    this._sessionPhase = 'idle'
+    this._sessionStatusKey = ''
+    this._audibleSessionBar = 1
+    this._audibleCountInBar = 1
+    this._audibleCountInBeat = 0
+    this._countInBar = 1
+    this._countInBeat = 0
+    this._countInRemaining = 0
+    this._sessionSchedulingDone = false
+    this._sourceStopTimes = new WeakMap()
 
     // Gap training
     this.gapEnabled = false
     this.gapClickBars = 2
     this.gapSilentBars = 2
+    this.gapPattern = 'silence'
+    this._gapPlayback = { enabled: false, clickBars: 2, silentBars: 2, pattern: 'silence' }
     this._gapBarCount = 0
     this._inGap = false
 
@@ -194,11 +219,83 @@ export default class AudioEngine {
   onBpmChange(cb) { this._onBpmChange = cb }
   onStateChange(cb) { this._onStateChange = cb }
   onGapChange(cb) { this._onGapChange = cb }
+  onSessionChange(cb) { this._onSessionChange = cb }
+
+  setSessionSettings(value) {
+    if (this.isPlaying) return
+    this.sessionSettings = normalizeSessionSettings(value)
+    this._activeSession = null
+    this._sessionPhase = 'idle'
+    this._publishSession()
+  }
+
+  getSessionState() {
+    const config = this._activeSession || this.sessionSettings
+    const started = this._sessionStartTime !== null && this.ctx?.currentTime >= this._sessionStartTime
+    const phase = this.isPlaying ? (!started && config.countInBars ? 'count-in' : 'playing') : this._sessionPhase
+    const elapsed = this.isPlaying && started && config.mode === 'minutes'
+      ? Math.max(0, this.ctx.currentTime - this._sessionStartTime) : 0
+    return {
+      ...config, phase,
+      countInBar: this._audibleCountInBar,
+      countInBeat: this._audibleCountInBeat,
+      remainingSeconds: phase === 'complete' ? 0 : Math.max(0, Math.ceil(config.minutes * 60 - elapsed)),
+      remainingBars: phase === 'complete' ? 0 : Math.max(0, config.bars - (this.isPlaying ? this._audibleSessionBar - 1 : 0)),
+    }
+  }
+
+  _publishSession() {
+    const state = this.getSessionState()
+    const key = JSON.stringify(state)
+    if (key === this._sessionStatusKey) return
+    this._sessionStatusKey = key
+    this._onSessionChange?.(state)
+  }
+
+  _beginSessionPlayback(time) {
+    this._sessionStartTime = time
+    this._polyCycleStart = time
+    if (this._activeSession.mode === 'minutes') {
+      this._setSessionEnd(time + this._activeSession.minutes * 60)
+    }
+  }
+
+  _stopSourceAt(source, time) {
+    if (!Number.isFinite(time) || time >= (this._sourceStopTimes.get(source) ?? Infinity)) return
+    this._sourceStopTimes.set(source, time)
+    try { source.stop(time) } catch { /* Already ended. */ }
+  }
+
+  _setSessionEnd(time) {
+    this._sessionEndTime = time
+    for (const source of this._sources) this._stopSourceAt(source, time)
+    clearTimeout(this._sessionEndTimer)
+    const finish = () => {
+      if (!this.isPlaying) return
+      // Audio time may pause when the device interrupts playback.
+      if (this.ctx.currentTime + 0.000001 < time) {
+        this._sessionEndTimer = setTimeout(finish, Math.max(25, (time - this.ctx.currentTime) * 1000))
+        return
+      }
+      this.stop(true)
+    }
+    this._sessionEndTimer = setTimeout(finish, Math.max(0, (time - this.ctx.currentTime) * 1000))
+  }
+
+  _sessionBarFinished(boundaryTime) {
+    if (this._activeSession?.mode === 'bars' && this._currentBar > this._activeSession.bars) {
+      this._sessionSchedulingDone = true
+      this._setSessionEnd(boundaryTime)
+      return true
+    }
+    return false
+  }
 
   // --- Controls ---
   async start() {
     if (this.isPlaying) return
     const generation = ++this._startGeneration
+    const session = { ...this.sessionSettings }
     if (!this._ensureContext()) return
     if (!(await this._unlockAudio())) return
     if (!(await this.init())) return
@@ -206,6 +303,7 @@ export default class AudioEngine {
     const activeSoundIndexes = this.polyrhythmMode
       ? [this.polySoundIndex1, this.polySoundIndex2]
       : [this.soundIndex]
+    if (session.countInBars) activeSoundIndexes.push(COUNT_IN_SOUND)
     await Promise.all(activeSoundIndexes.map((index) => this.soundBank.prepareSound(index)))
 
     if (this.ctx.state === 'interrupted') {
@@ -215,6 +313,7 @@ export default class AudioEngine {
 
     if (this.isPlaying || generation !== this._startGeneration) return
 
+    this._applyGapConfig()
     this.isPlaying = true
     this._tempoPreviewBpm = null
     this._currentBeat = 0
@@ -230,6 +329,17 @@ export default class AudioEngine {
     this._subdivTrainerPendingActivation = false
     this._subdivTrainerConfigDirty = false
     this._soundSequence = 0
+    this._activeSession = session
+    this._sessionPhase = 'idle'
+    this._sessionStartTime = null
+    this._sessionEndTime = Infinity
+    this._audibleSessionBar = 1
+    this._audibleCountInBar = 1
+    this._audibleCountInBeat = 0
+    this._countInBar = 1
+    this._countInBeat = 0
+    this._countInRemaining = session.countInBars
+    this._sessionSchedulingDone = false
 
     if (this.subdivTrainerEnabled && !this.polyrhythmMode) {
       this.setSubdivision(this.subdivTrainerStages[0].subdivision)
@@ -241,6 +351,7 @@ export default class AudioEngine {
     }
 
     this._nextNoteTime = this.ctx.currentTime + 0.05
+    if (!this._countInRemaining) this._beginSessionPlayback(this._nextNoteTime)
     if (this.polyrhythmMode) {
       this._polyBeat1 = 0
       this._polyBeat2 = 0
@@ -249,18 +360,23 @@ export default class AudioEngine {
     this._scheduler()
     this._timerId = setInterval(() => this._scheduler(), LOOKAHEAD_MS)
     this._onStateChange?.(true)
+    this._publishSession()
   }
 
-  stop() {
+  stop(completed = false) {
     this._startGeneration++
     const wasPlaying = this.isPlaying
     this.isPlaying = false
     clearInterval(this._timerId)
     this._timerId = null
+    clearTimeout(this._sessionEndTimer)
+    this._sessionEndTimer = null
+    this._sessionPhase = completed ? 'complete' : 'idle'
     this._clearVisualTimers()
     for (const source of this._sources) { try { source.stop() } catch { /* Already ended. */ } }
     this._sources.clear()
     if (wasPlaying) this._onStateChange?.(false)
+    this._publishSession()
   }
 
   toggle() {
@@ -269,8 +385,18 @@ export default class AudioEngine {
   }
 
   setBpm(bpm) {
-    this.bpm = clampBpm(bpm)
+    this.bpm = clampBpm(bpm, this.maxBpm)
     this._onBpmChange?.(this.bpm)
+  }
+
+  get maxBpm() { return this.pumpTheJam ? JAM_MAX_BPM : MAX_BPM }
+
+  setPumpTheJam(enabled) {
+    this.pumpTheJam = enabled === true
+    this.tempoStartBpm = clampBpm(this.tempoStartBpm, this.maxBpm)
+    this.tempoTargetBpm = clampBpm(this.tempoTargetBpm, this.maxBpm)
+    if (this._tempoPreviewBpm !== null) this._tempoPreviewBpm = clampBpm(this._tempoPreviewBpm, this.maxBpm)
+    this.setBpm(this.bpm)
   }
 
   async playTapTempoFeedback(stage) {
@@ -396,20 +522,36 @@ export default class AudioEngine {
   }
 
   // Gap training config
-  setGapTraining(enabled, clickBars, silentBars) {
-    const changed = this.gapEnabled !== enabled
-      || (clickBars !== undefined && this.gapClickBars !== clickBars)
-      || (silentBars !== undefined && this.gapSilentBars !== silentBars)
-
-    this.gapEnabled = enabled
-    if (clickBars !== undefined) this.gapClickBars = clickBars
-    if (silentBars !== undefined) this.gapSilentBars = silentBars
-
-    if (changed) {
+  setGapTraining(enabled, clickBars, silentBars, pattern) {
+    this.gapEnabled = Boolean(enabled)
+    const bars = (value, fallback) => Number.isFinite(Number(value))
+      ? Math.max(1, Math.min(16, Math.round(Number(value)))) : fallback
+    if (clickBars !== undefined) this.gapClickBars = bars(clickBars, this.gapClickBars)
+    if (silentBars !== undefined) this.gapSilentBars = bars(silentBars, this.gapSilentBars)
+    if (pattern !== undefined) this.gapPattern = getGapPattern(pattern).id
+    if (!this.isPlaying) {
+      this._applyGapConfig()
       this._gapBarCount = 0
       this._inGap = false
       this._onGapChange?.(false)
     }
+  }
+
+  _applyGapConfig() {
+    const previous = this._gapPlayback
+    this._gapPlayback = {
+      enabled: this.gapEnabled, clickBars: this.gapClickBars,
+      silentBars: this.gapSilentBars, pattern: this.gapPattern,
+    }
+    // Pattern-only edits keep the current phase and bar count.
+    return previous.enabled !== this.gapEnabled
+      || previous.clickBars !== this.gapClickBars
+      || previous.silentBars !== this.gapSilentBars
+  }
+
+  _playbackSubdivision() {
+    return this._gapPlayback.enabled && this._inGap && this._gapPlayback.pattern !== 'silence'
+      ? getGapPattern(this._gapPlayback.pattern).divisions : this.subdivision
   }
 
   // Tempo trainer config
@@ -424,8 +566,8 @@ export default class AudioEngine {
       || (everyBars !== undefined && this.tempoEveryBars !== everyBars)
 
     this.tempoTrainerEnabled = enabled
-    if (startBpm !== undefined) this.tempoStartBpm = clampBpm(startBpm)
-    if (targetBpm !== undefined) this.tempoTargetBpm = clampBpm(targetBpm)
+    if (startBpm !== undefined) this.tempoStartBpm = clampBpm(startBpm, this.maxBpm)
+    if (targetBpm !== undefined) this.tempoTargetBpm = clampBpm(targetBpm, this.maxBpm)
     if (increment !== undefined) this.tempoIncrement = increment
     if (everyBars !== undefined) this.tempoEveryBars = everyBars
 
@@ -559,6 +701,16 @@ export default class AudioEngine {
 
   // --- Scheduler ---
   _scheduler() {
+    if (this.ctx.currentTime >= this._sessionEndTime) {
+      this.stop(true)
+      return
+    }
+    this._publishSession()
+    if (this._sessionSchedulingDone) return
+    if (this._countInRemaining) {
+      this._schedulerCountIn()
+      if (this._countInRemaining) return
+    }
     if (this.polyrhythmMode) {
       this._schedulerPoly()
     } else {
@@ -566,8 +718,41 @@ export default class AudioEngine {
     }
   }
 
+  _schedulerCountIn() {
+    const groups = this.polyrhythmMode
+      ? Array.from({ length: this.polyRhythm1 }, (_, start) => ({ start, length: 1 }))
+      : this._meterGroups
+    while (this._countInRemaining && this._nextNoteTime < this.ctx.currentTime + SCHEDULE_AHEAD_S) {
+      const group = groups[this._countInBeat]
+      const time = this._nextNoteTime
+      const duration = this.polyrhythmMode ? 60 / this.bpm : writtenNoteSeconds(this.meter, this.bpm) * group.length
+      const bar = this._countInBar
+      const count = this._countInBeat + 1
+      const buffer = this.soundBank.getBuffer(COUNT_IN_SOUND, {
+        beatNumber: count, bpm: 60 / duration, sequenceIndex: this._soundSequence++,
+      })
+      this._playSound(buffer, time, 1, time + duration)
+      this._notifyAtAudioTime(time, () => {
+        this._audibleCountInBar = bar
+        this._audibleCountInBeat = count
+        this._publishSession()
+        this._onBeat?.({ beat: group.start, subdivision: 0, rhythm: this.polyrhythmMode ? 1 : undefined,
+          downbeat: count === 1, inGap: false, countIn: true, time })
+      })
+      this._nextNoteTime += duration
+      this._countInBeat++
+      if (this._countInBeat === groups.length) {
+        this._countInBeat = 0
+        this._countInBar++
+        this._countInRemaining--
+        if (!this._countInRemaining) this._beginSessionPlayback(this._nextNoteTime)
+      }
+    }
+  }
+
   _schedulerStandard() {
     while (this._nextNoteTime < this.ctx.currentTime + SCHEDULE_AHEAD_S) {
+      if (this._nextNoteTime >= this._sessionEndTime - 0.000001) break
       this._scheduleNote(this._nextNoteTime)
       this._advanceBeat()
     }
@@ -589,6 +774,7 @@ export default class AudioEngine {
       while (this._polyBeat1 < this.polyRhythm1) {
         const t = this._polyCycleStart + this._polyBeat1 * (cycleDuration / this.polyRhythm1)
         if (t >= now) break
+        if (t >= this._sessionEndTime - 0.000001) break
         this._scheduleNotePoly(t, 1, this._polyBeat1)
         this._polyBeat1++
         scheduled = true
@@ -598,6 +784,7 @@ export default class AudioEngine {
       while (this._polyBeat2 < this.polyRhythm2) {
         const t = this._polyCycleStart + this._polyBeat2 * (cycleDuration / this.polyRhythm2)
         if (t >= now) break
+        if (t >= this._sessionEndTime - 0.000001) break
         this._scheduleNotePoly(t, 2, this._polyBeat2)
         this._polyBeat2++
         scheduled = true
@@ -606,6 +793,8 @@ export default class AudioEngine {
       // Advance cycle only when BOTH rhythms have exhausted their beats
       if (this._polyBeat1 >= this.polyRhythm1 && this._polyBeat2 >= this.polyRhythm2) {
         this._polyCycleStart += cycleDuration
+        this._currentBar++
+        if (this._sessionBarFinished(this._polyCycleStart)) break
         this._polyBeat1 = 0
         this._polyBeat2 = 0
         // Continue outer loop to check if new cycle's beats fall within lookahead
@@ -644,13 +833,19 @@ export default class AudioEngine {
       beat: beatIndex,
       subdivision: 0,
       rhythm: rhythmIndex,
-      bar: 1,
+      bar: this._currentBar,
       time,
       accent: accentLevel,
       downbeat: isCycleDownbeat,
       inGap: false,
     }
-    this._notifyAtAudioTime(time, () => this._onBeat?.(event))
+    this._notifyAtAudioTime(time, () => {
+      if (rhythmIndex === 1 && beatIndex === 0) {
+        this._audibleSessionBar = event.bar
+        this._publishSession()
+      }
+      this._onBeat?.(event)
+    })
   }
 
   _scheduleNote(time) {
@@ -662,13 +857,20 @@ export default class AudioEngine {
 
     // Look up per-click accent from subdivisionAccents
     const flatIndex = beatIndex * this.subdivision + subIndex
-    const accentLevel = normalizeAccentLevel(this.subdivisionAccents[flatIndex])
+    const inGap = this._gapPlayback.enabled && this._inGap
+    const pattern = getGapPattern(this._gapPlayback.pattern)
+    // Gap hits are displaced beat clicks, with the same level as that pulse.
+    // A muted reference pulse must not erase the independently chosen gap pattern.
+    const referenceAccent = normalizeAccentLevel(this.subdivisionAccents[group.start * this.subdivision])
+    const gapAccent = referenceAccent === 'OFF' ? 'ACCENT' : referenceAccent
+    const accentLevel = inGap
+      ? (pattern.hits.includes(subIndex) ? gapAccent : 'OFF')
+      : normalizeAccentLevel(this.subdivisionAccents[flatIndex])
     const accentVolume = ACCENT_LEVELS[accentLevel]?.volume ?? 0.5
 
     // Determine if in gap
-    const inGap = this.gapEnabled && this._inGap
     const groupOnly = this.meter.groupOnly && !this.subdivTrainerEnabled
-    const shouldPlay = !inGap && accentVolume > 0 && (!groupOnly || isMainBeat)
+    const shouldPlay = accentVolume > 0 && (inGap || !groupOnly || isMainBeat)
     const soundOptions = {
       beatNumber: group.index + 1,
       bpm: 60 / (writtenNoteSeconds(this.meter, this.bpm) * group.length),
@@ -676,7 +878,9 @@ export default class AudioEngine {
     }
 
     if (shouldPlay) {
-      if (isMainBeat) {
+      if (inGap) {
+        this._playSound(this.soundBank.getBuffer(this.soundIndex, soundOptions), time, accentVolume)
+      } else if (isMainBeat) {
         const buffer = isCycleDownbeat
           ? this.soundBank.getDownbeatBuffer(this.soundIndex, soundOptions)
           : this.soundBank.getBuffer(this.soundIndex, soundOptions)
@@ -699,12 +903,37 @@ export default class AudioEngine {
       accent: accentLevel,
       downbeat: isCycleDownbeat,
       inGap,
+      visualPulse: !groupOnly || isMainBeat || (inGap && shouldPlay),
+      gapPattern: pattern.id,
+      gapEnabled: this._gapPlayback.enabled,
+      trainerPlayback: {
+        tempo: {
+          enabled: this.tempoTrainerEnabled && !this._tempoPendingActivation,
+          bar: this._tempoBarCount + 1, bars: this.tempoEveryBars,
+          target: this.tempoTargetBpm, reached: this._tempoReached || this.bpm === this.tempoTargetBpm,
+        },
+        subdivision: {
+          enabled: this.subdivTrainerEnabled && !this._subdivTrainerPendingActivation,
+          index: this._subdivTrainerStageIndex, bar: this._subdivTrainerBarCount + 1,
+          stage: { ...this.subdivTrainerStages[this._subdivTrainerStageIndex] },
+        },
+      },
+      gapBar: this._gapBarCount + 1,
+      gapBars: inGap ? this._gapPlayback.silentBars : this._gapPlayback.clickBars,
+      // Keep the saved rhythm editor's cursor on its own grid during an override.
+      displaySubdivision: subIndex * this.subdivision / this._playbackSubdivision(),
       group: group.index,
     }
-    this._notifyAtAudioTime(time, () => this._onBeat?.(event))
+    this._notifyAtAudioTime(time, () => {
+      if (isCycleDownbeat) {
+        this._audibleSessionBar = event.bar
+        this._publishSession()
+      }
+      this._onBeat?.(event)
+    })
   }
 
-  _playSound(buffer, time, volume) {
+  _playSound(buffer, time, volume, stopTime = this._sessionEndTime) {
     const source = this.ctx.createBufferSource()
     source.buffer = buffer
     const gain = this.ctx.createGain()
@@ -714,16 +943,18 @@ export default class AudioEngine {
     this._sources.add(source)
     source.onended = () => { this._sources.delete(source); source.disconnect?.(); gain.disconnect?.() }
     source.start(time)
+    this._stopSourceAt(source, stopTime)
   }
 
   _advanceBeat() {
     const secondsPerBeat = writtenNoteSeconds(this.meter, this.bpm)
-    const secondsPerSubdivision = secondsPerBeat / this.subdivision
+    const playbackSubdivision = this._playbackSubdivision()
+    const secondsPerSubdivision = secondsPerBeat / playbackSubdivision
 
     this._nextNoteTime += secondsPerSubdivision
     this._currentSubdivision++
 
-    if (this._currentSubdivision >= this.subdivision) {
+    if (this._currentSubdivision >= playbackSubdivision) {
       this._currentSubdivision = 0
       this._currentBeat++
 
@@ -736,11 +967,19 @@ export default class AudioEngine {
 
   _handleBarBoundary(boundaryTime) {
     this._currentBar++
+    if (this._sessionBarFinished(boundaryTime)) return
     const currentBar = this._currentBar
     this._notifyAtAudioTime(boundaryTime, () => this._onBarChange?.(currentBar))
 
+    // Adopt edits only after the previous bar has been fully scheduled.
+    const gapReset = this._applyGapConfig()
+    if (gapReset) {
+      this._gapBarCount = 0
+      this._inGap = false
+      this._notifyAtAudioTime(boundaryTime, () => this._onGapChange?.(false))
+    }
     // Gap training logic
-    if (this.gapEnabled) {
+    if (this._gapPlayback.enabled && !gapReset) {
       this._gapBarCount++
       if (!this._inGap && this._gapBarCount >= this.gapClickBars) {
         this._inGap = true
@@ -821,15 +1060,19 @@ export default class AudioEngine {
     return {
       isPlaying: this.isPlaying,
       bpm: this.bpm,
+      pumpTheJam: this.pumpTheJam,
+      maxBpm: this.maxBpm,
       beatsPerBar: this.beatsPerBar,
       meter: { ...this.meter, groups: [...this.meter.groups] },
       subdivision: this.subdivision,
       volume: this.volume,
       soundIndex: this.soundIndex,
+      sessionSettings: { ...this.sessionSettings },
       subdivisionAccents: [...this.subdivisionAccents],
       gapEnabled: this.gapEnabled,
       gapClickBars: this.gapClickBars,
       gapSilentBars: this.gapSilentBars,
+      gapPattern: this.gapPattern,
       tempoTrainerEnabled: this.tempoTrainerEnabled,
       tempoStartBpm: this.tempoStartBpm,
       tempoTargetBpm: this.tempoTargetBpm,

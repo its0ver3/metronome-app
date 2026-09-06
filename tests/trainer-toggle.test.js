@@ -110,6 +110,7 @@ test('mini transport nudges respect tempo ownership and limits; playback and nav
       onBpmChange: value => changes.push(value), onToggle: () => toggles++, onOpenMetronome: () => opens++,
     })
     const panel = node.props.children[1].props.children.props.children
+      .find(child => child?.props?.className === 'pulse-global-transport')
     const [orbit, controls] = panel.props.children
     const [minus, play, plus] = controls.props.children
     const locked = tempoEnabled && !polyrhythmMode
@@ -248,7 +249,7 @@ test('inactive settings are inert and collapsed while their configured values re
   assert.ok(html.includes('aria-valuenow="80"') && html.includes('aria-valuenow="140"'))
   assert.ok(html.includes('Stage A') && html.includes('Stage B'))
   for (const [title, description] of [
-    ['Gap Trainer', 'Alternate between clicks and silence.'],
+    ['Gap Trainer', 'Alternate clicks with a gap pattern.'],
     ['Tempo Trainer', 'Change BPM at set intervals.'],
     ['Subdivision Trainer', 'Cycle through subdivisions.'],
   ]) {
@@ -282,7 +283,7 @@ test('card readouts follow saved trainer values, including unequal subdivision s
       const readouts = [...html.matchAll(/<dl class="pulse-trainer-metrics"[^>]*>([\s\S]*?)<\/dl>/g)]
         .map(([, markup]) => [...markup.matchAll(/<dt>(.*?)<\/dt><dd>(.*?)<\/dd>/g)]
           .map(([, label, value]) => [label, Number(value.match(/aria-valuenow="(\d+)"/)?.[1] ?? value)]))
-      assert.deepEqual(readouts[0], [['Click bars', 7], ['Silent bars', 3]])
+      assert.deepEqual(readouts[0], [['Click bars', 7], ['Gap bars', 3]])
       assert.deepEqual(readouts[1], [['Start BPM', 92], ['Target BPM', 167]])
       assert.ok(html.includes('aria-label="Subdivision sequence, clicks per beat"'))
       bars.forEach((_, index) => {
@@ -346,9 +347,9 @@ test('Gap and Subdivision switches preserve trainer configuration in both direct
   const stages = [{ subdivision: 3, bars: 5 }, { subdivision: 4, bars: 7 }]
   for (const enabled of [false, true]) {
     let gapArgs
-    const gap = GapTraining({ enabled, clickBars: 7, silentBars: 3, onChange: (...args) => { gapArgs = args } })
+    const gap = GapTraining({ enabled, clickBars: 7, silentBars: 3, pattern: 'fourth', onChange: (...args) => { gapArgs = args } })
     findTrainerHeader(gap).props.onToggle()
-    assert.deepEqual(gapArgs, [!enabled, 7, 3])
+    assert.deepEqual(gapArgs, [!enabled, 7, 3, 'fourth'])
     let stageArgs
     const subdivision = SubdivisionTrainer({ enabled, stages, isPlaying: false, onChange: (...args) => { stageArgs = args } })
     findTrainerHeader(subdivision).props.onToggle()

@@ -2,6 +2,7 @@ export const LOOKAHEAD_MS = 25
 export const SCHEDULE_AHEAD_S = 0.05
 export const MIN_BPM = 20
 export const MAX_BPM = 300
+export const JAM_MAX_BPM = 800
 export const DEFAULT_BPM = 120
 export const DEFAULT_BEATS_PER_BAR = 4
 
@@ -80,10 +81,10 @@ export function normalizeSoundIndex(index) {
 
 export const POLYRHYTHM_MAX = 16
 
-export function clampBpm(value) {
+export function clampBpm(value, maxBpm = MAX_BPM) {
   const numericValue = Number(value)
   if (!Number.isFinite(numericValue)) return DEFAULT_BPM
-  return Math.max(MIN_BPM, Math.min(MAX_BPM, Math.round(numericValue)))
+  return Math.max(MIN_BPM, Math.min(maxBpm, Math.round(numericValue)))
 }
 
 export function cycleAccentLevel(current) {

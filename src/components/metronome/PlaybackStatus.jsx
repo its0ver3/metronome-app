@@ -1,3 +1,5 @@
+import { getGapPatternLabel } from '../../audio/gapPatterns.js'
+
 const STAGE_LABELS = ['A', 'B', 'C', 'D']
 
 export function getActiveTrainerCount({ gapEnabled, tempoEnabled, subdivTrainerEnabled }) {
@@ -12,6 +14,9 @@ export function getPlaybackSummary({
   beatsPerBar,
   inGap,
   gapEnabled,
+  gapPattern = 'silence',
+  gapPlayback,
+  meter,
   tempoEnabled,
   tempoTargetBpm,
   subdivTrainerEnabled,
@@ -19,8 +24,12 @@ export function getPlaybackSummary({
   subdivTrainerStageIndex = 0,
   subdivTrainerBarCount = 0,
   polyrhythmMode,
+  session,
 }) {
   const trainerCount = getActiveTrainerCount({ gapEnabled, tempoEnabled, subdivTrainerEnabled })
+  if (session?.phase === 'count-in') {
+    return { mode: 'Count-in', detail: `Bar ${session.countInBar} of ${session.countInBars}`, chips: [] }
+  }
 
   if (polyrhythmMode) {
     return {
@@ -31,7 +40,12 @@ export function getPlaybackSummary({
   }
 
   const chips = []
-  if (gapEnabled) chips.push(inGap ? 'Gap · Silent' : 'Gap · Click')
+  if (gapEnabled) {
+    const pattern = isPlaying ? gapPlayback?.pattern ?? gapPattern : gapPattern
+    const label = inGap ? (pattern === 'silence' ? 'Silent' : getGapPatternLabel(pattern, meter?.denominator)) : 'Click'
+    const progress = isPlaying && gapPlayback ? ` · ${gapPlayback.bar}/${gapPlayback.bars}` : ''
+    chips.push(`Gap · ${label}${progress}`)
+  }
   if (tempoEnabled) chips.push(`Tempo · ${bpm} → ${tempoTargetBpm}`)
   if (subdivTrainerEnabled) {
     const stage = subdivTrainerStages[subdivTrainerStageIndex] || subdivTrainerStages[0]

@@ -1241,6 +1241,35 @@ input[type="number"] {
   gap: 10px;
 }
 
+.pulse-flash-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+
+.pulse-flash-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.pulse-flash-options { display: flex; gap: 6px; }
+.pulse-flash-options button {
+  flex: 1; min-width: 0; min-height: 44px; padding: 8px;
+  border: 1px solid color-mix(in srgb, var(--brand-color-ink) 12%, transparent);
+  border-radius: 11px; background: var(--brand-color-surface); color: var(--brand-color-ink);
+  font: inherit; font-size: 14px; cursor: pointer;
+}
+.pulse-flash-options button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--brand-color-ink) 13%, var(--brand-color-surface));
+  border-color: color-mix(in srgb, var(--brand-color-ink) 55%, transparent);
+}
+
+.pulse-flash-card .pulse-panel-copy p {
+  font-size: 14px;
+}
+
 .pulse-training-stack.is-unavailable {
   filter: saturate(0.72);
 }

@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { MIN_BPM, MAX_BPM } from '../../audio/constants'
 import { TEMPO_UNITS } from '../../audio/meter.js'
 
-export default function BpmDisplay({ bpm, onBpmChange, disabled, tempoUnit }) {
+export default function BpmDisplay({ bpm, maxBpm = MAX_BPM, onBpmChange, disabled, tempoUnit }) {
   const [editing, setEditing] = useState(false)
   const inputRef = useRef(null)
 
@@ -35,7 +35,7 @@ export default function BpmDisplay({ bpm, onBpmChange, disabled, tempoUnit }) {
           type="number"
           defaultValue={bpm}
           min={MIN_BPM}
-          max={MAX_BPM}
+          max={maxBpm}
           aria-label="Tempo in beats per minute"
           className="w-40 text-center font-heading text-7xl bg-transparent border-b-2 border-primary text-dark outline-none"
           onBlur={handleSubmit}

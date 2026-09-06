@@ -34,16 +34,16 @@ function interpolateColor(startColor, endColor, progress) {
   )))
 }
 
-function getSliderProgress(bpm) {
-  return ((bpm - MIN_BPM) / (MAX_BPM - MIN_BPM)) * 100
+function getSliderProgress(bpm, maxBpm = MAX_BPM) {
+  return ((bpm - MIN_BPM) / (maxBpm - MIN_BPM)) * 100
 }
 
 export const TEMPO_SLIDER_GRADIENT = `linear-gradient(to right, ${TEMPO_SLIDER_COLOR_STOPS
   .map(({ bpm, color }) => `${color} ${getSliderProgress(bpm)}%`)
   .join(', ')})`
 
-export function getTempoColor(bpm) {
-  const value = clampBpm(bpm)
+export function getTempoColor(bpm, maxBpm = MAX_BPM) {
+  const value = MIN_BPM + (clampBpm(bpm, maxBpm) - MIN_BPM) * (MAX_BPM - MIN_BPM) / (maxBpm - MIN_BPM)
   const upperIndex = TEMPO_COLOR_STOPS.findIndex(({ bpm: stopBpm }) => value <= stopBpm)
 
   if (upperIndex <= 0) return TEMPO_COLOR_STOPS[0].color
@@ -55,16 +55,16 @@ export function getTempoColor(bpm) {
   return interpolateColor(lower.color, upper.color, progress)
 }
 
-export function getTempoHeat(bpm) {
-  const value = clampBpm(bpm)
-  const isFire = value >= FIRE_MIN_BPM
+export function getTempoHeat(bpm, maxBpm = MAX_BPM) {
+  const value = clampBpm(bpm, maxBpm)
+  const isFire = value >= maxBpm - 9
 
   return {
     id: isFire ? 'fire' : 'gradient',
     label: isFire ? 'Fire' : 'Tempo gradient',
     bpm: value,
-    color: getTempoColor(value),
+    color: getTempoColor(value, maxBpm),
     sliderGradient: TEMPO_SLIDER_GRADIENT,
-    sliderProgress: getSliderProgress(value),
+    sliderProgress: getSliderProgress(value, maxBpm),
   }
 }

@@ -4,7 +4,10 @@ import SubdivisionNotation from './SubdivisionNotation.jsx'
 import { getSubdivisionLabel } from './subdivisionMusic.js'
 import { SUBDIVISION_OPTIONS } from '../../audio/constants'
 
-export default function SubdivisionDropdown({ value, onChange, disabled = false, label = 'Subdivision', denominator = 4, allowGroupOnly = false }) {
+export default function SubdivisionDropdown({ value, onChange, disabled = false, label = 'Subdivision', denominator = 4, allowGroupOnly = false, options, renderNotation, getOptionLabel, className = '', menuClassName = '', menuWidth = 200 }) {
+  const choices = options || (allowGroupOnly ? [{ type: 0 }, ...SUBDIVISION_OPTIONS] : SUBDIVISION_OPTIONS)
+  const optionLabel = type => getOptionLabel ? getOptionLabel(type) : getSubdivisionLabel(type, denominator)
+  const notation = type => renderNotation ? renderNotation(type) : <SubdivisionNotation count={type} denominator={denominator} />
   const [open, setOpen] = useState(false)
   const [position, setPosition] = useState(null)
   const trigger = useRef(null)
@@ -23,7 +26,7 @@ export default function SubdivisionDropdown({ value, onChange, disabled = false,
     const topEdge = (viewport?.offsetTop || 0) + 8
     const rightEdge = leftEdge + (viewport?.width || window.innerWidth) - 16
     const bottomEdge = topEdge + (viewport?.height || window.innerHeight) - 16
-    const width = Math.min(200, rightEdge - leftEdge)
+    const width = Math.min(menuWidth, rightEdge - leftEdge)
     const below = bottomEdge - rect.bottom - 6
     const above = rect.top - topEdge - 6
     const height = Math.min(232, Math.max(below, above))
@@ -48,7 +51,7 @@ export default function SubdivisionDropdown({ value, onChange, disabled = false,
       window.removeEventListener('resize', resize)
       viewport?.removeEventListener('resize', resize)
     }
-  }, [open, disabled])
+  }, [open, disabled, menuWidth])
   useLayoutEffect(() => {
     if (!open || !position) return
     const selected = menu.current?.querySelector('[aria-selected="true"]')
@@ -74,13 +77,13 @@ export default function SubdivisionDropdown({ value, onChange, disabled = false,
     }
   }
   return <>
-    <button ref={trigger} type="button" className="pulse-subdivision-dropdown" disabled={disabled} aria-label={`${label}: ${getSubdivisionLabel(value, denominator)}`} aria-haspopup="listbox" aria-expanded={open && !disabled} aria-controls={open && !disabled ? id : undefined}
+    <button ref={trigger} type="button" className={`pulse-subdivision-dropdown ${className}`} disabled={disabled} aria-label={`${label}: ${optionLabel(value)}`} aria-haspopup="listbox" aria-expanded={open && !disabled} aria-controls={open && !disabled ? id : undefined}
       onClick={() => setOpen(previous => !previous)} onKeyDown={event => { if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); setOpen(true) } }}>
-      <SubdivisionNotation count={value} denominator={denominator} /><span aria-hidden="true">⌄</span>
+      {notation(value)}<span aria-hidden="true">⌄</span>
     </button>
-    {open && !disabled && position && createPortal(<div ref={menu} id={id} role="listbox" aria-label={label} className="pulse-subdivision-menu" style={position} onKeyDown={keys}>
-      {(allowGroupOnly ? [{ type: 0 }, ...SUBDIVISION_OPTIONS] : SUBDIVISION_OPTIONS).map(({ type }) => <button key={type} type="button" role="option" tabIndex={-1} aria-selected={value === type} aria-label={getSubdivisionLabel(type, denominator)} title={getSubdivisionLabel(type, denominator)} onClick={() => { onChange(type); close(true) }}>
-        {type === 0 ? <span className="pulse-group-pulse-option">Group pulses</span> : <SubdivisionNotation count={type} denominator={denominator} />}<span aria-hidden="true">{value === type ? '✓' : ''}</span>
+    {open && !disabled && position && createPortal(<div ref={menu} id={id} role="listbox" aria-label={label} className={`pulse-subdivision-menu ${menuClassName}`} style={position} onKeyDown={keys}>
+      {choices.map(({ type, description }) => <button key={type} type="button" role="option" tabIndex={-1} aria-selected={value === type} aria-label={optionLabel(type)} title={description || optionLabel(type)} onClick={() => { onChange(type); close(true) }}>
+        {type === 0 ? <span className="pulse-group-pulse-option">Group pulses</span> : notation(type)}{options && <span className="pulse-pattern-option-label">{optionLabel(type)}</span>}<span aria-hidden="true">{value === type ? '✓' : ''}</span>
       </button>)}
     </div>, document.body)}
   </>

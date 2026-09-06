@@ -2,7 +2,7 @@ import { MIN_BPM, MAX_BPM } from '../../audio/constants'
 import TrainerCardHeader from './TrainerCardHeader'
 import NumberWheel from './NumberWheel'
 
-export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, everyBars, disabled = false, onChange }) {
+export default function TempoTrainer({ enabled, startBpm, targetBpm, maxBpm = MAX_BPM, increment, everyBars, disabled = false, onChange }) {
   const update = (key, value) => {
     const next = { startBpm, targetBpm, increment, everyBars, [key]: value }
     onChange(enabled, next.startBpm, next.targetBpm, next.increment, next.everyBars)
@@ -11,8 +11,8 @@ export default function TempoTrainer({ enabled, startBpm, targetBpm, increment, 
     <TrainerCardHeader type="tempo" title="Tempo Trainer"
       description="Change BPM at set intervals."
       metrics={[
-        { label: 'Start BPM', value: startBpm, min: MIN_BPM, max: MAX_BPM, onChange: value => update('startBpm', value) },
-        { label: 'Target BPM', value: targetBpm, min: MIN_BPM, max: MAX_BPM, onChange: value => update('targetBpm', value) },
+        { label: 'Start BPM', value: startBpm, min: MIN_BPM, max: maxBpm, onChange: value => update('startBpm', value) },
+        { label: 'Target BPM', value: targetBpm, min: MIN_BPM, max: maxBpm, onChange: value => update('targetBpm', value) },
       ]}
       enabled={enabled} disabled={disabled} controlsId="tempo-trainer-settings"
       onToggle={() => onChange(!enabled, startBpm, targetBpm, increment, everyBars)}

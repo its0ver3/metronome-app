@@ -1,0 +1,188 @@
+.app-brand-header { position: relative; }
+
+.pulse-kit-toggle {
+  position: absolute;
+  z-index: 10;
+  top: max(8px, env(safe-area-inset-top, 0px));
+  right: max(8px, env(safe-area-inset-right, 0px));
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--brand-color-ink);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.pulse-kit-toggle:active {
+  background: color-mix(in srgb, var(--brand-color-ink) 12%, transparent);
+}
+
+.app-viewport.is-kit-view { padding: 0; }
+.is-kit-view .app-phone-frame {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+.is-kit-view .app-brand-header {
+  position: absolute;
+  z-index: 10;
+  inset: 0 0 auto;
+  padding: 0;
+  height: 0;
+  pointer-events: none;
+}
+.is-kit-view .app-brand-logo { display: none; }
+
+.pulse-kit-view {
+  --pulse-orbit-canvas: var(--brand-color-canvas);
+  --pulse-rhythm-two-color: color-mix(in srgb, var(--brand-color-rhythm-two, #3b82f6) 45%, #a855f7 55%);
+  position: relative;
+  isolation: isolate;
+  flex: 1;
+  min-height: 0;
+  color: var(--brand-color-ink);
+  background: var(--brand-color-canvas);
+}
+
+.pulse-kit-tap-surface {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.pulse-kit-tap-surface:focus-visible {
+  outline-offset: -5px;
+}
+.pulse-kit-tap-surface:active {
+  background: color-mix(in srgb, var(--tempo-heat-color) 6%, transparent);
+}
+
+.pulse-kit-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  gap: clamp(8px, 2dvh, 20px);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: calc(64px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  pointer-events: none;
+}
+.pulse-kit-instrument {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  gap: clamp(12px, 3dvh, 32px);
+}
+.pulse-kit-orbit-space {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  /* Size the ring from the space left after the slider, hints, safe areas,
+     and trainer readouts, in either orientation. */
+  container-type: size;
+}
+.pulse-kit-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: min(100cqw, 100cqh, 540px);
+  aspect-ratio: 1;
+  container-type: inline-size;
+}
+.pulse-kit-value {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: clamp(2px, 2cqw, 8px);
+}
+.pulse-kit-value strong {
+  font-size: 27cqw;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.065em;
+  line-height: .95;
+}
+.pulse-kit-value > span {
+  font-size: clamp(14px, 4cqw, 20px);
+  font-weight: 650;
+  letter-spacing: .1em;
+  opacity: .6;
+}
+.pulse-kit-value .pulse-kit-meter { letter-spacing: 0; }
+.pulse-kit-playback {
+  display: grid;
+  justify-items: center;
+  font-size: clamp(16px, 2.5vw, 20px);
+  text-align: center;
+}
+.pulse-kit-playback > span:last-child { opacity: .6; }
+.pulse-kit-tempo {
+  width: min(100%, 640px);
+  min-width: 0;
+  text-align: center;
+}
+.pulse-kit-tempo .pulse-kit-slider {
+  width: 100%;
+  max-width: none;
+  margin-top: 0;
+  padding: 10px 0;
+  pointer-events: auto;
+  touch-action: none;
+}
+.pulse-kit-tempo p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  opacity: .6;
+}
+.pulse-kit-training {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  margin-top: 12px;
+  font-size: 12px;
+  opacity: .65;
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .pulse-kit-content {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    column-gap: 24px;
+    align-items: center;
+  }
+  .pulse-kit-instrument { gap: 8px; }
+  .pulse-kit-playback { font-size: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-kit-view *, .pulse-kit-view *::before, .pulse-kit-view *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

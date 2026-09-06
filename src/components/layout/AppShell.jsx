@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import BottomNav from './BottomNav'
 import GlobalTransport from './GlobalTransport'
+import DownbeatFlash from './DownbeatFlash'
 import MetronomeScreen from '../metronome/MetronomeScreen'
+import KitView from '../metronome/KitView'
 import TrainingScreen from '../training/TrainingScreen'
 import SettingsScreen from '../settings/SettingsScreen'
 import useAudioEngine from '../../hooks/useAudioEngine'
@@ -17,9 +19,13 @@ function getSettingsSnapshot(engine) {
     subdivision: state.subdivision,
     volume: state.volume,
     soundIndex: state.soundIndex,
+    pumpTheJam: state.pumpTheJam,
+    maxBpm: state.maxBpm,
+    sessionSettings: state.sessionSettings,
     gapEnabled: state.gapEnabled,
     gapClickBars: state.gapClickBars,
     gapSilentBars: state.gapSilentBars,
+    gapPattern: state.gapPattern,
     tempoEnabled: state.tempoTrainerEnabled,
     tempoStartBpm: state.tempoStartBpm,
     tempoTargetBpm: state.tempoTargetBpm,
@@ -39,10 +45,12 @@ function getSettingsSnapshot(engine) {
   }
 }
 
-export default function AppShell() {
+export default function AppShell({ kitOpen = false, onExitKit }) {
   const [activeTab, setActiveTab] = useState('metronome')
   const [transportCollapsed, setTransportCollapsed] = useState(false)
   const [initialSettings] = useState(() => loadSettings())
+  const [flashOnOne, setFlashOnOne] = useState(() => initialSettings?.flashOnOne === true)
+  const [flashSubdivisions, setFlashSubdivisions] = useState(() => initialSettings?.flashSubdivisions === true)
   const audio = useAudioEngine(initialSettings)
 
   const engine = audio.engine()
@@ -51,7 +59,8 @@ export default function AppShell() {
   const [settings, setSettings] = useState(() => getSettingsSnapshot(engine))
 
   const { subdivisionAccents, beatsPerBar, subdivision, volume, soundIndex, meter } = settings
-  const { gapEnabled, gapClickBars, gapSilentBars } = settings
+  const { sessionSettings, pumpTheJam, maxBpm } = settings
+  const { gapEnabled, gapClickBars, gapSilentBars, gapPattern } = settings
   const { tempoEnabled, tempoStartBpm, tempoTargetBpm, tempoIncrement, tempoEveryBars } = settings
   const {
     subdivTrainerEnabled,
@@ -71,6 +80,10 @@ export default function AppShell() {
     if (!engine) return
     const timer = setTimeout(() => {
       saveSettings({
+        flashOnOne,
+        pumpTheJam,
+        flashSubdivisions,
+        sessionSettings,
         bpm: audio.bpm,
         soundIndex: engine.soundIndex,
         volume: engine.volume,
@@ -81,6 +94,7 @@ export default function AppShell() {
         gapEnabled: engine.gapEnabled,
         gapClickBars: engine.gapClickBars,
         gapSilentBars: engine.gapSilentBars,
+        gapPattern: engine.gapPattern,
         tempoEnabled: engine.tempoTrainerEnabled,
         tempoStartBpm: engine.tempoStartBpm,
         tempoTargetBpm: engine.tempoTargetBpm,
@@ -98,9 +112,19 @@ export default function AppShell() {
       })
     }, 500)
     return () => clearTimeout(timer)
-  }, [audio.bpm, soundIndex, volume, beatsPerBar, meter, subdivision, subdivisionAccents, gapEnabled, gapClickBars, gapSilentBars, tempoEnabled, tempoStartBpm, tempoTargetBpm, tempoIncrement, tempoEveryBars, subdivTrainerEnabled, subdivTrainerStages, polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2, polyAccents1, polyAccents2, engine])
+  }, [pumpTheJam, sessionSettings, flashOnOne, flashSubdivisions, audio.bpm, soundIndex, volume, beatsPerBar, meter, subdivision, subdivisionAccents, gapEnabled, gapClickBars, gapSilentBars, gapPattern, tempoEnabled, tempoStartBpm, tempoTargetBpm, tempoIncrement, tempoEveryBars, subdivTrainerEnabled, subdivTrainerStages, polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2, polyAccents1, polyAccents2, engine])
 
   // Handlers
+  const handlePumpTheJamChange = (enabled) => {
+    engine.setPumpTheJam(enabled)
+    syncFromEngine()
+  }
+
+  const handleSessionSettingsChange = (next) => {
+    engine.setSessionSettings(next)
+    syncFromEngine()
+  }
+
   const handleCycleSubdivisionAccent = (index) => {
     audio.cycleSubdivisionAccent(index)
     syncFromEngine()
@@ -141,8 +165,8 @@ export default function AppShell() {
     engine.playTapTempoFeedback(stage).catch(() => {})
   }, [engine])
 
-  const handleGapChange = (enabled, clickBars, silentBars) => {
-    audio.setGapTraining(enabled, clickBars, silentBars)
+  const handleGapChange = (enabled, clickBars, silentBars, pattern) => {
+    audio.setGapTraining(enabled, clickBars, silentBars, pattern)
     syncFromEngine()
   }
 
@@ -195,6 +219,8 @@ export default function AppShell() {
   }
 
   const playbackStatus = {
+    maxBpm,
+    session: audio.session,
     bpm: audio.bpm,
     isPlaying: audio.isPlaying,
     currentBar: audio.currentBar,
@@ -203,6 +229,11 @@ export default function AppShell() {
     meter,
     inGap: audio.inGap,
     gapEnabled,
+    gapPattern,
+    gapPlayback: audio.gapPlayback,
+    gapClickBars,
+    tempoEveryBars,
+    trainerPlayback: audio.trainerPlayback,
     tempoEnabled,
     tempoTargetBpm,
     subdivTrainerEnabled,
@@ -214,83 +245,10 @@ export default function AppShell() {
 
   return (
     <>
-      <div className={`pulse-app-content flex-1 flex flex-col overflow-hidden ${activeTab !== 'metronome' ? 'has-mini-transport' : ''}`}>
-        {activeTab === 'metronome' && (
-          <MetronomeScreen
-              bpm={audio.bpm}
-              isPlaying={audio.isPlaying}
-              currentBeat={audio.currentBeat}
-              currentSubdivision={audio.currentSubdivision}
-              inGap={audio.inGap}
-              beatsPerBar={beatsPerBar}
-              subdivision={subdivision}
-              subdivisionAccents={subdivisionAccents}
-              onBpmChange={audio.changeBpm}
-              onToggle={audio.toggle}
-              onCycleSubdivisionAccent={handleCycleSubdivisionAccent}
-              onCycleBeatAccent={handleCycleBeatAccent}
-              meter={meter}
-              onMeterChange={handleMeterChange}
-              onSubdivisionChange={handleSubdivisionChange}
-              tempoEnabled={tempoEnabled && !polyrhythmMode}
-              subdivTrainerEnabled={subdivTrainerEnabled && !polyrhythmMode}
-              polyrhythmMode={polyrhythmMode}
-              polyRhythm1={polyRhythm1}
-              polyRhythm2={polyRhythm2}
-              polySoundIndex1={polySoundIndex1}
-              polySoundIndex2={polySoundIndex2}
-              polyBeat1={audio.polyBeat1}
-              polyBeat2={audio.polyBeat2}
-              polyAccents1={polyAccents1}
-              polyAccents2={polyAccents2}
-              onCyclePolyAccent={handleCyclePolyAccent}
-              onPolyrhythmModeToggle={handlePolyrhythmModeToggle}
-              onPolyRhythm1Change={handlePolyRhythm1Change}
-              onPolyRhythm2Change={handlePolyRhythm2Change}
-              onPolySoundIndex1Change={handlePolySoundIndex1Change}
-              onPolySoundIndex2Change={handlePolySoundIndex2Change}
-              onSoundPreview={handleSoundPreview}
-              onTapFeedback={handleTapFeedback}
-              playbackStatus={playbackStatus}
-            />
-        )}
-        {activeTab === 'training' && (
-          <TrainingScreen
-            meter={meter}
-            bpm={audio.bpm}
-            gapEnabled={gapEnabled}
-            gapClickBars={gapClickBars}
-            gapSilentBars={gapSilentBars}
-            onGapChange={handleGapChange}
-            tempoEnabled={tempoEnabled}
-            tempoStartBpm={tempoStartBpm}
-            tempoTargetBpm={tempoTargetBpm}
-            tempoIncrement={tempoIncrement}
-            tempoEveryBars={tempoEveryBars}
-            onTempoChange={handleTempoChange}
-            subdivTrainerEnabled={subdivTrainerEnabled}
-            subdivTrainerStages={subdivTrainerStages}
-            subdivTrainerStageIndex={subdivTrainerStageIndex}
-            subdivTrainerBarCount={subdivTrainerBarCount}
-            onSubdivTrainerChange={handleSubdivTrainerChange}
-            polyrhythmMode={polyrhythmMode}
-            isPlaying={audio.isPlaying}
-          />
-        )}
-        {activeTab === 'settings' && (
-          <SettingsScreen
-            soundIndex={soundIndex}
-            volume={volume}
-            onSoundChange={handleSoundChange}
-            onSoundPreview={handleSoundPreview}
-            onVolumeChange={handleVolumeChange}
-          />
-        )}
-      {activeTab !== 'metronome' && (
-        <GlobalTransport
+      <DownbeatFlash enabled={flashOnOne} includeSubdivisions={flashSubdivisions} isPlaying={audio.isPlaying} pulse={audio.flashPulse} />
+      {kitOpen ? (
+        <KitView
           {...playbackStatus}
-          collapsed={transportCollapsed}
-          onCollapsedChange={setTransportCollapsed}
           subdivision={subdivision}
           subdivisionAccents={subdivisionAccents}
           polyRhythm1={polyRhythm1}
@@ -299,13 +257,120 @@ export default function AppShell() {
           polyBeat2={audio.polyBeat2}
           polyAccents1={polyAccents1}
           polyAccents2={polyAccents2}
+          onCycleBeatAccent={handleCycleBeatAccent}
+          onCyclePolyAccent={handleCyclePolyAccent}
           onBpmChange={audio.changeBpm}
           onToggle={audio.toggle}
-          onOpenMetronome={() => setActiveTab('metronome')}
+          onExit={onExitKit}
         />
+      ) : (
+        <>
+          <div className={`pulse-app-content flex-1 flex flex-col overflow-hidden ${activeTab !== 'metronome' ? 'has-mini-transport' : ''} ${sessionSettings.countInBars || sessionSettings.mode !== 'off' ? 'has-session-status' : ''}`}>
+            {activeTab === 'metronome' && (
+              <MetronomeScreen
+                  maxBpm={maxBpm}
+                  bpm={audio.bpm}
+                  isPlaying={audio.isPlaying}
+                  currentBeat={audio.currentBeat}
+                  currentSubdivision={audio.currentSubdivision}
+                  inGap={audio.inGap}
+                  beatsPerBar={beatsPerBar}
+                  subdivision={subdivision}
+                  subdivisionAccents={subdivisionAccents}
+                  onBpmChange={audio.changeBpm}
+                  onToggle={audio.toggle}
+                  onCycleSubdivisionAccent={handleCycleSubdivisionAccent}
+                  onCycleBeatAccent={handleCycleBeatAccent}
+                  meter={meter}
+                  onMeterChange={handleMeterChange}
+                  sessionSettings={sessionSettings}
+                  onSessionSettingsChange={handleSessionSettingsChange}
+                  onSubdivisionChange={handleSubdivisionChange}
+                  tempoEnabled={tempoEnabled && !polyrhythmMode}
+                  subdivTrainerEnabled={subdivTrainerEnabled && !polyrhythmMode}
+                  polyrhythmMode={polyrhythmMode}
+                  polyRhythm1={polyRhythm1}
+                  polyRhythm2={polyRhythm2}
+                  polySoundIndex1={polySoundIndex1}
+                  polySoundIndex2={polySoundIndex2}
+                  polyBeat1={audio.polyBeat1}
+                  polyBeat2={audio.polyBeat2}
+                  polyAccents1={polyAccents1}
+                  polyAccents2={polyAccents2}
+                  onCyclePolyAccent={handleCyclePolyAccent}
+                  onPolyrhythmModeToggle={handlePolyrhythmModeToggle}
+                  onPolyRhythm1Change={handlePolyRhythm1Change}
+                  onPolyRhythm2Change={handlePolyRhythm2Change}
+                  onPolySoundIndex1Change={handlePolySoundIndex1Change}
+                  onPolySoundIndex2Change={handlePolySoundIndex2Change}
+                  onSoundPreview={handleSoundPreview}
+                  onTapFeedback={handleTapFeedback}
+                  playbackStatus={playbackStatus}
+                  onOpenTraining={() => setActiveTab('training')}
+                />
+            )}
+            {activeTab === 'training' && (
+              <TrainingScreen
+                maxBpm={maxBpm}
+                meter={meter}
+                bpm={audio.bpm}
+                gapEnabled={gapEnabled}
+                gapClickBars={gapClickBars}
+                gapSilentBars={gapSilentBars}
+                gapPattern={gapPattern}
+                onGapChange={handleGapChange}
+                tempoEnabled={tempoEnabled}
+                tempoStartBpm={tempoStartBpm}
+                tempoTargetBpm={tempoTargetBpm}
+                tempoIncrement={tempoIncrement}
+                tempoEveryBars={tempoEveryBars}
+                onTempoChange={handleTempoChange}
+                subdivTrainerEnabled={subdivTrainerEnabled}
+                subdivTrainerStages={subdivTrainerStages}
+                subdivTrainerStageIndex={subdivTrainerStageIndex}
+                subdivTrainerBarCount={subdivTrainerBarCount}
+                onSubdivTrainerChange={handleSubdivTrainerChange}
+                polyrhythmMode={polyrhythmMode}
+                isPlaying={audio.isPlaying}
+              />
+            )}
+            {activeTab === 'settings' && (
+              <SettingsScreen
+                pumpTheJam={pumpTheJam}
+                onPumpTheJamChange={handlePumpTheJamChange}
+                soundIndex={soundIndex}
+                volume={volume}
+                flashOnOne={flashOnOne}
+                flashSubdivisions={flashSubdivisions}
+                onFlashSubdivisionsChange={setFlashSubdivisions}
+                onFlashOnOneChange={setFlashOnOne}
+                onSoundChange={handleSoundChange}
+                onSoundPreview={handleSoundPreview}
+                onVolumeChange={handleVolumeChange}
+              />
+            )}
+          {activeTab !== 'metronome' && (
+            <GlobalTransport
+              {...playbackStatus}
+              collapsed={transportCollapsed}
+              onCollapsedChange={setTransportCollapsed}
+              subdivision={subdivision}
+              subdivisionAccents={subdivisionAccents}
+              polyRhythm1={polyRhythm1}
+              polyRhythm2={polyRhythm2}
+              polyBeat1={audio.polyBeat1}
+              polyBeat2={audio.polyBeat2}
+              polyAccents1={polyAccents1}
+              polyAccents2={polyAccents2}
+              onBpmChange={audio.changeBpm}
+              onToggle={audio.toggle}
+              onOpenMetronome={() => setActiveTab('metronome')}
+            />
+          )}
+          </div>
+          <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        </>
       )}
-      </div>
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </>
   )
 }

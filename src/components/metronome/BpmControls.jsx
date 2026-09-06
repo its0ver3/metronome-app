@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { MIN_BPM, MAX_BPM } from '../../audio/constants'
 import { getTempoThumbTilt } from './bpmControlMotion.js'
 
-export default function BpmControls({ bpm, onBpmChange, disabled, className = '' }) {
+export default function BpmControls({ bpm, maxBpm = MAX_BPM, onBpmChange, disabled, className = '' }) {
   const inputRef = useRef(null)
   const previousBpmRef = useRef(bpm)
   const settleTimerRef = useRef(null)
@@ -35,7 +35,7 @@ export default function BpmControls({ bpm, onBpmChange, disabled, className = ''
           ref={inputRef}
           type="range"
           min={MIN_BPM}
-          max={MAX_BPM}
+          max={maxBpm}
           step={1}
           value={bpm}
           onChange={handleChange}

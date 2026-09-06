@@ -1,0 +1,9 @@
+.pulse-gap-pattern-settings { margin-top: 14px; padding-top: 12px; border-top: 1px solid #ffffff0b; }
+.pulse-gap-pattern-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pulse-gap-pattern-row > span { font-size: .875rem; color: var(--trainer-label); }
+.pulse-gap-pattern-picker { width: 116px; flex-shrink: 0; }
+.pulse-gap-pattern-notation { display: block; height: 40px; max-width: 100%; color: inherit; }
+.pulse-gap-pattern-menu > button { justify-content: flex-start; height: 52px; gap: 12px; }
+.pulse-gap-pattern-menu .pulse-gap-pattern-notation { width: 94px; flex: 0 0 94px; }
+.pulse-gap-pattern-menu > button > .pulse-pattern-option-label { flex: 1; text-align: left; font-size: .875rem; }
+.pulse-gap-pattern-settings .pulse-owned-note { margin: 8px 0 0; color: var(--trainer-label); }

@@ -5,10 +5,12 @@ import { getTempoColor } from '../metronome/tempoHeat'
 
 export default function TrainingScreen({
   bpm = 120,
+  maxBpm,
   meter,
   gapEnabled,
   gapClickBars,
   gapSilentBars,
+  gapPattern,
   onGapChange,
   tempoEnabled,
   tempoStartBpm,
@@ -25,7 +27,7 @@ export default function TrainingScreen({
   isPlaying,
 }) {
   return (
-    <section className="pulse-feature-screen pulse-training-screen" aria-label="Practice tools" style={{ '--tempo-heat-color': getTempoColor(bpm) }}>
+    <section className="pulse-feature-screen pulse-training-screen" aria-label="Practice tools" style={{ '--tempo-heat-color': getTempoColor(bpm, maxBpm) }}>
       <div className="pulse-feature-scroll">
         {polyrhythmMode && (
           <div className="pulse-feature-notice" role="status">
@@ -39,11 +41,15 @@ export default function TrainingScreen({
             enabled={gapEnabled}
             clickBars={gapClickBars}
             silentBars={gapSilentBars}
+            pattern={gapPattern}
+            denominator={meter?.denominator ?? 4}
+            isPlaying={isPlaying}
             disabled={polyrhythmMode}
             onChange={onGapChange}
           />
 
           <TempoTrainer
+            maxBpm={maxBpm}
             enabled={tempoEnabled}
             startBpm={tempoStartBpm}
             targetBpm={tempoTargetBpm}

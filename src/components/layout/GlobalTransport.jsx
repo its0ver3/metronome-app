@@ -2,21 +2,23 @@ import PolyrhythmOrbit, { StandardRhythmOrbit } from '../metronome/PolyrhythmOrb
 import { getTempoColor } from '../metronome/tempoHeat'
 import { MIN_BPM, MAX_BPM, clampBpm } from '../../audio/constants'
 import { TEMPO_UNITS } from '../../audio/meter.js'
+import SessionStatus from '../metronome/SessionStatus'
 
 export default function GlobalTransport({
-  bpm, isPlaying, beatsPerBar, subdivision, subdivisionAccents, currentBeat,
+  bpm, maxBpm = MAX_BPM, isPlaying, beatsPerBar, subdivision, subdivisionAccents, currentBeat,
   polyrhythmMode, polyRhythm1, polyRhythm2, polyBeat1, polyBeat2, polyAccents1, polyAccents2,
   tempoEnabled, onToggle, onBpmChange, onOpenMetronome,
   collapsed = false, onCollapsedChange,
   meter,
+  session,
 }) {
   const tempoLocked = tempoEnabled && !polyrhythmMode
   const nudge = (delta) => {
-    if (!tempoLocked) onBpmChange(clampBpm(bpm + delta))
+    if (!tempoLocked) onBpmChange(clampBpm(bpm + delta, maxBpm))
   }
 
   return (
-    <aside className={`pulse-global-dock ${collapsed ? 'is-collapsed' : ''}`} aria-label="Playback controls" style={{ '--tempo-heat-color': getTempoColor(bpm) }}>
+    <aside className={`pulse-global-dock ${collapsed ? 'is-collapsed' : ''}`} aria-label="Playback controls" style={{ '--tempo-heat-color': getTempoColor(bpm, maxBpm) }}>
       <button type="button" className="pulse-global-handle"
         aria-label={collapsed ? 'Show mini metronome' : 'Hide mini metronome'}
         title={collapsed ? 'Show mini metronome' : 'Hide mini metronome'}
@@ -28,6 +30,7 @@ export default function GlobalTransport({
       </button>
       <div id="mini-metronome-panel" className="pulse-global-reveal" aria-hidden={collapsed} inert={collapsed ? true : undefined}>
         <div className="pulse-global-clip">
+          <SessionStatus session={session} />
           <div className="pulse-global-transport">
       <button type="button" onClick={onOpenMetronome} className="pulse-global-orbit" aria-label={`Open Metronome, ${bpm} BPM${meter && !polyrhythmMode ? `, ${TEMPO_UNITS[meter.tempoUnit].name}, ${meter.numerator}/${meter.denominator}` : ''}`}>
         {polyrhythmMode ? (
@@ -57,7 +60,7 @@ export default function GlobalTransport({
         </button>
         <button type="button" className="pulse-global-nudge" aria-label="Increase tempo by 1 BPM"
           title={tempoLocked ? 'Tempo is controlled by Tempo Trainer' : 'Increase tempo'}
-          disabled={tempoLocked || bpm >= MAX_BPM} onClick={() => nudge(1)}>+</button>
+          disabled={tempoLocked || bpm >= maxBpm} onClick={() => nudge(1)}>+</button>
       </div>
           </div>
         </div>

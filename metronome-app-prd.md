@@ -44,7 +44,7 @@ On browsers that require it, including iOS Safari, the audio context is created 
 - iPhone top, left, right, and bottom safe-area insets are respected.
 - The desktop frame is capped at 430 × 932 px.
 - The bottom navigation exposes the three current screens and identifies the active screen semantically. Selection only brightens the icon and label, without a background highlight or indicator line; keyboard focus remains visible.
-- Practice tools and Settings show a compact metronome transport: the same segmented beat orbit with BPM centered inside, followed by minus, start/stop, and plus controls. The orbit mirrors saved accents and live standard/polyrhythm beats without its own timer; tapping it opens Metronome. No mode, ready, or trainer-summary text is shown. BPM nudges respect the 20–300 range and Tempo Trainer ownership.
+- Practice tools and Settings show a compact metronome transport: the same segmented beat orbit with BPM centered inside, followed by minus, start/stop, and plus controls. The orbit mirrors saved accents and live standard/polyrhythm beats without its own timer; tapping it opens Metronome. No mode, ready, or trainer-summary text is shown. BPM nudges respect the active tempo range and Tempo Trainer ownership.
 - Its translucent card floats over the scrollable content, with scroll-end clearance keeping all settings reachable. The chevron sits on the card edge without adding height; it collapses and reopens the card without changing playback. Hidden controls are inert; the shared collapse state survives tab navigation but resets on reload.
 - Metronome omits an idle title/status row so the tempo surface begins immediately below the shared brand mark. Active trainer ownership appears through compact chips only when needed.
 - Metronome, Practice tools, Settings, the persistent transport, and bottom navigation share the Pulse Core surface, typography, spacing, and control language.
@@ -55,11 +55,11 @@ On browsers that require it, including iOS Safari, the audio context is created 
 ### 4.1 Tempo and transport
 
 - Default tempo: 120 BPM.
-- The slider and numeric BPM display use one 20–300 BPM range in whole-number steps.
+- The slider and numeric BPM display use 20–300 BPM by default, or 20–800 when the saved Pump the Jam toggle in Settings is on. All tempo controls and trainer limits follow this setting. Switching it off clamps current and trainer tempos to 300 BPM.
 - `+` and `−` change tempo by one BPM.
 - Tap tempo waits for four taps before changing BPM, then refines the result using up to the five most recent taps while the session remains active. A radial fill expands across the icon-only button with each input and reaches the full button on tap four; a light synthesized C-major “boop” rises with the same four stages and respects master volume. Two seconds without input expires the session, while the visual charge fades continuously across that same interval and reaches zero at expiration, so the next tempo requires four fresh taps. The elapsed-time check occurs on input as well as through an idle timer so mobile timer throttling cannot reuse stale taps.
 - Start/stop is available as a central, distance-readable control without overpowering the BPM hierarchy.
-- The main Pulse Core view combines a large BPM orbit, one-BPM nudges, the full 20–300 slider, and two evenly divided quick actions. Tap Tempo uses the icon-only four-stage radial charge. The rhythm action pairs a stacked time signature with subdivision notation, while Polyrhythm shows distinct A and B pulse counts. Its accessible name announces the full meaning, and it opens the rhythm sheet in either mode.
+- The main Pulse Core view combines a large BPM orbit, one-BPM nudges, the full active-range slider, and two evenly divided quick actions. Tap Tempo uses the icon-only four-stage radial charge. The rhythm action pairs a stacked time signature with subdivision notation, while Polyrhythm shows distinct A and B pulse counts. Its accessible name announces the full meaning, and it opens the rhythm sheet in either mode.
 - Standard and Polyrhythm modes share one discrete visual language. Standard orbit segments represent meter groups proportionally to their duration; uneven groups have unequal spans. Polyrhythm divides the upper and lower halves by independent R1 and R2 pulse counts.
 - The orbit segments are direct accent controls with mobile-sized hit regions and keyboard activation. Annular wedges sit on a recessed track and cycle Off → On → Accent, visibly rendering those states as hollow → inner-half depth → clean full-depth solid fill without edge outlines. Segment divisions are straight slot-style gaps with parallel opposing faces; there is no separate cycle-origin dot. Audible-time playback feedback changes only brightness and glow without shifting the ring. A standard segment applies its chosen state to every subdivision click inside that beat; the detailed Rhythm sheet remains available for individual-click edits. Polyrhythm segments address their corresponding R1 or R2 pulse, and both modes remain synchronized with the detailed Rhythm sheet.
 - Standard mode and Polyrhythm Rhythm 1 communicate tempo through a continuous gradient: blue at 20 BPM, green at 110, yellow at 200, red at 290, and a smoothly warming fire base through 300. Polyrhythm Rhythm 2 uses a contrasting cool-violet orbit so the voices remain visually distinct. At 291–300 BPM, Rhythm 1 uses the warm animated fire treatment while Rhythm 2 uses a separate cool blue-flame treatment. The slider reveals the primary tempo gradient from its left edge to the thumb while the remaining range stays muted.
@@ -136,7 +136,7 @@ All three cards use the selected side-view throw-off switch, mounted flush to th
 
 ### 5.2 Tempo Trainer
 
-- Start and target: 20–300 BPM.
+- Start and target: 20–300 BPM, or 20–800 with Pump the Jam enabled.
 - Increment: 1–20 BPM.
 - Interval: every 1–32 bars.
 - Supports increasing and decreasing routines.

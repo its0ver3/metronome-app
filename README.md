@@ -12,9 +12,13 @@ The production app uses the selected **Pulse Core** direction across Metronome, 
 
 ## Current feature set
 
-- Precision Web Audio metronome with one 20–300 BPM range
+- Precision Web Audio metronome with a default 20–300 BPM range; the saved “Pump the Jam” Settings toggle expands it to 20–800 across all tempo controls and Tempo Trainer. Turning it off clamps the current and saved trainer tempos back to 300.
 - Meters with 1–16 quarter/eighth notes per bar, simple/compound/uneven groupings, 1–13 clicks per written note, and Off / On / Accent states
 - Tap tempo, keyboard shortcuts, nine selected sounds, and master volume
+- Optional “Screen flash” setting: choose “One only” or “One + subdivisions,” with a bright downbeat and softer, shorter flashes for the other clicks. Flashes stay inside the app frame across all tabs and Kit View. Defaults off and persists locally; the primary polyrhythm downbeat takes priority when pulses coincide, and silent/muted downbeats still flash.
+- Spoken count-in in “Shape the click”: 0, 1, or 2 bars using Female Count before the selected click begins. Counts follow meter groups (primary rhythm pulses in Polyrhythm); trainers begin on the first click bar.
+- Optional stop timer in “Shape the click”: 1–180 minutes or 1–999 complete bars, adjusted with the shared trainer wheel, with remaining-time/bar pills in Metronome, the mini transport, and Kit View. The count-in is excluded; silent bars count and each polyrhythm cycle is one bar. Settings persist locally and can be edited while stopped. Every new start resets the count-in and timer; audio is cut off at the timer deadline.
+- Kit View: the top-right expand button opens a viewport-filling start/stop tap surface, large live tempo orbit, and BPM slider. Orbit slices cycle Off / On / Accent in standard and polyrhythm modes. Slices, slider, and exit button never toggle playback; Escape exits and restores focus. Entering or leaving preserves playback and returns to the previous tab. Tempo Trainer retains control of BPM while active.
 - Three lightweight synthesized sounds plus recorded cowbell, hi-hat, shaker, tambourine, and male/female spoken counts from 1–16
 - Gap, tempo, and subdivision trainers that can run together in standard metronome mode
 - Side-mounted throw-off switches on all three trainer cards, with subtle lever/slide feedback and accessible native switch behavior
