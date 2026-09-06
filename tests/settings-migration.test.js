@@ -21,7 +21,7 @@ test('saved Loud accents migrate to the three-state Accent model', () => {
     assert.deepEqual(migrated.polyAccents2, ['ACCENT', 'ACCENT', 'OFF'])
 
     saveSettings(migrated)
-    assert.equal(JSON.parse(stored).version, 4)
+    assert.equal(JSON.parse(stored).version, 5)
   } finally {
     delete globalThis.localStorage
   }

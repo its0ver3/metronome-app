@@ -1,4 +1,5 @@
-import NumberWheel from './NumberWheel'
+import SubdivisionStage from './SubdivisionStage'
+import SubdivisionNotation from '../metronome/SubdivisionNotation.jsx'
 import TrainerCardHeader from './TrainerCardHeader'
 import { SUBDIVISION_OPTIONS, SUBDIVISION_TRAINER_MAX_STAGES } from '../../audio/constants'
 
@@ -11,6 +12,7 @@ export default function SubdivisionTrainer({
   activeBar,
   isPlaying,
   disabled = false,
+  denominator = 4,
   onChange,
 }) {
   const handleToggle = () => {
@@ -62,13 +64,13 @@ export default function SubdivisionTrainer({
         description="Cycle through subdivisions."
         readout={
           <div className="pulse-trainer-sequence">
-            <ol aria-label="Subdivision sequence, clicks per beat">
+            <ol aria-label={`Subdivision sequence, clicks per ${denominator === 8 ? 'eighth note' : 'beat'}`}>
               {stages.map((stage, index) => {
                 const isActive = enabled && isPlaying && !disabled && activeStageIndex === index
                 return (
                   <li key={index} aria-current={isActive ? 'step' : undefined}>
                     {index > 0 && <span className="pulse-trainer-sequence-arrow" aria-hidden="true">→</span>}
-                    <span className="pulse-trainer-sequence-value" aria-label={`Stage ${STAGE_LABELS[index]}: ${stage.subdivision} ${stage.subdivision === 1 ? 'click' : 'clicks'} per beat`}>{stage.subdivision}</span>
+                    <span className="pulse-trainer-sequence-value" aria-label={`Stage ${STAGE_LABELS[index]}: ${stage.subdivision} ${stage.subdivision === 1 ? 'click' : 'clicks'} per ${denominator === 8 ? 'eighth note' : 'beat'}`}><SubdivisionNotation count={stage.subdivision} denominator={denominator} /></span>
                   </li>
                 )
               })}
@@ -84,17 +86,13 @@ export default function SubdivisionTrainer({
         className={`pulse-trainer-settings-reveal ${enabled ? 'is-open' : ''}`}>
         <div className="pulse-trainer-settings-clip">
           <fieldset disabled={!enabled || disabled} aria-label="Subdivision Trainer settings" className="pulse-trainer-settings pulse-subdivision-wheel-settings">
-            <div className="pulse-wheel-stage-labels" aria-hidden="true"><span>Stage</span><span>Clicks / beat</span><span>Bars</span><span /></div>
+            <div className="pulse-wheel-stage-labels" aria-hidden="true"><span>Stage</span><span>Subdivision</span><span>Bars</span><span /></div>
             <div className="pulse-stage-list">
               {stages.map((stage, index) => {
                 const isActive = enabled && isPlaying && !disabled && activeStageIndex === index
-                return <article key={index} className={`pulse-stage-card pulse-wheel-stage ${isActive ? 'is-active' : ''}`} aria-current={isActive ? 'step' : undefined}>
-                  <span className="pulse-wheel-stage-name" aria-label={`Stage ${STAGE_LABELS[index]}`}>{STAGE_LABELS[index]}</span>
-                  <NumberWheel compact label={`Stage ${STAGE_LABELS[index]} subdivision`} min={1} max={13} value={stage.subdivision} disabled={!enabled || disabled} onChange={subdivision => updateStage(index, { subdivision })} />
-                  <NumberWheel compact label={`Stage ${STAGE_LABELS[index]} bars`} min={1} max={16} value={stage.bars} disabled={!enabled || disabled} onChange={value => handleBarsChange(index, value)} />
-                  {index >= 2 ? <button type="button" className="pulse-wheel-stage-remove" aria-label={`Remove stage ${STAGE_LABELS[index]}`} disabled={!enabled || disabled} onClick={() => handleRemove(index)}>×</button> : <span />}
-                  {isActive && <span className="pulse-stage-progress">Active · Bar {Math.min(activeBar, stage.bars)} of {stage.bars}</span>}
-                </article>
+                return <SubdivisionStage key={index} stage={stage} index={index} isActive={isActive} activeBar={activeBar} disabled={!enabled || disabled} denominator={denominator}
+                  onSubdivisionChange={subdivision => updateStage(index, { subdivision })}
+                  onBarsChange={value => handleBarsChange(index, value)} onRemove={() => handleRemove(index)} />
               })}
             </div>
             {stages.length < SUBDIVISION_TRAINER_MAX_STAGES && (

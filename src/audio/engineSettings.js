@@ -5,6 +5,7 @@ export function restoreEngineSettings(engine, saved) {
   if (saved.soundIndex !== undefined) engine.setSound(saved.soundIndex)
   if (saved.volume !== undefined) engine.setVolume(saved.volume)
   if (saved.beatsPerBar !== undefined) engine.setBeatsPerBar(saved.beatsPerBar)
+  if (saved.meter) engine.setMeter(saved.meter)
   if (saved.subdivision !== undefined) engine.setSubdivision(saved.subdivision)
   if (saved.subdivisionAccents) {
     saved.subdivisionAccents.forEach((accent, index) => {

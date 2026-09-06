@@ -1,12 +1,14 @@
 import PolyrhythmOrbit, { StandardRhythmOrbit } from '../metronome/PolyrhythmOrbit'
 import { getTempoColor } from '../metronome/tempoHeat'
 import { MIN_BPM, MAX_BPM, clampBpm } from '../../audio/constants'
+import { TEMPO_UNITS } from '../../audio/meter.js'
 
 export default function GlobalTransport({
   bpm, isPlaying, beatsPerBar, subdivision, subdivisionAccents, currentBeat,
   polyrhythmMode, polyRhythm1, polyRhythm2, polyBeat1, polyBeat2, polyAccents1, polyAccents2,
   tempoEnabled, onToggle, onBpmChange, onOpenMetronome,
   collapsed = false, onCollapsedChange,
+  meter,
 }) {
   const tempoLocked = tempoEnabled && !polyrhythmMode
   const nudge = (delta) => {
@@ -27,13 +29,13 @@ export default function GlobalTransport({
       <div id="mini-metronome-panel" className="pulse-global-reveal" aria-hidden={collapsed} inert={collapsed ? true : undefined}>
         <div className="pulse-global-clip">
           <div className="pulse-global-transport">
-      <button type="button" onClick={onOpenMetronome} className="pulse-global-orbit" aria-label={`Open Metronome, ${bpm} BPM`}>
+      <button type="button" onClick={onOpenMetronome} className="pulse-global-orbit" aria-label={`Open Metronome, ${bpm} BPM${meter && !polyrhythmMode ? `, ${TEMPO_UNITS[meter.tempoUnit].name}, ${meter.numerator}/${meter.denominator}` : ''}`}>
         {polyrhythmMode ? (
           <PolyrhythmOrbit rhythm1={polyRhythm1} rhythm2={polyRhythm2}
             activeBeat1={polyBeat1} activeBeat2={polyBeat2} isPlaying={isPlaying}
             accents1={polyAccents1} accents2={polyAccents2} interactive={false} />
         ) : (
-          <StandardRhythmOrbit beatCount={beatsPerBar} subdivision={subdivision}
+          <StandardRhythmOrbit beatCount={beatsPerBar} subdivision={subdivision} meter={meter}
             accents={subdivisionAccents} activeBeat={currentBeat} isPlaying={isPlaying} interactive={false} />
         )}
         <span aria-hidden="true">{bpm}</span>

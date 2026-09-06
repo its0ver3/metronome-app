@@ -205,9 +205,10 @@
 .pulse-trainer-summary { margin: 0; color: var(--trainer-label); font-size: .875rem; line-height: 1.5; }
 .pulse-trainer-sequence { min-width: 0; }
 .pulse-trainer-sequence ol { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0; padding: 0; list-style: none; }
-.pulse-trainer-sequence li { display: flex; align-items: center; gap: 5px; }
-.pulse-trainer-sequence-value { color: var(--trainer-label); font-size: 1.4rem; font-weight: 500; line-height: 1.3; font-variant-numeric: tabular-nums; transition: color 160ms ease; }
-.pulse-trainer-sequence li[aria-current="step"] .pulse-trainer-sequence-value { color: color-mix(in srgb, var(--trainer-accent) 50%, var(--brand-color-ink)); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.pulse-trainer-sequence li { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.pulse-trainer-sequence-value { display: inline-flex; min-width: 0; max-width: 120px; color: var(--trainer-label); transition: color 160ms ease; }
+.pulse-trainer-sequence-value .pulse-subdivision-notation { height: 44px; width: auto; }
+.pulse-trainer-sequence li[aria-current="step"] .pulse-trainer-sequence-value { color: color-mix(in srgb, var(--trainer-accent) 50%, var(--brand-color-ink)); box-shadow: inset 0 -1px currentColor; }
 .pulse-trainer-sequence-arrow { color: var(--trainer-label); opacity: .55; font-size: .875rem; }
 .pulse-trainer-sequence p { margin: 5px 0 0; color: var(--trainer-label); font-size: .75rem; line-height: 1.25; }
 @media (prefers-reduced-motion: reduce) { .pulse-trainer-sequence-value { transition: none; } }
@@ -217,7 +218,7 @@
 .pulse-tempo-wheel-settings { display: grid; gap: 6px; }
 .pulse-inline-wheel-setting { display: grid; grid-template-columns: minmax(0, 1fr) clamp(88px, 28cqw, 112px) 30px; align-items: center; gap: 6px; font-size: .875rem; color: var(--trainer-label); }
 .pulse-trainer-card .pulse-wheel-stage,
-.pulse-wheel-stage-labels { display: grid; grid-template-columns: 26px minmax(44px, 1fr) minmax(44px, 1fr) 28px; gap: 6px; align-items: center; }
+.pulse-wheel-stage-labels { display: grid; grid-template-columns: 22px minmax(0, 1fr) 68px 24px; gap: 6px; align-items: center; }
 .pulse-trainer-card .pulse-wheel-stage { padding: 3px 0; border: 1px solid transparent; background: none; }
 .pulse-trainer-card .pulse-wheel-stage.is-active { border-color: color-mix(in srgb, var(--trainer-accent) 35%, transparent); background: color-mix(in srgb, var(--trainer-accent) 5%, transparent); }
 .pulse-wheel-stage-labels { margin-bottom: 7px; color: var(--trainer-label); text-align: center; font-size: .75rem; }

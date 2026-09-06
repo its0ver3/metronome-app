@@ -1,0 +1,19 @@
+.pulse-subdivision-notation { display: block; max-width: 100%; flex: 0 1 auto; color: inherit; }
+.pulse-notation-tuplet { font-family: Georgia, serif; font-size: 13px; font-style: italic; fill: currentColor; }
+.pulse-subdivision-picker { min-width: 0; }
+.pulse-subdivision-dropdown { display: flex; align-items: center; justify-content: center; gap: 4px; width: 76px; max-width: 100%; height: 44px; padding: 2px 7px; border: 1px solid #414141; border-radius: 8px; background: var(--pulse-surface-raised, #242424); color: var(--brand-color-ink, #e5e3dc); cursor: pointer; touch-action: manipulation; }
+.pulse-subdivision-dropdown .pulse-subdivision-notation { height: 34px; min-width: 0; max-width: calc(100% - 12px); }
+.pulse-subdivision-dropdown > span { color: #999; font-size: 12px; }
+.pulse-subdivision-dropdown:disabled { opacity: .45; cursor: not-allowed; }
+.pulse-subdivision-dropdown:focus-visible { outline: 2px solid var(--brand-color-ink, #e5e3dc); outline-offset: 2px; }
+.pulse-wheel-stage > .pulse-subdivision-dropdown { justify-self: center; }
+.pulse-stage-card.is-active .pulse-subdivision-dropdown { border-color: var(--trainer-accent); color: var(--trainer-accent); }
+/* Portal keeps the menu outside the trainer's folding/scroll clipping layers. */
+.pulse-subdivision-menu { position: fixed; z-index: 1000; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; padding: 4px; border: 1px solid #484848; border-radius: 10px; background: #242424; color: var(--brand-color-ink, #e5e3dc); box-shadow: 0 8px 24px #0006; scrollbar-width: thin; scrollbar-color: #666 transparent; }
+.pulse-subdivision-menu > button { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 44px; padding: 2px 8px; border: 0; border-radius: 6px; background: transparent; color: inherit; cursor: pointer; touch-action: pan-y; }
+.pulse-subdivision-menu .pulse-subdivision-notation { height: 38px; min-width: 0; max-width: calc(100% - 24px); }
+.pulse-subdivision-menu > button > span { flex: 0 0 16px; font-size: 13px; }
+.pulse-subdivision-menu > button[aria-selected='true'] { background: var(--notation-accent); color: #0a0a0a; }
+.pulse-subdivision-menu > button:focus-visible { outline: 1px solid currentColor; outline-offset: -2px; }
+.pulse-rhythm-readout-item.is-subdivision { min-width: 0; }
+.pulse-rhythm-readout-item.is-subdivision .pulse-subdivision-notation { width: 100%; height: 42px; }

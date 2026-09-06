@@ -15,7 +15,7 @@ export function saveSettings(settings) {
       soundId: getSoundIdByIndex(settings.soundIndex),
       polySoundId1: getSoundIdByIndex(settings.polySoundIndex1),
       polySoundId2: getSoundIdByIndex(settings.polySoundIndex2),
-      version: 4,
+      version: 5,
     }))
   } catch (e) {
     // localStorage might be full or unavailable

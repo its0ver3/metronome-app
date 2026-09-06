@@ -6,12 +6,15 @@ export function getRhythmReadoutLabel({
   polyrhythmMode,
   beatsPerBar,
   subdivision,
+  meter,
   polyRhythm1,
   polyRhythm2,
 }) {
   if (polyrhythmMode) {
     return `Open rhythm controls: pulse A ${polyRhythm1}, pulse B ${polyRhythm2}`
   }
+
+  if (meter) return `Open rhythm controls: ${meter.numerator}/${meter.denominator}, grouped ${meter.groups.join(' + ')}, ${subdivision === 0 ? 'group pulses only' : `${pluralize(subdivision, 'click')} per ${meter.denominator === 8 ? 'eighth' : 'quarter'} note`}`
 
   return `Open rhythm controls: ${pluralize(beatsPerBar, 'beat')}, ${pluralize(subdivision, 'click')} per beat`
 }

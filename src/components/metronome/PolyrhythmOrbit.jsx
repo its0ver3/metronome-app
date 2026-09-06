@@ -7,6 +7,7 @@ import {
   parallelArcPath,
   parallelSegmentPath,
 } from './orbitGeometry'
+import { meterGroups } from '../../audio/meter.js'
 
 const TRACK_OUTER_RADIUS = 48
 const TRACK_INNER_RADIUS = 37.5
@@ -33,21 +34,22 @@ function RhythmArc({
   controlIndexForBeat,
   onCycleAccent,
   interactive = true,
+  spans,
 }) {
   const stepAngle = sweepAngle / count
   const gapAngle = Math.min(3.5, stepAngle * 0.18)
   const gapDistance = getGapDistance(gapAngle, HIT_RADIUS)
 
   return Array.from({ length: count }, (_, beat) => {
-    const segmentStart = startAngle + beat * stepAngle
-    const segmentEnd = startAngle + (beat + 1) * stepAngle
+    const segmentStart = spans?.[beat]?.startAngle ?? startAngle + beat * stepAngle
+    const segmentEnd = spans?.[beat]?.endAngle ?? startAngle + (beat + 1) * stepAngle
     const isActive = isPlaying && activeBeat === beat
     const accentIndex = accentIndexForBeat(beat)
     const controlIndex = controlIndexForBeat(beat)
     const accent = getOrbitAccentLevel(accents, accentIndex)
     const stateClass = `accent-${accent.toLowerCase()}`
     const description = rhythm === 'standard'
-      ? `Beat ${beat + 1}`
+      ? `${spans ? 'Group' : 'Beat'} ${beat + 1}`
       : `Rhythm ${rhythm === 'one' ? '1' : '2'}, pulse ${beat + 1}`
     const trackPath = parallelSegmentPath(
       segmentStart,
@@ -122,7 +124,10 @@ export function StandardRhythmOrbit({
   isPlaying,
   onCycleBeatAccent,
   interactive = true,
+  meter,
 }) {
+  const groups = meter ? meterGroups(meter) : null
+  const activeGroup = groups ? groups.findIndex(group => activeBeat >= group.start && activeBeat < group.end) : activeBeat
   return (
     <svg
       className="pulse-segmented-orbit pulse-standard-orbit"
@@ -133,14 +138,15 @@ export function StandardRhythmOrbit({
     >
       <RhythmArc
         rhythm="standard"
-        count={beatCount}
+        count={groups?.length ?? beatCount}
+        spans={groups?.map(group => ({ startAngle: -90 + group.start / beatCount * 360, endAngle: -90 + group.end / beatCount * 360 }))}
         startAngle={-90}
         sweepAngle={360}
-        activeBeat={activeBeat}
+        activeBeat={activeGroup}
         isPlaying={isPlaying}
         accents={accents}
-        accentIndexForBeat={(beat) => getStandardOrbitAccentIndex(beat, subdivision)}
-        controlIndexForBeat={(beat) => beat}
+        accentIndexForBeat={(beat) => getStandardOrbitAccentIndex(groups?.[beat]?.start ?? beat, subdivision)}
+        controlIndexForBeat={(beat) => groups?.[beat]?.start ?? beat}
         onCycleAccent={onCycleBeatAccent}
         interactive={interactive}
       />

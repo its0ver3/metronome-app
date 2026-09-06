@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react'
 import { MIN_BPM, MAX_BPM } from '../../audio/constants'
+import { TEMPO_UNITS } from '../../audio/meter.js'
 
-export default function BpmDisplay({ bpm, onBpmChange, disabled }) {
+export default function BpmDisplay({ bpm, onBpmChange, disabled, tempoUnit }) {
   const [editing, setEditing] = useState(false)
   const inputRef = useRef(null)
 
@@ -53,7 +54,7 @@ export default function BpmDisplay({ bpm, onBpmChange, disabled }) {
         </button>
       )}
       <p className="text-sm text-dark/50 mt-1 font-body">
-        {disabled ? 'Tempo trainer active' : 'BPM'}
+        {tempoUnit && <span className="pulse-meter-unit-mark" aria-label={TEMPO_UNITS[tempoUnit].name}>{TEMPO_UNITS[tempoUnit].symbol}</span>}{disabled ? 'Tempo trainer active' : 'BPM'}
       </p>
     </div>
   )

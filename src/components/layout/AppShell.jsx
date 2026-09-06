@@ -13,6 +13,7 @@ function getSettingsSnapshot(engine) {
   return {
     subdivisionAccents: state.subdivisionAccents,
     beatsPerBar: state.beatsPerBar,
+    meter: state.meter,
     subdivision: state.subdivision,
     volume: state.volume,
     soundIndex: state.soundIndex,
@@ -49,7 +50,7 @@ export default function AppShell() {
   // Track engine-derived values in React state instead of reading mutable props
   const [settings, setSettings] = useState(() => getSettingsSnapshot(engine))
 
-  const { subdivisionAccents, beatsPerBar, subdivision, volume, soundIndex } = settings
+  const { subdivisionAccents, beatsPerBar, subdivision, volume, soundIndex, meter } = settings
   const { gapEnabled, gapClickBars, gapSilentBars } = settings
   const { tempoEnabled, tempoStartBpm, tempoTargetBpm, tempoIncrement, tempoEveryBars } = settings
   const {
@@ -74,6 +75,7 @@ export default function AppShell() {
         soundIndex: engine.soundIndex,
         volume: engine.volume,
         beatsPerBar: engine.beatsPerBar,
+        meter: engine.getState().meter,
         subdivision: engine.subdivision,
         subdivisionAccents: [...engine.subdivisionAccents],
         gapEnabled: engine.gapEnabled,
@@ -96,7 +98,7 @@ export default function AppShell() {
       })
     }, 500)
     return () => clearTimeout(timer)
-  }, [audio.bpm, soundIndex, volume, beatsPerBar, subdivision, subdivisionAccents, gapEnabled, gapClickBars, gapSilentBars, tempoEnabled, tempoStartBpm, tempoTargetBpm, tempoIncrement, tempoEveryBars, subdivTrainerEnabled, subdivTrainerStages, polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2, polyAccents1, polyAccents2, engine])
+  }, [audio.bpm, soundIndex, volume, beatsPerBar, meter, subdivision, subdivisionAccents, gapEnabled, gapClickBars, gapSilentBars, tempoEnabled, tempoStartBpm, tempoTargetBpm, tempoIncrement, tempoEveryBars, subdivTrainerEnabled, subdivTrainerStages, polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2, polyAccents1, polyAccents2, engine])
 
   // Handlers
   const handleCycleSubdivisionAccent = (index) => {
@@ -109,13 +111,15 @@ export default function AppShell() {
     syncFromEngine()
   }
 
-  const handleBeatsChange = (beats) => {
-    audio.setBeatsPerBar(beats)
+  const handleMeterChange = (nextMeter) => {
+    engine.setMeter(nextMeter)
     syncFromEngine()
   }
 
   const handleSubdivisionChange = (type) => {
-    audio.setSubdivision(type)
+    if (engine.isPlaying) engine.stop()
+    engine.setMeter({ ...engine.meter, groupOnly: type === 0 })
+    if (type > 0) audio.setSubdivision(type)
     syncFromEngine()
   }
 
@@ -196,6 +200,7 @@ export default function AppShell() {
     currentBar: audio.currentBar,
     currentBeat: audio.currentBeat,
     beatsPerBar,
+    meter,
     inGap: audio.inGap,
     gapEnabled,
     tempoEnabled,
@@ -224,7 +229,8 @@ export default function AppShell() {
               onToggle={audio.toggle}
               onCycleSubdivisionAccent={handleCycleSubdivisionAccent}
               onCycleBeatAccent={handleCycleBeatAccent}
-              onBeatsChange={handleBeatsChange}
+              meter={meter}
+              onMeterChange={handleMeterChange}
               onSubdivisionChange={handleSubdivisionChange}
               tempoEnabled={tempoEnabled && !polyrhythmMode}
               subdivTrainerEnabled={subdivTrainerEnabled && !polyrhythmMode}
@@ -250,6 +256,7 @@ export default function AppShell() {
         )}
         {activeTab === 'training' && (
           <TrainingScreen
+            meter={meter}
             bpm={audio.bpm}
             gapEnabled={gapEnabled}
             gapClickBars={gapClickBars}

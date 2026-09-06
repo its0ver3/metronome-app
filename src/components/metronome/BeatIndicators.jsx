@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import AccentPie from './AccentPie'
 import useSwipe from '../../hooks/useSwipe'
+import { meterGroups } from '../../audio/meter.js'
 
 const ROWS_PER_PAGE = 4
 
@@ -13,21 +14,26 @@ export default function BeatIndicators({
   onCycleSubdivisionAccent,
   isPlaying,
   inGap,
+  meter,
+  groupOnly = false,
+  onCycleBeatAccent,
 }) {
-  const useStacked = subdivision > 1
+  const spans = meter ? meterGroups(meter) : Array.from({ length: beatsPerBar }, (_, start) => ({ start, length: 1, end: start + 1, index: start }))
+  const useStacked = !groupOnly && (subdivision > 1 || spans.some(group => group.length > 1))
+  const unitLabel = meter?.denominator === 8 ? 'Group' : 'Beat'
 
   // Build beat groups
-  const groups = Array.from({ length: beatsPerBar }, (_, beat) => {
-    const dots = Array.from({ length: subdivision }, (_, sub) => {
-      const flatIndex = beat * subdivision + sub
+  const groups = spans.map(({ start, length, end, index: beat }) => {
+    const dots = Array.from({ length: groupOnly ? 1 : subdivision * length }, (_, sub) => {
+      const flatIndex = start * subdivision + sub
       const accent = subdivisionAccents[flatIndex] || 'ON'
       const isActive =
-        isPlaying && currentBeat === beat && currentSubdivision === sub
+        isPlaying && (groupOnly ? currentBeat >= start && currentBeat < end : currentBeat === start + Math.floor(sub / subdivision) && currentSubdivision === sub % subdivision)
       const isDownbeat = sub === 0
 
-      return { flatIndex, accent, isActive, isDownbeat }
+      return { flatIndex, accent, isActive, isDownbeat, click: sub + 1 }
     })
-    return { beat, dots }
+    return { beat, start, dots }
   })
 
   const compact = subdivision > 8
@@ -35,20 +41,20 @@ export default function BeatIndicators({
   const hitSize = 44
 
   // Pagination
-  const needsPagination = useStacked && beatsPerBar > ROWS_PER_PAGE
-  const totalPages = needsPagination ? Math.ceil(beatsPerBar / ROWS_PER_PAGE) : 1
+  const needsPagination = useStacked && groups.length > ROWS_PER_PAGE
+  const totalPages = needsPagination ? Math.ceil(groups.length / ROWS_PER_PAGE) : 1
   const [currentPage, setCurrentPage] = useState(0)
   const trackRef = useRef(null)
 
   // Reset page when config changes
   useEffect(() => {
     setCurrentPage(0)
-  }, [beatsPerBar, subdivision])
+  }, [beatsPerBar, subdivision, meter, groupOnly])
 
   // Auto-follow active beat during playback
   useEffect(() => {
     if (isPlaying && needsPagination) {
-      const activePage = Math.floor(currentBeat / ROWS_PER_PAGE)
+      const activePage = Math.max(0, Math.floor(spans.findIndex(group => currentBeat >= group.start && currentBeat < group.end) / ROWS_PER_PAGE))
       setCurrentPage(activePage)
     }
   }, [isPlaying, currentBeat, needsPagination])
@@ -99,7 +105,7 @@ export default function BeatIndicators({
                           isActive={dot.isActive}
                           isDownbeat={dot.isDownbeat}
                           inGap={inGap}
-                          accessibleLabel={`Beat ${group.beat + 1}, subdivision ${dot.flatIndex - group.beat * subdivision + 1} accent: ${dot.accent.toLowerCase()}. Activate to change.`}
+                          accessibleLabel={`${unitLabel} ${group.beat + 1}, click ${dot.click} accent: ${dot.accent.toLowerCase()}. Activate to change.`}
                           onClick={() => onCycleSubdivisionAccent(dot.flatIndex)}
                         />
                       ))}
@@ -151,8 +157,8 @@ export default function BeatIndicators({
               isActive={dot.isActive}
               isDownbeat={dot.isDownbeat}
               inGap={inGap}
-              accessibleLabel={`Beat ${group.beat + 1} accent: ${dot.accent.toLowerCase()}. Activate to change.`}
-              onClick={() => onCycleSubdivisionAccent(dot.flatIndex)}
+              accessibleLabel={`${unitLabel} ${group.beat + 1} accent: ${dot.accent.toLowerCase()}. Activate to change.`}
+              onClick={() => groupOnly ? onCycleBeatAccent?.(group.start) : onCycleSubdivisionAccent(dot.flatIndex)}
             />
           ))}
         </div>

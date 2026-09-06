@@ -3,7 +3,8 @@ import BpmDisplay from './BpmDisplay'
 import BpmControls from './BpmControls'
 import TapTempoButton from './TapTempoButton'
 import BeatIndicators from './BeatIndicators'
-import BeatsPicker from './BeatsPicker'
+import MeterPicker from './MeterPicker.jsx'
+import { normalizeMeter, meterGroups, TEMPO_UNITS } from '../../audio/meter.js'
 import SubdivisionPicker from './SubdivisionPicker'
 import PolyrhythmToggle from './PolyrhythmToggle'
 import PolyrhythmPickers from './PolyrhythmPickers'
@@ -55,7 +56,8 @@ export default function MetronomeScreen({
   onToggle,
   onCycleSubdivisionAccent,
   onCycleBeatAccent,
-  onBeatsChange,
+  meter = normalizeMeter(null, beatsPerBar),
+  onMeterChange,
   onSubdivisionChange,
   tempoEnabled,
   subdivTrainerEnabled,
@@ -79,6 +81,7 @@ export default function MetronomeScreen({
   playbackStatus,
 }) {
   const [rhythmOpen, setRhythmOpen] = useState(false)
+  const groupIndex = meterGroups(meter).findIndex(group => currentBeat >= group.start && currentBeat < group.end)
   const [rhythmClosing, setRhythmClosing] = useState(false)
   const tapRef = useRef(null)
   const screenRef = useRef(null)
@@ -164,7 +167,7 @@ export default function MetronomeScreen({
 
       if (event.key !== 'Tab') return
 
-      const focusable = [...(sheet?.querySelectorAll(FOCUSABLE) || [])]
+      const focusable = [...(sheet?.querySelectorAll(FOCUSABLE) || [])].filter(element => element.getClientRects().length > 0)
       if (focusable.length === 0) {
         event.preventDefault()
         return
@@ -228,8 +231,8 @@ export default function MetronomeScreen({
             aria-label={polyrhythmMode
               ? `Tempo ${bpm} BPM, polyrhythm ${polyRhythm1} against ${polyRhythm2}`
               : isPlaying
-                ? `Tempo ${bpm} BPM, beat ${Math.max(0, currentBeat) + 1} of ${beatsPerBar}`
-                : `Tempo ${bpm} BPM, ready`}
+                ? `Tempo ${bpm} BPM, ${TEMPO_UNITS[meter.tempoUnit].name}, group ${Math.max(0, groupIndex) + 1} of ${meter.groups.length}, ${meter.numerator}/${meter.denominator}`
+                : `Tempo ${bpm} BPM, ${TEMPO_UNITS[meter.tempoUnit].name}, ${meter.numerator}/${meter.denominator}, ready`}
           >
             {polyrhythmMode ? (
               <PolyrhythmOrbit
@@ -244,6 +247,7 @@ export default function MetronomeScreen({
               />
             ) : (
               <StandardRhythmOrbit
+                meter={meter}
                 beatCount={beatsPerBar}
                 subdivision={subdivision}
                 accents={subdivisionAccents}
@@ -255,7 +259,7 @@ export default function MetronomeScreen({
             <div
               className="pulse-orbit-value"
             >
-              <BpmDisplay bpm={bpm} onBpmChange={onBpmChange} disabled={tempoEnabled} />
+              <BpmDisplay bpm={bpm} onBpmChange={onBpmChange} disabled={tempoEnabled} tempoUnit={polyrhythmMode ? undefined : meter.tempoUnit} />
               {polyrhythmMode && <span className="pulse-poly-label">{polyRhythm1} against {polyRhythm2}</span>}
             </div>
           </div>
@@ -313,9 +317,10 @@ export default function MetronomeScreen({
             className="pulse-tap-button"
           />
           <RhythmReadout
+            meter={meter}
             polyrhythmMode={polyrhythmMode}
             beatsPerBar={beatsPerBar}
-            subdivision={subdivision}
+            subdivision={meter.groupOnly && !subdivTrainerEnabled ? 0 : subdivision}
             polyRhythm1={polyRhythm1}
             polyRhythm2={polyRhythm2}
             expanded={rhythmOpen && !rhythmClosing}
@@ -386,14 +391,14 @@ export default function MetronomeScreen({
                 </div>
               ) : (
                 <div className="pulse-sheet-section">
-                  <div className="pulse-rhythm-pickers">
-                    <BeatsPicker beatsPerBar={beatsPerBar} onChange={onBeatsChange} />
+                  <MeterPicker meter={meter} onChange={onMeterChange}>
                     <SubdivisionPicker
-                      subdivision={subdivision}
+                      subdivision={meter.groupOnly && !subdivTrainerEnabled ? 0 : subdivision}
+                      denominator={meter.denominator}
                       onChange={onSubdivisionChange}
                       disabled={subdivTrainerEnabled}
                     />
-                  </div>
+                  </MeterPicker>
                   {subdivTrainerEnabled && (
                     <p className="pulse-owned-note">Subdivision is controlled by Subdivision Trainer.</p>
                   )}
@@ -404,6 +409,9 @@ export default function MetronomeScreen({
                     </div>
                   </div>
                   <BeatIndicators
+                    meter={meter}
+                    onCycleBeatAccent={onCycleBeatAccent}
+                    groupOnly={meter.groupOnly && !subdivTrainerEnabled}
                     beatsPerBar={beatsPerBar}
                     subdivision={subdivision}
                     subdivisionAccents={subdivisionAccents}

@@ -59,8 +59,8 @@ On browsers that require it, including iOS Safari, the audio context is created 
 - `+` and `−` change tempo by one BPM.
 - Tap tempo waits for four taps before changing BPM, then refines the result using up to the five most recent taps while the session remains active. A radial fill expands across the icon-only button with each input and reaches the full button on tap four; a light synthesized C-major “boop” rises with the same four stages and respects master volume. Two seconds without input expires the session, while the visual charge fades continuously across that same interval and reaches zero at expiration, so the next tempo requires four fresh taps. The elapsed-time check occurs on input as well as through an idle timer so mobile timer throttling cannot reuse stale taps.
 - Start/stop is available as a central, distance-readable control without overpowering the BPM hierarchy.
-- The main Pulse Core view combines a large BPM orbit, one-BPM nudges, the full 20–300 slider, and two evenly divided quick actions. Tap Tempo uses the icon-only four-stage radial charge. The rhythm action uses an icon-led count readout: standard mode pairs beats per bar with a metronome icon and clicks per beat with a notes icon, while Polyrhythm shows distinct A and B pulse counts. Its accessible name announces the full meaning, and it opens the complete rhythm sheet in either mode.
-- Standard and Polyrhythm modes share one discrete visual language: evenly spaced orbit segments illuminate from the audible beat state. Standard divides the full circle by its beat count; Polyrhythm divides the upper and lower halves by the independent R1 and R2 pulse counts.
+- The main Pulse Core view combines a large BPM orbit, one-BPM nudges, the full 20–300 slider, and two evenly divided quick actions. Tap Tempo uses the icon-only four-stage radial charge. The rhythm action pairs a stacked time signature with subdivision notation, while Polyrhythm shows distinct A and B pulse counts. Its accessible name announces the full meaning, and it opens the rhythm sheet in either mode.
+- Standard and Polyrhythm modes share one discrete visual language. Standard orbit segments represent meter groups proportionally to their duration; uneven groups have unequal spans. Polyrhythm divides the upper and lower halves by independent R1 and R2 pulse counts.
 - The orbit segments are direct accent controls with mobile-sized hit regions and keyboard activation. Annular wedges sit on a recessed track and cycle Off → On → Accent, visibly rendering those states as hollow → inner-half depth → clean full-depth solid fill without edge outlines. Segment divisions are straight slot-style gaps with parallel opposing faces; there is no separate cycle-origin dot. Audible-time playback feedback changes only brightness and glow without shifting the ring. A standard segment applies its chosen state to every subdivision click inside that beat; the detailed Rhythm sheet remains available for individual-click edits. Polyrhythm segments address their corresponding R1 or R2 pulse, and both modes remain synchronized with the detailed Rhythm sheet.
 - Standard mode and Polyrhythm Rhythm 1 communicate tempo through a continuous gradient: blue at 20 BPM, green at 110, yellow at 200, red at 290, and a smoothly warming fire base through 300. Polyrhythm Rhythm 2 uses a contrasting cool-violet orbit so the voices remain visually distinct. At 291–300 BPM, Rhythm 1 uses the warm animated fire treatment while Rhythm 2 uses a separate cool blue-flame treatment. The slider reveals the primary tempo gradient from its left edge to the thumb while the remaining range stays muted.
 - Beat 1 uses a brighter synthesized companion of the selected click sound. It marks each return to the start of a standard measure and both voices' shared polyrhythm cycle boundary; an explicitly muted first pulse remains silent.
@@ -74,16 +74,16 @@ Keyboard shortcuts work while focus is not inside an interactive control:
 
 ### 4.2 Beat structure and accents
 
-- Beats per bar: 1–16.
-- Subdivisions per beat: any whole number from 1–13.
+- Written notes per bar: 1–16, with denominator 4 or 8.
+- Clicks per written note: any whole number from 1–13. /8 also offers group pulses only.
 - Every scheduled click can be tapped to cycle through Off, On, and Accent. Accent is the loudest state.
 - Tapping a standard orbit segment cycles the beat's main click through On and Accent without flattening its subdivision dynamics or detailed pattern edits. Choosing Off silences the complete beat and all its subdivisions; re-enabling that beat restores all its clicks to On. Tapping an individual marker in the Rhythm sheet changes only that scheduled click.
-- The first click of each beat is initialized as Accent; the remaining subdivision clicks are initialized as On.
-- Dense beat grids paginate in groups of four beats and support touch swiping; the active page follows playback.
+- The first click of each meter group is initialized as Accent; internal clicks are initialized as On.
+- Dense accent grids paginate in pages of four meter groups and support touch swiping; the active page follows playback.
 - Visual state continues during Gap Trainer silence.
 - Beats, subdivision, standard accents, polyrhythm voices, sounds, and polyrhythm accents are edited in the scrollable Rhythm sheet. The primary screen remains uncluttered without removing those controls.
 
-The metronome does not model a time-signature denominator. `beats per bar` and `subdivisions per beat` are the actual current controls.
+The meter model stores numerator, denominator, grouping, tempo unit, and group-only preference. Presets cover 4/4, 3/4, 2/4, then 5/8, 6/8, 7/8, 9/8 and 12/8. BPM always counts quarter notes in every meter, including restored preferences. There is no More section, custom-meter editor, or tempo-unit selector. 5/8 and 7/8 retain their grouping choices; previously saved custom signatures remain supported. Groups must be positive integers summing to the numerator. Changing meter keeps the numeric BPM and stops playback; starting restarts bar 1. Saved legacy beat counts migrate to N/4. Polyrhythm preserves but does not use this standard-meter configuration.
 
 ### 4.3 Sounds
 
@@ -110,6 +110,17 @@ Polyrhythm is an exclusive playback mode. Trainer configuration is preserved but
 All three trainers can be enabled together and share the standard metronome timeline.
 
 Each trainer uses the selected Hoop Dial card with a slim steel hoop around an original pictogram, charcoal face, fine rim, and inline cylindrical number wheels. Titles use Gap Trainer, Tempo Trainer, and Subdivision Trainer, without numbered category labels. Gap uses the interrupted pulse loop (study C); Tempo and Subdivision use the note/up arrow and one-to-two-to-four divisions (study A). Header wheels edit click/silent bars and start/target BPM directly when enabled. Subdivision previews its saved clicks-per-beat sequence with arrows; only the current stage is highlighted during enabled, non-polyrhythm playback. Only Tempo's increase/interval and Subdivision's stage controls unfold; these remain mounted, collapsed and inert when disabled. Polyrhythm keeps configuration readable while disabling switches and making wheels read-only.
+
+Subdivision values are represented by musical note groups in the rhythm sheet,
+rhythm pill, trainer preview, and stage controls. Each group occupies one
+written quarter or eighth note, with 1–13 evenly spaced clicks represented by notes and
+tuplets. Select a group from a compact dropdown with a scrollable note list.
+The same dropdown is used in trainer stages and closes on selection; bars retain numeric
+wheels. Labels announce both the musical name and click count. This changes
+presentation and meter-aware duration: stages still store numeric click multipliers,
+all trainer intervals count complete bars, and stage changes occur at bar boundaries.
+Muted group states survive subdivision changes. Subdivision Trainer overrides
+group-only playback while enabled; disabling restores that preference.
 
 Wheels rotate horizontally with touch/mouse dragging and focused mouse/trackpad scrolling; arrow keys change one step, Page Up/Down ten, and Home/End select bounds. Grip texture and numbers move together; a square drum-key-style marker indicates the selected value. Animation is frame-batched and local to the wheel. Settings commit once on release or after 120 ms of scroll inactivity; keyboard steps commit immediately. Escape, touch cancellation, disabling or unmounting cancels pending gestures. Settings then follow the existing audio-engine bar-boundary rules. No audio engine or timer runs merely to animate an idle wheel.
 

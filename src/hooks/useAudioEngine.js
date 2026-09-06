@@ -16,6 +16,12 @@ export default function useAudioEngine(initialSettings) {
   useEffect(() => {
     engine.onStateChange((playing) => {
       setIsPlaying(playing)
+      setCurrentBeat(-1)
+      setCurrentSubdivision(-1)
+      if (playing) {
+        setCurrentBar(1)
+        setInGap(false)
+      }
       if (!playing) {
         setPolyBeat1(-1)
         setPolyBeat2(-1)

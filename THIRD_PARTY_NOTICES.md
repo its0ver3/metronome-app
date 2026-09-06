@@ -1,5 +1,14 @@
 # Third-party notices
 
+## Bravura subdivision notehead
+
+The musical subdivision UI contains the black notehead outline (uniE0A4)
+from Bravura, copyright © 2015 Steinberg Media Technologies GmbH, with Reserved
+Font Name "Bravura". Distributed under the SIL Open Font License 1.1.
+The complete license is retained in `src/assets/notation/OFL.txt`.
+
+Source: https://github.com/steinbergmedia/bravura/tree/master/redist
+
 ## Phosphor Icons
 
 The Metronome rhythm readout and tap-tempo interface use Phosphor Icons.

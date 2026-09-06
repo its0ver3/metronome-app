@@ -214,7 +214,7 @@ test('all trainer combinations render accessible, controlled switches, including
         assert.equal(fields[0].includes('disabled=""'), !enabled[1] || polyrhythmMode)
         assert.equal(fields[1].includes('disabled=""'), !enabled[2] || polyrhythmMode)
         const wheels = [...html.matchAll(/<div\b[^>]*role="spinbutton"[^>]*>/g)].map(([tag]) => tag)
-        assert.equal(wheels.length, 6 + 2 * stageCount)
+        assert.equal(wheels.length, 6 + stageCount)
         wheels.forEach((tag, index) => {
           const trainer = index < 2 ? 0 : index < 6 ? 1 : 2
           const unavailable = !enabled[trainer] || polyrhythmMode
@@ -305,9 +305,9 @@ test('subdivision preview highlights only the current playing stage, including r
       assert.equal(items.length, 4)
       items.forEach(([, attributes, content], index) => {
         assert.equal(attributes.includes('aria-current="step"'), enabled && isPlaying && !disabled && activeStageIndex === index)
-        assert.ok(content.includes(`>${counts[index]}</span>`))
+        assert.ok(content.includes(`data-subdivision="${counts[index]}"`))
       })
-      assert.equal((preview.match(/aria-hidden="true"/g) || []).length, 3)
+      assert.equal((preview.match(/class="pulse-trainer-sequence-arrow" aria-hidden="true"/g) || []).length, 3)
       assert.doesNotMatch(preview, /button|spinbutton/)
     }
   }

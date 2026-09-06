@@ -16,6 +16,7 @@ import {
   normalizeSoundIndex,
 } from './constants.js'
 import SoundBank from './SoundBank.js'
+import { normalizeMeter, meterGroups, meterAccents, writtenNoteSeconds } from './meter.js'
 
 export const TAP_TEMPO_FEEDBACK_FREQUENCIES = Object.freeze([
   261.63,
@@ -67,6 +68,8 @@ export default class AudioEngine {
     // Timing state
     this.bpm = DEFAULT_BPM
     this.beatsPerBar = DEFAULT_BEATS_PER_BAR
+    this.meter = normalizeMeter()
+    this._meterGroups = meterGroups(this.meter)
     this.subdivision = 1
     this.volume = 1.0
     this.soundIndex = 0
@@ -82,6 +85,8 @@ export default class AudioEngine {
     this._timerId = null
     this._visualTimerIds = new Set()
     this._soundSequence = 0
+    this._sources = new Set()
+    this._startGeneration = 0
 
     // Gap training
     this.gapEnabled = false
@@ -192,6 +197,8 @@ export default class AudioEngine {
 
   // --- Controls ---
   async start() {
+    if (this.isPlaying) return
+    const generation = ++this._startGeneration
     if (!this._ensureContext()) return
     if (!(await this._unlockAudio())) return
     if (!(await this.init())) return
@@ -206,7 +213,7 @@ export default class AudioEngine {
       if (this.ctx.state !== 'running') return
     }
 
-    if (this.isPlaying) return
+    if (this.isPlaying || generation !== this._startGeneration) return
 
     this.isPlaying = true
     this._tempoPreviewBpm = null
@@ -245,11 +252,14 @@ export default class AudioEngine {
   }
 
   stop() {
+    this._startGeneration++
     const wasPlaying = this.isPlaying
     this.isPlaying = false
     clearInterval(this._timerId)
     this._timerId = null
     this._clearVisualTimers()
+    for (const source of this._sources) { try { source.stop() } catch { /* Already ended. */ } }
+    this._sources.clear()
     if (wasPlaying) this._onStateChange?.(false)
   }
 
@@ -314,13 +324,31 @@ export default class AudioEngine {
   }
 
   setBeatsPerBar(beatsPerBar) {
-    this.beatsPerBar = beatsPerBar
-    this.subdivisionAccents = buildDefaultSubdivisionAccents(beatsPerBar, this.subdivision)
+    this.setMeter({ numerator: beatsPerBar, denominator: 4 })
+  }
+
+  setMeter(value) {
+    const next = normalizeMeter(value)
+    const sameGroups = this.meter.numerator === next.numerator && this.meter.denominator === next.denominator && this.meter.groups.join() === next.groups.join()
+    this.stop()
+    this.meter = next
+    this._meterGroups = meterGroups(next)
+    this.beatsPerBar = next.numerator
+    if (!sameGroups) this.subdivisionAccents = meterAccents(next, this.subdivision)
+    this._currentBeat = 0
+    this._currentSubdivision = 0
+    this._currentBar = 1
+    this._inGap = false
+    this._onGapChange?.(false)
   }
 
   setSubdivision(type) {
-    this.subdivision = type
-    this.subdivisionAccents = buildDefaultSubdivisionAccents(this.beatsPerBar, type)
+    const next = Number(type)
+    if (!SUBDIVISION_OPTIONS.some(option => option.type === next)) return
+    const previous = this.subdivisionAccents
+    const previousSubdivision = this.subdivision
+    this.subdivision = next
+    this.subdivisionAccents = meterAccents(this.meter, next, previous, previousSubdivision)
   }
 
   setSubdivisionAccent(index, level) {
@@ -348,7 +376,8 @@ export default class AudioEngine {
 
     const currentLevel = normalizeAccentLevel(this.subdivisionAccents[startIndex])
     const nextLevel = cycleAccentLevel(currentLevel)
-    const endIndex = Math.min(startIndex + this.subdivision, this.subdivisionAccents.length)
+    const group = this._meterGroups.find(item => item.start === beatIndex)
+    const endIndex = Math.min((group?.end ?? beatIndex + 1) * this.subdivision, this.subdivisionAccents.length)
 
     if (nextLevel === 'OFF') {
       // Muting from the orbit silences the complete beat, including subdivisions.
@@ -627,7 +656,8 @@ export default class AudioEngine {
   _scheduleNote(time) {
     const beatIndex = this._currentBeat
     const subIndex = this._currentSubdivision
-    const isMainBeat = subIndex === 0
+    const group = this._meterGroups.find(item => beatIndex >= item.start && beatIndex < item.end)
+    const isMainBeat = subIndex === 0 && beatIndex === group.start
     const isCycleDownbeat = beatIndex === 0 && isMainBeat
 
     // Look up per-click accent from subdivisionAccents
@@ -637,10 +667,11 @@ export default class AudioEngine {
 
     // Determine if in gap
     const inGap = this.gapEnabled && this._inGap
-    const shouldPlay = !inGap && accentVolume > 0
+    const groupOnly = this.meter.groupOnly && !this.subdivTrainerEnabled
+    const shouldPlay = !inGap && accentVolume > 0 && (!groupOnly || isMainBeat)
     const soundOptions = {
-      beatNumber: beatIndex + 1,
-      bpm: this.bpm,
+      beatNumber: group.index + 1,
+      bpm: 60 / (writtenNoteSeconds(this.meter, this.bpm) * group.length),
       sequenceIndex: this._soundSequence++,
     }
 
@@ -668,6 +699,7 @@ export default class AudioEngine {
       accent: accentLevel,
       downbeat: isCycleDownbeat,
       inGap,
+      group: group.index,
     }
     this._notifyAtAudioTime(time, () => this._onBeat?.(event))
   }
@@ -679,11 +711,13 @@ export default class AudioEngine {
     gain.gain.value = volume
     source.connect(gain)
     gain.connect(this._gainNode)
+    this._sources.add(source)
+    source.onended = () => { this._sources.delete(source); source.disconnect?.(); gain.disconnect?.() }
     source.start(time)
   }
 
   _advanceBeat() {
-    const secondsPerBeat = 60.0 / this.bpm
+    const secondsPerBeat = writtenNoteSeconds(this.meter, this.bpm)
     const secondsPerSubdivision = secondsPerBeat / this.subdivision
 
     this._nextNoteTime += secondsPerSubdivision
@@ -788,6 +822,7 @@ export default class AudioEngine {
       isPlaying: this.isPlaying,
       bpm: this.bpm,
       beatsPerBar: this.beatsPerBar,
+      meter: { ...this.meter, groups: [...this.meter.groups] },
       subdivision: this.subdivision,
       volume: this.volume,
       soundIndex: this.soundIndex,

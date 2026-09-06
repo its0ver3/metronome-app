@@ -5,6 +5,7 @@ import { getTempoColor } from '../metronome/tempoHeat'
 
 export default function TrainingScreen({
   bpm = 120,
+  meter,
   gapEnabled,
   gapClickBars,
   gapSilentBars,
@@ -53,6 +54,7 @@ export default function TrainingScreen({
           />
 
           <SubdivisionTrainer
+            denominator={meter?.denominator ?? 4}
             enabled={subdivTrainerEnabled}
             stages={subdivTrainerStages}
             activeStageIndex={subdivTrainerStageIndex}
