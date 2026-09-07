@@ -37,14 +37,9 @@ for (const [file, title] of [
 
     assert.ok(source.includes(`title="${title}"`))
     assert.match(source, /<TrainerCardHeader/)
-    if (file === 'GapTraining') {
-      assert.match(source, /metricsId="gap-trainer-settings"/)
-      assert.doesNotMatch(source, /pulse-stepper|pulse-trainer-settings-reveal/)
-    } else {
-      assert.match(source, /aria-hidden=\{!enabled\}/)
-      assert.match(source, /inert=\{!enabled \? true : undefined\}/)
-      assert.match(source, /pulse-trainer-settings-reveal/)
-    }
+    assert.match(source, /aria-hidden=\{!enabled\}/)
+    assert.match(source, /inert=\{!enabled \? true : undefined\}/)
+    assert.match(source, /pulse-trainer-settings-reveal/)
     assert.doesNotMatch(source, /(?:Timing|Tempo|Control) · 0[123]/)
   })
 }

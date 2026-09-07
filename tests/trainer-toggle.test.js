@@ -203,12 +203,12 @@ test('all trainer combinations render accessible, controlled switches, including
           assert.doesNotMatch(markup, />On<|>Off<|pulse-switch-track/)
         }
         const reveals = [...html.matchAll(/<div\b[^>]*pulse-trainer-settings-reveal[^>]*>/g)].map(([tag]) => tag)
-        assert.equal(reveals.length, 2)
+        assert.equal(reveals.length, 3)
         for (const [index, tag] of reveals.entries()) {
-          assert.ok(tag.includes(`id="${settingsIds[index + 1]}"`))
-          assert.equal(tag.includes('is-open'), enabled[index + 1])
-          assert.ok(tag.includes(`aria-hidden="${!enabled[index + 1]}"`))
-          assert.equal(tag.includes('inert=""'), !enabled[index + 1])
+          assert.ok(tag.includes(`id="${settingsIds[index]}"`))
+          assert.equal(tag.includes('is-open'), enabled[index])
+          assert.ok(tag.includes(`aria-hidden="${!enabled[index]}"`))
+          assert.equal(tag.includes('inert=""'), !enabled[index])
         }
         const fields = [...html.matchAll(/<fieldset\b[^>]*>/g)].map(([tag]) => tag)
         assert.equal(fields.length, 2)
@@ -243,7 +243,7 @@ test('inactive settings are inert and collapsed while their configured values re
     polyrhythmMode: false,
   }))
   const collapsedReveals = [...html.matchAll(/<div\b[^>]*pulse-trainer-settings-reveal[^>]*>/g)].map(([tag]) => tag)
-  assert.equal(collapsedReveals.length, 2)
+  assert.equal(collapsedReveals.length, 3)
   assert.ok(collapsedReveals.every((tag) => tag.includes('inert=""')))
   assert.ok(collapsedReveals.every((tag) => tag.includes('aria-hidden="true"')))
   assert.ok(html.includes('aria-valuenow="80"') && html.includes('aria-valuenow="140"'))
