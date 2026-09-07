@@ -492,19 +492,30 @@ input[type="number"] {
 .pulse-orbit-segment-surface.is-active {
   transition-duration: 0ms;
   opacity: 1;
-  filter: brightness(1.42) drop-shadow(0 0 5px color-mix(in srgb, var(--pulse-segment-color) 88%, transparent));
+  /* The beat must remain legible without SVG filters or a visible glow. */
+  fill: #fff;
+  fill: color-mix(in srgb, var(--pulse-segment-color) 22%, white);
+  stroke: #fff;
+  stroke-width: 1;
+  filter: none;
 }
 
-.pulse-metronome-screen[data-tempo-heat="fire"] .pulse-orbit-segment-surface.accent-accent {
+/* Keep muted beats hollow so playback does not obscure the accent setting. */
+.pulse-orbit-segment-surface.accent-off.is-active {
+  fill: var(--pulse-orbit-canvas);
+}
+
+.pulse-metronome-screen.is-playing .pulse-orbit-segment-surface:not(.is-active):not(.accent-off) {
+  opacity: 0.42;
+}
+
+/* Decorative keyframes must not override the fill of the current beat. */
+.pulse-metronome-screen[data-tempo-heat="fire"]:not(.is-playing) .pulse-orbit-segment-surface.accent-accent {
   opacity: 0.88;
   animation: pulse-fire-flicker 620ms ease-in-out infinite;
 }
 
-.pulse-metronome-screen[data-tempo-heat="fire"] .pulse-orbit-segment-surface.accent-accent.is-active {
-  opacity: 1;
-}
-
-.pulse-metronome-screen[data-tempo-heat="fire"] .pulse-orbit-segment-surface.accent-accent.rhythm-two {
+.pulse-metronome-screen[data-tempo-heat="fire"]:not(.is-playing) .pulse-orbit-segment-surface.accent-accent.rhythm-two {
   animation-name: pulse-cool-fire-flicker;
 }
 

@@ -26,7 +26,7 @@ const SAMPLE_DEFINITIONS = {
   shaker: {
     soft: numberedSamples('freepats/shaker-soft'),
     main: numberedSamples('freepats/shaker-main'),
-    accent: numberedSamples('freepats/shaker-accent'),
+    accent: ['freepats/shaker-accent-1.wav'],
   },
   tambourine: {
     soft: numberedSamples('freepats/tamb-soft'),
