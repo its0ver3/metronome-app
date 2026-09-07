@@ -1,0 +1,55 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Metronome timing measurement</title>
+<style>body{font:17px system-ui;margin:32px;max-width:950px;background:#151515;color:#eee}button{font:inherit;padding:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere}progress{width:100%}</style>
+<h1>10-minute metronome measurement</h1>
+<p>137 BPM, quarter notes, Classic Click. Measures rendered digital click onsets against the audio sample clock; does not measure speakers, Bluetooth, or an external reference clock.</p>
+<button id="start">Start 10-minute measurement</button> <button id="stop" disabled>Stop</button>
+<p id="status">Ready. Digital audio timing test.</p><progress max="600" value="0"></progress>
+<pre id="result"></pre>
+<script type="module">
+import AudioEngine from '../../src/audio/BrowserAudioEngine.js'
+import FallbackEngine from '../../src/audio/AudioEngine.js'
+import BaselineEngine from '../../docs/audio-timing-evidence/baseline-source/AudioEngine.js'
+const query = new URLSearchParams(location.search)
+const seconds = Number(query.get('seconds')) || 600
+const stress = query.has('stress')
+const frames = [], scheduled = [], stalls = [], states = []
+let e, probe, timer, stressTimer, startAudio, wallStart, rate, finished = false
+const result = document.querySelector('#result'), status = document.querySelector('#status')
+const stats = values => ({ min:Math.min(...values), max:Math.max(...values), mean:values.reduce((a,b)=>a+b,0)/values.length })
+function summary() {
+ const interval=60/137, first=frames[0], valid=frames.filter(f=>(f-first)/rate<seconds-1e-7)
+ const errors=valid.map((f,i)=>((f-first)/rate-i*interval)*1000)
+ const intervalErrors=valid.slice(1).map((f,i)=>((f-valid[i])/rate-interval)*1000)
+ return {label:query.get('label')||'baseline',durationSeconds:seconds,bpm:137,backend:e?.timingBackend||'buffer-source',sampleRate:rate,
+  renderedClicks:valid.length,expectedClicks:Math.ceil(seconds*137/60-1e-8),firstFrame:first,lastFrame:valid.at(-1),
+  endPhaseErrorMs:errors.at(-1),maxAbsPhaseErrorMs:Math.max(...errors.map(Math.abs)),intervalErrorMs:stats(intervalErrors),
+  scheduledClicks:e.timingBackend==='audio-worklet'?null:scheduled.length,
+  lateScheduledClicks:e.timingBackend==='audio-worklet'?null:scheduled.filter(n=>n.time<n.now).length,
+  elapsedAudioSeconds:e.ctx.currentTime-startAudio,elapsedWallSeconds:(performance.now()-wallStart)/1000,states,stalls}
+}
+function finish(cancelled = false) {
+ if(finished)return;finished=true;clearInterval(timer);clearInterval(stressTimer);e.stop()
+ status.textContent=cancelled?'Cancelled':'Complete';result.textContent=JSON.stringify({summary:{...summary(),completed:!cancelled},renderedFrames:frames,scheduled},null,2)
+ document.querySelector('#stop').disabled=true
+}
+document.querySelector('#start').onclick=async()=>{
+ try {
+ document.querySelector('#start').disabled=true;e=query.has('baseline')?new BaselineEngine():query.has('fallback')?new FallbackEngine():new AudioEngine();e.setBpm(137);e.setVolume(.1)
+ await e._unlockAudio();await e.init();rate=e.ctx.sampleRate
+ await e.ctx.audioWorklet.addModule(new URL('./observe-worklet.js',import.meta.url))
+ probe=new AudioWorkletNode(e.ctx,'observe-clicks');probe.port.onmessage=({data})=>frames.push(data.frame)
+ e._gainNode.connect(probe);probe.connect(e.ctx.destination)
+ e.ctx.addEventListener('statechange',()=>states.push({state:e.ctx.state,time:e.ctx.currentTime}))
+ const play=e._playSound.bind(e);e._playSound=(buffer,time,...rest)=>{scheduled.push({time,now:e.ctx.currentTime});play(buffer,time,...rest)}
+ await e.start();startAudio=e.ctx.currentTime;wallStart=performance.now();document.querySelector('#stop').disabled=false
+ status.textContent='Running';document.querySelector('progress').max=seconds
+ timer=setInterval(()=>{
+  const elapsed=e.ctx.currentTime-startAudio;document.querySelector('progress').value=elapsed
+  status.textContent=`Running: ${elapsed.toFixed(1)} / ${seconds} seconds; ${frames.length} rendered clicks; audio ${e.ctx.state}`
+  if(elapsed>=seconds+.1)finish()
+ },250)
+ if(stress)stressTimer=setInterval(()=>{const begin=performance.now(),audio=e.ctx.currentTime;while(performance.now()-begin<200){}stalls.push({audio,durationMs:performance.now()-begin})},2000)
+ }catch(error){status.textContent='Error: '+error.stack}
+}
+document.querySelector('#stop').onclick=()=>finish(true)
+</script></html>

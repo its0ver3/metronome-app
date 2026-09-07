@@ -8,9 +8,7 @@ export default function VolumeControl({ volume, onChange }) {
     <section className="pulse-panel pulse-volume-card">
       <header className="pulse-panel-header">
         <div className="pulse-panel-copy">
-          <span>Output</span>
           <h2>Volume</h2>
-          <p>Set a comfortable level for speakers or headphones.</p>
         </div>
         <strong className="pulse-volume-value" aria-hidden="true">{percent}%</strong>
       </header>
@@ -24,6 +22,7 @@ export default function VolumeControl({ volume, onChange }) {
         aria-label="Volume"
         aria-valuetext={`${percent} percent`}
         className="pulse-volume-slider"
+        style={{ '--volume-progress': `${percent}%` }}
       />
     </section>
   )

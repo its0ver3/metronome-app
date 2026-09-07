@@ -299,12 +299,14 @@ test('recorded and spoken sounds lazy-load the right production assets', async (
     assert.match(soundBank.getDownbeatBuffer(3), /cowbell-accent\.wav$/)
 
     await soundBank.prepareSound(7)
-    assert.equal(fetched.length, 84)
+    assert.equal(fetched.length, 89)
     assert.match(
       soundBank.getBuffer(7, { beatNumber: 16, bpm: 300 }),
       /voice-male\/max-16\.wav$/,
     )
     assert.match(soundBank.getSubdivisionBuffer(7), /wood-soft\.wav$/)
+    assert.match(soundBank.getSubdivisionBuffer(7,{spokenAnd:true,bpm:100}), /voice-male\/and\.wav$/)
+    assert.match(soundBank.getSubdivisionBuffer(7,{spokenAnd:true,bpm:300}), /voice-male\/max-and\.wav$/)
   } finally {
     globalThis.fetch = previousFetch
   }

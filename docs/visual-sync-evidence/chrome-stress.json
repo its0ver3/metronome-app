@@ -1,0 +1,3575 @@
+{
+  "summary": {
+    "label": "chrome-stress",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+    "durationSeconds": 30,
+    "completed": true,
+    "backend": "audio-worklet",
+    "sampleRate": 48000,
+    "baseLatency": 0.005333333333333333,
+    "outputLatency": 0.008,
+    "receivedBeats": 69,
+    "renderedClicks": 69,
+    "expectedClicks": 69,
+    "maxAudioPhaseErrorMs": 0.010340632602634514,
+    "missedOrbitFrames": 0,
+    "orbitFrameMinusCallbackMs": {
+      "count": 67,
+      "min": 1.0999999046325684,
+      "median": 7.200000047683716,
+      "p95": 16.199999809265137,
+      "max": 210.59999990463257
+    },
+    "callbackMinusEstimatedOutputMs": {
+      "count": 67,
+      "min": -16.1022847192653,
+      "median": -13.41515333235293,
+      "p95": 82.46349143649786,
+      "max": 156.25019211874496
+    },
+    "orbitFrameMinusEstimatedOutputMs": {
+      "count": 67,
+      "min": -13.759496350361587,
+      "median": -3.8570875912409974,
+      "p95": 101.74736510655566,
+      "max": 199.05681255666423
+    },
+    "orbitFullOpacityMinusFirstFrameMs": {
+      "count": 67,
+      "min": 71.20000004768372,
+      "median": 83.40000009536743,
+      "p95": 100,
+      "max": 277.2000000476837
+    },
+    "flashFrameMinusEstimatedOutputMs": {
+      "count": 67,
+      "min": -13.759496350361587,
+      "median": -3.626099804376281,
+      "p95": 101.74736510655566,
+      "max": 199.05681255666423
+    },
+    "cssTransition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+    "stalls": 15,
+    "visibility": [],
+    "errors": [],
+    "caveat": "Frame callback observes DOM/style before paint; output timestamp is a browser estimate. Not a measurement of display photons or physical audio."
+  },
+  "beats": [
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 1,
+      "time": 0.05,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 8376.899999856949,
+      "receivedContextTime": 0.05333333333333334,
+      "estimatedOutputAtReceipt": 8389.639999856949,
+      "firstFrame": 8378,
+      "estimatedOutputAtFrame": 8389.639999856949,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 8461.5
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 1,
+      "time": 0.48795620437956205,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 8814.399999856949,
+      "receivedContextTime": 0.488,
+      "estimatedOutputAtReceipt": 8827.557871093912,
+      "firstFrame": 8827.399999856949,
+      "estimatedOutputAtFrame": 8827.59120423651,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 8911.5
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 1,
+      "time": 0.9259124087591242,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 9251.5,
+      "receivedContextTime": 0.928,
+      "estimatedOutputAtReceipt": 9265.59774199709,
+      "firstFrame": 9262.5,
+      "estimatedOutputAtFrame": 9265.534075473475,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 9345
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 1,
+      "time": 1.3638686131386861,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 9689.399999856949,
+      "receivedContextTime": 1.3653333333333333,
+      "estimatedOutputAtReceipt": 9703.515612995634,
+      "firstFrame": 9695,
+      "estimatedOutputAtFrame": 9703.483279853037,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 9778.299999952316
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 2,
+      "time": 1.801824817518248,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 10126.099999904633,
+      "receivedContextTime": 1.8026666666666666,
+      "estimatedOutputAtReceipt": 10141.412484232598,
+      "firstFrame": 10128,
+      "estimatedOutputAtFrame": 10141.412484232598,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 10211
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 2,
+      "time": 2.23978102189781,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 10563.599999904633,
+      "receivedContextTime": 2.24,
+      "estimatedOutputAtReceipt": 10579.464355135777,
+      "firstFrame": 10578.399999856949,
+      "estimatedOutputAtFrame": 10579.483688516793,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 10661.700000047684
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 2,
+      "time": 2.677737226277372,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 11006.200000047684,
+      "receivedContextTime": 2.68,
+      "estimatedOutputAtReceipt": 11017.348892991722,
+      "firstFrame": 11012,
+      "estimatedOutputAtFrame": 11017.318559610705,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 11094.899999856949
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 2,
+      "time": 3.115693430656934,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 11443.5,
+      "receivedContextTime": 3.1173333333333333,
+      "estimatedOutputAtReceipt": 11455.3717638949,
+      "firstFrame": 11444.899999856949,
+      "estimatedOutputAtFrame": 11455.3717638949,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 11528.299999952316
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 3,
+      "time": 3.553649635036496,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 11990.5,
+      "receivedContextTime": 3.664,
+      "estimatedOutputAtReceipt": 11893.24296836983,
+      "firstFrame": 11995,
+      "estimatedOutputAtFrame": 11893.252634893444,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 12094.899999856949
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 3,
+      "time": 3.991605839416058,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 12318.099999904633,
+      "receivedContextTime": 3.992,
+      "estimatedOutputAtReceipt": 12331.223506130409,
+      "firstFrame": 12328.200000047684,
+      "estimatedOutputAtFrame": 12331.238839273006,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 12411.899999856949
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 3,
+      "time": 4.42956204379562,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 12755.599999904633,
+      "receivedContextTime": 4.432,
+      "estimatedOutputAtReceipt": 12769.238377033585,
+      "firstFrame": 12762.200000047684,
+      "estimatedOutputAtFrame": 12769.215043652568,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 12844.899999856949
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 3,
+      "time": 4.867518248175182,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 13192.700000047684,
+      "receivedContextTime": 4.8693333333333335,
+      "estimatedOutputAtReceipt": 13207.15024803213,
+      "firstFrame": 13194.899999856949,
+      "estimatedOutputAtFrame": 13207.15024803213,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 13278.299999952316
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 4,
+      "time": 5.305474452554744,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 13630.299999952316,
+      "receivedContextTime": 5.306666666666667,
+      "estimatedOutputAtReceipt": 13645.076119269095,
+      "firstFrame": 13644.899999856949,
+      "estimatedOutputAtFrame": 13645.02245250706,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 13728.200000047684
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 4,
+      "time": 5.743430656934306,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 14067.299999952316,
+      "receivedContextTime": 5.744,
+      "estimatedOutputAtReceipt": 14083.01299026764,
+      "firstFrame": 14078.099999904633,
+      "estimatedOutputAtFrame": 14083.040323648656,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 14161.599999904633
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 4,
+      "time": 6.181386861313868,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 14510,
+      "receivedContextTime": 6.184,
+      "estimatedOutputAtReceipt": 14520.997528028218,
+      "firstFrame": 14512.299999952316,
+      "estimatedOutputAtFrame": 14520.997528028218,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 14594.599999904633
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 4,
+      "time": 6.61934306569343,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 14947.399999856949,
+      "receivedContextTime": 6.621333333333333,
+      "estimatedOutputAtReceipt": 14958.999398931395,
+      "firstFrame": 14961.700000047684,
+      "estimatedOutputAtFrame": 14958.95073240778,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 15044.599999904633
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 5,
+      "time": 7.057299270072992,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 15384.599999904633,
+      "receivedContextTime": 7.061333333333334,
+      "estimatedOutputAtReceipt": 15396.952269929941,
+      "firstFrame": 15394.899999856949,
+      "estimatedOutputAtFrame": 15396.863603406326,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 15478.200000047684
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 5,
+      "time": 7.495255474452554,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 15991.099999904633,
+      "receivedContextTime": 7.664,
+      "estimatedOutputAtReceipt": 15834.849807785888,
+      "firstFrame": 15995,
+      "estimatedOutputAtFrame": 15834.863474309503,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 16094.700000047684
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 5,
+      "time": 7.933211678832116,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 16259.399999856949,
+      "receivedContextTime": 7.933333333333334,
+      "estimatedOutputAtReceipt": 16272.868012070083,
+      "firstFrame": 16262.5,
+      "estimatedOutputAtFrame": 16272.868012070083,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 16345.099999904633
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 5,
+      "time": 8.371167883211678,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 16696.799999952316,
+      "receivedContextTime": 8.373333333333333,
+      "estimatedOutputAtReceipt": 16710.820883068627,
+      "firstFrame": 16712.299999952316,
+      "estimatedOutputAtFrame": 16710.844216449645,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 16794.89999985695
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 6,
+      "time": 8.80912408759124,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 17134.5,
+      "receivedContextTime": 8.810666666666666,
+      "estimatedOutputAtReceipt": 17148.72475430559,
+      "firstFrame": 17144.89999985695,
+      "estimatedOutputAtFrame": 17148.75708744819,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 17227.599999904633
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 6,
+      "time": 9.247080291970802,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 17571.5,
+      "receivedContextTime": 9.248,
+      "estimatedOutputAtReceipt": 17586.652625304134,
+      "firstFrame": 17578.200000047684,
+      "estimatedOutputAtFrame": 17586.73129182775,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 17660.799999952316
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 6,
+      "time": 9.685036496350364,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 18008.599999904633,
+      "receivedContextTime": 9.685333333333332,
+      "estimatedOutputAtReceipt": 18024.65949620731,
+      "firstFrame": 18010.89999985695,
+      "estimatedOutputAtFrame": 18024.65949620731,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 18094.599999904633
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 6,
+      "time": 10.122992700729926,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 18451.39999985695,
+      "receivedContextTime": 10.125333333333334,
+      "estimatedOutputAtReceipt": 18462.57403406326,
+      "firstFrame": 18462.39999985695,
+      "estimatedOutputAtFrame": 18462.594367444275,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 18545
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 7,
+      "time": 10.560948905109488,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 18889,
+      "receivedContextTime": 10.565333333333333,
+      "estimatedOutputAtReceipt": 18900.588904966437,
+      "firstFrame": 18894.89999985695,
+      "estimatedOutputAtFrame": 18900.56857182384,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 18978.299999952316
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 7,
+      "time": 10.99890510948905,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 19326.099999904633,
+      "receivedContextTime": 11,
+      "estimatedOutputAtReceipt": 19338.588776108034,
+      "firstFrame": 19328.200000047684,
+      "estimatedOutputAtFrame": 19338.588776108034,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 19410.799999952316
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 7,
+      "time": 11.436861313868611,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 19763.39999985695,
+      "receivedContextTime": 11.437333333333333,
+      "estimatedOutputAtReceipt": 19776.439647201947,
+      "firstFrame": 19778.200000047684,
+      "estimatedOutputAtFrame": 19776.46998058296,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 19991
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 7,
+      "time": 11.874817518248173,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 20200.89999985695,
+      "receivedContextTime": 11.877333333333333,
+      "estimatedOutputAtReceipt": 20214.46451810512,
+      "firstFrame": 20212.39999985695,
+      "estimatedOutputAtFrame": 20214.394851581506,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 20294.200000047684
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 8,
+      "time": 12.312773722627735,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 20638.099999904633,
+      "receivedContextTime": 12.314666666666668,
+      "estimatedOutputAtReceipt": 20652.376389342087,
+      "firstFrame": 20644.799999952316,
+      "estimatedOutputAtFrame": 20652.35205596107,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 20728.200000047684
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 8,
+      "time": 12.750729927007297,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 21075.39999985695,
+      "receivedContextTime": 12.752,
+      "estimatedOutputAtReceipt": 21090.31526034063,
+      "firstFrame": 21078.200000047684,
+      "estimatedOutputAtFrame": 21090.31526034063,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 21161.799999952316
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 8,
+      "time": 13.18868613138686,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 21512.599999904633,
+      "receivedContextTime": 13.189333333333334,
+      "estimatedOutputAtReceipt": 21528.32913124381,
+      "firstFrame": 21528.299999952316,
+      "estimatedOutputAtFrame": 21528.31813124381,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 21611.799999952316
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 8,
+      "time": 13.626642335766421,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 21990.5,
+      "receivedContextTime": 13.664,
+      "estimatedOutputAtReceipt": 21966.235669099755,
+      "firstFrame": 21994.89999985695,
+      "estimatedOutputAtFrame": 21966.14933571874,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 22094.700000047684
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 9,
+      "time": 14.064598540145983,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 22393,
+      "receivedContextTime": 14.069333333333333,
+      "estimatedOutputAtReceipt": 22404.191540002932,
+      "firstFrame": 22394.099999904633,
+      "estimatedOutputAtFrame": 22404.191540002932,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 22478.099999904633
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 9,
+      "time": 14.502554744525545,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 22830.099999904633,
+      "receivedContextTime": 14.504,
+      "estimatedOutputAtReceipt": 22842.169411239895,
+      "firstFrame": 22844.799999952316,
+      "estimatedOutputAtFrame": 22842.20174438249,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 22928.200000047684
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 9,
+      "time": 14.940510948905107,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 23267.200000047684,
+      "receivedContextTime": 14.941333333333333,
+      "estimatedOutputAtReceipt": 23280.092282238442,
+      "firstFrame": 23278.200000047684,
+      "estimatedOutputAtFrame": 23280.123615619457,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 23361.799999952316
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 9,
+      "time": 15.378467153284669,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 23704.599999904633,
+      "receivedContextTime": 15.378666666666666,
+      "estimatedOutputAtReceipt": 23718.015153236985,
+      "firstFrame": 23712.5,
+      "estimatedOutputAtFrame": 23717.984819855967,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 23989.700000047684
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 10,
+      "time": 15.816423357664231,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 24141.89999985695,
+      "receivedContextTime": 15.818666666666667,
+      "estimatedOutputAtReceipt": 24156.04202437858,
+      "firstFrame": 24144.700000047684,
+      "estimatedOutputAtFrame": 24156.04202437858,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 24228.099999904633
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 10,
+      "time": 16.254379562043795,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 24579.5,
+      "receivedContextTime": 16.256,
+      "estimatedOutputAtReceipt": 24593.953895377126,
+      "firstFrame": 24594.799999952316,
+      "estimatedOutputAtFrame": 24593.97089537713,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 24678.200000047684
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 10,
+      "time": 16.69233576642336,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 25016.89999985695,
+      "receivedContextTime": 16.69333333333333,
+      "estimatedOutputAtReceipt": 25031.862766375678,
+      "firstFrame": 25028.299999952316,
+      "estimatedOutputAtFrame": 25031.926099756693,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 25111.799999952316
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 10,
+      "time": 17.130291970802922,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 25454.200000047684,
+      "receivedContextTime": 17.130666666666666,
+      "estimatedOutputAtReceipt": 25469.903637517273,
+      "firstFrame": 25461,
+      "estimatedOutputAtFrame": 25469.864304136256,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 25544.89999985695
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 11,
+      "time": 17.568248175182486,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 25990.299999952316,
+      "receivedContextTime": 17.664,
+      "estimatedOutputAtReceipt": 25907.83650851582,
+      "firstFrame": 25995,
+      "estimatedOutputAtFrame": 25907.871175039436,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 26094.599999904633
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 11,
+      "time": 18.00620437956205,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 26333.89999985695,
+      "receivedContextTime": 18.008,
+      "estimatedOutputAtReceipt": 26345.8230462764,
+      "firstFrame": 26344.89999985695,
+      "estimatedOutputAtFrame": 26345.849379419,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 26428.200000047684
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 11,
+      "time": 18.444160583941613,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 26771.39999985695,
+      "receivedContextTime": 18.445333333333334,
+      "estimatedOutputAtReceipt": 26783.739917274946,
+      "firstFrame": 26778.200000047684,
+      "estimatedOutputAtFrame": 26783.71458389393,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 26861.099999904633
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 11,
+      "time": 18.882116788321177,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 27208.89999985695,
+      "receivedContextTime": 18.882666666666665,
+      "estimatedOutputAtReceipt": 27221.656788273496,
+      "firstFrame": 27212.39999985695,
+      "estimatedOutputAtFrame": 27221.656788273496,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 27294.599999904633
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 12,
+      "time": 19.32007299270074,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 27646.200000047684,
+      "receivedContextTime": 19.322666666666667,
+      "estimatedOutputAtReceipt": 27659.584659272037,
+      "firstFrame": 27662.39999985695,
+      "estimatedOutputAtFrame": 27659.670659415093,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 27744.89999985695
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 12,
+      "time": 19.758029197080305,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 28083.200000047684,
+      "receivedContextTime": 19.76,
+      "estimatedOutputAtReceipt": 28097.59153041364,
+      "firstFrame": 28094.599999904633,
+      "estimatedOutputAtFrame": 28097.545863651605,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 28178
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 12,
+      "time": 20.19598540145987,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 28520.89999985695,
+      "receivedContextTime": 20.197333333333333,
+      "estimatedOutputAtReceipt": 28535.534401412184,
+      "firstFrame": 28527.200000047684,
+      "estimatedOutputAtFrame": 28535.59706817422,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 28611.599999904633
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 12,
+      "time": 20.633941605839432,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 28958,
+      "receivedContextTime": 20.634666666666668,
+      "estimatedOutputAtReceipt": 28973.457272410727,
+      "firstFrame": 28962.299999952316,
+      "estimatedOutputAtFrame": 28973.457272410727,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 29043.799999952316
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 13,
+      "time": 21.071897810218996,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 29395.700000047684,
+      "receivedContextTime": 21.072,
+      "estimatedOutputAtReceipt": 29411.47814355233,
+      "firstFrame": 29412.200000047684,
+      "estimatedOutputAtFrame": 29411.47814355233,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 29494.700000047684
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 13,
+      "time": 21.50985401459856,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 29990.099999904633,
+      "receivedContextTime": 21.664,
+      "estimatedOutputAtReceipt": 29849.441347931894,
+      "firstFrame": 29994.89999985695,
+      "estimatedOutputAtFrame": 29849.365014550873,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 30094.599999904633
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 13,
+      "time": 21.947810218978123,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 30275.299999952316,
+      "receivedContextTime": 21.949333333333332,
+      "estimatedOutputAtReceipt": 30287.37355231146,
+      "firstFrame": 30278.200000047684,
+      "estimatedOutputAtFrame": 30287.37355231146,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 30361.700000047684
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 13,
+      "time": 22.385766423357687,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 30712.700000047684,
+      "receivedContextTime": 22.386666666666667,
+      "estimatedOutputAtReceipt": 30725.314423310003,
+      "firstFrame": 30728.200000047684,
+      "estimatedOutputAtFrame": 30725.320423310004,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 30811.700000047684
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 14,
+      "time": 22.82372262773725,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 31150.099999904633,
+      "receivedContextTime": 22.826666666666668,
+      "estimatedOutputAtReceipt": 31163.322294451602,
+      "firstFrame": 31162,
+      "estimatedOutputAtFrame": 31163.270627689566,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 31244.89999985695
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 14,
+      "time": 23.261678832116814,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 31587.599999904633,
+      "receivedContextTime": 23.264,
+      "estimatedOutputAtReceipt": 31601.26216545015,
+      "firstFrame": 31594.799999952316,
+      "estimatedOutputAtFrame": 31601.22183206913,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 31678.200000047684
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 14,
+      "time": 23.699635036496378,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 32024.5,
+      "receivedContextTime": 23.701333333333334,
+      "estimatedOutputAtReceipt": 32039.169036448693,
+      "firstFrame": 32028,
+      "estimatedOutputAtFrame": 32039.169036448693,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 32111.39999985695
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 14,
+      "time": 24.137591240875942,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 32462,
+      "receivedContextTime": 24.138666666666666,
+      "estimatedOutputAtReceipt": 32477.091907447244,
+      "firstFrame": 32478.299999952316,
+      "estimatedOutputAtFrame": 32477.21290759029,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 32561.799999952316
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 15,
+      "time": 24.575547445255506,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 32899.5,
+      "receivedContextTime": 24.576,
+      "estimatedOutputAtReceipt": 32915.111778588835,
+      "firstFrame": 32912.59999990463,
+      "estimatedOutputAtFrame": 32915.17311196985,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 32994.299999952316
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 15,
+      "time": 25.01350364963507,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 33341.89999985695,
+      "receivedContextTime": 25.016,
+      "estimatedOutputAtReceipt": 33353.117316349424,
+      "firstFrame": 33344.799999952316,
+      "estimatedOutputAtFrame": 33353.117316349424,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 33428.200000047684
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 15,
+      "time": 25.451459854014633,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 33779.5,
+      "receivedContextTime": 25.453333333333333,
+      "estimatedOutputAtReceipt": 33791.048187347966,
+      "firstFrame": 33990.09999990463,
+      "estimatedOutputAtFrame": 33791.04318734797,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 34061.299999952316
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 15,
+      "time": 25.889416058394197,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 34216.700000047684,
+      "receivedContextTime": 25.893333333333334,
+      "estimatedOutputAtReceipt": 34228.95605834651,
+      "firstFrame": 34228.299999952316,
+      "estimatedOutputAtFrame": 34228.895391584476,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 34311.700000047684
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 16,
+      "time": 26.32737226277376,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 34654.200000047684,
+      "receivedContextTime": 26.330666666666666,
+      "estimatedOutputAtReceipt": 34666.87792934506,
+      "firstFrame": 34662.09999990463,
+      "estimatedOutputAtFrame": 34666.944596107096,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 34744.89999985695
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 16,
+      "time": 26.765328467153324,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 35091.200000047684,
+      "receivedContextTime": 26.765333333333334,
+      "estimatedOutputAtReceipt": 35104.913800486655,
+      "firstFrame": 35094.799999952316,
+      "estimatedOutputAtFrame": 35104.913800486655,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 35177.299999952316
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 16,
+      "time": 27.203284671532888,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 35528.700000047684,
+      "receivedContextTime": 27.205333333333332,
+      "estimatedOutputAtReceipt": 35542.812671485204,
+      "firstFrame": 35544.799999952316,
+      "estimatedOutputAtFrame": 35542.8156714852,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 35628.299999952316
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 16,
+      "time": 27.64124087591245,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 35989.799999952316,
+      "receivedContextTime": 27.664,
+      "estimatedOutputAtReceipt": 35980.831209245785,
+      "firstFrame": 35993.799999952316,
+      "estimatedOutputAtFrame": 35980.8418757694,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 36093.799999952316
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 17,
+      "time": 28.079197080292015,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 36403.59999990463,
+      "receivedContextTime": 28.08,
+      "estimatedOutputAtReceipt": 36418.77941362535,
+      "firstFrame": 36412.5,
+      "estimatedOutputAtFrame": 36418.726080244334,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 36494.799999952316
+    },
+    {
+      "beat": 1,
+      "subdivision": 0,
+      "bar": 17,
+      "time": 28.51715328467158,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 1,
+      "received": 36840.59999990463,
+      "receivedContextTime": 28.517333333333333,
+      "estimatedOutputAtReceipt": 36856.7022846239,
+      "firstFrame": 36844.799999952316,
+      "estimatedOutputAtFrame": 36856.67095124288,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 36928.59999990463
+    },
+    {
+      "beat": 2,
+      "subdivision": 0,
+      "bar": 17,
+      "time": 28.955109489051143,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 2,
+      "received": 37283.39999985695,
+      "receivedContextTime": 28.96,
+      "estimatedOutputAtReceipt": 37294.670822384476,
+      "firstFrame": 37294.799999952316,
+      "estimatedOutputAtFrame": 37294.732155765494,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 37378.200000047684
+    },
+    {
+      "beat": 3,
+      "subdivision": 0,
+      "bar": 17,
+      "time": 29.393065693430707,
+      "accent": "ACCENT",
+      "downbeat": false,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 3,
+      "received": 37720.799999952316,
+      "receivedContextTime": 29.394666666666666,
+      "estimatedOutputAtReceipt": 37732.61069338302,
+      "firstFrame": 37728.200000047684,
+      "estimatedOutputAtFrame": 37732.568360002006,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 37990.59999990463
+    },
+    {
+      "beat": 0,
+      "subdivision": 0,
+      "bar": 18,
+      "time": 29.83102189781027,
+      "accent": "ACCENT",
+      "downbeat": true,
+      "inGap": false,
+      "visualPulse": true,
+      "gapPattern": "silence",
+      "gapEnabled": false,
+      "trainerPlayback": {
+        "tempo": {
+          "enabled": false,
+          "bar": 1,
+          "bars": 4,
+          "target": 120,
+          "reached": false
+        },
+        "subdivision": {
+          "enabled": false,
+          "index": 0,
+          "bar": 1,
+          "stage": {
+            "subdivision": 1,
+            "bars": 2
+          }
+        }
+      },
+      "gapBar": 1,
+      "gapBars": 2,
+      "displaySubdivision": 0,
+      "group": 0,
+      "received": 38158,
+      "receivedContextTime": 29.834666666666667,
+      "estimatedOutputAtReceipt": 38170.53556438157,
+      "firstFrame": 38161.59999990463,
+      "estimatedOutputAtFrame": 38170.53556438157,
+      "firstFrameOpacity": 0.94,
+      "transition": "fill 0.12s linear, opacity 0.09s, filter 0.09s",
+      "fullOpacityFrame": 38244.700000047684
+    }
+  ],
+  "flashes": [
+    {
+      "time": 0.05,
+      "initiated": 8377.799999952316,
+      "beat": 0,
+      "firstFrame": 8378,
+      "estimatedOutputAtFrame": 8389.639999856949
+    },
+    {
+      "time": 0.48795620437956205,
+      "initiated": 8817,
+      "beat": 1,
+      "firstFrame": 8827.399999856949,
+      "estimatedOutputAtFrame": 8827.59120423651
+    },
+    {
+      "time": 0.9259124087591242,
+      "initiated": 9253.299999952316,
+      "beat": 2,
+      "firstFrame": 9262.5,
+      "estimatedOutputAtFrame": 9265.534075473475
+    },
+    {
+      "time": 1.3638686131386861,
+      "initiated": 9691.899999856949,
+      "beat": 3,
+      "firstFrame": 9695,
+      "estimatedOutputAtFrame": 9703.483279853037
+    },
+    {
+      "time": 1.801824817518248,
+      "initiated": 10126.799999952316,
+      "beat": 0,
+      "firstFrame": 10128,
+      "estimatedOutputAtFrame": 10141.412484232598
+    },
+    {
+      "time": 2.23978102189781,
+      "initiated": 10565.799999952316,
+      "beat": 1,
+      "firstFrame": 10578.399999856949,
+      "estimatedOutputAtFrame": 10579.483688516793
+    },
+    {
+      "time": 2.677737226277372,
+      "initiated": 11008.5,
+      "beat": 2,
+      "firstFrame": 11012,
+      "estimatedOutputAtFrame": 11017.318559610705
+    },
+    {
+      "time": 3.115693430656934,
+      "initiated": 11447,
+      "beat": 3,
+      "firstFrame": 11461.099999904633,
+      "estimatedOutputAtFrame": 11455.3587638949
+    },
+    {
+      "time": 3.553649635036496,
+      "initiated": 11991.299999952316,
+      "beat": 0,
+      "firstFrame": 11995,
+      "estimatedOutputAtFrame": 11893.252634893444
+    },
+    {
+      "time": 3.991605839416058,
+      "initiated": 12319.5,
+      "beat": 1,
+      "firstFrame": 12328.200000047684,
+      "estimatedOutputAtFrame": 12331.238839273006
+    },
+    {
+      "time": 4.42956204379562,
+      "initiated": 12757.099999904633,
+      "beat": 2,
+      "firstFrame": 12762.200000047684,
+      "estimatedOutputAtFrame": 12769.215043652568
+    },
+    {
+      "time": 4.867518248175182,
+      "initiated": 13194,
+      "beat": 3,
+      "firstFrame": 13194.899999856949,
+      "estimatedOutputAtFrame": 13207.15024803213
+    },
+    {
+      "time": 5.305474452554744,
+      "initiated": 13631.799999952316,
+      "beat": 0,
+      "firstFrame": 13644.899999856949,
+      "estimatedOutputAtFrame": 13645.02245250706
+    },
+    {
+      "time": 5.743430656934306,
+      "initiated": 14067.799999952316,
+      "beat": 1,
+      "firstFrame": 14078.099999904633,
+      "estimatedOutputAtFrame": 14083.040323648656
+    },
+    {
+      "time": 6.181386861313868,
+      "initiated": 14511.299999952316,
+      "beat": 2,
+      "firstFrame": 14512.299999952316,
+      "estimatedOutputAtFrame": 14520.997528028218
+    },
+    {
+      "time": 6.61934306569343,
+      "initiated": 14948.399999856949,
+      "beat": 3,
+      "firstFrame": 14961.700000047684,
+      "estimatedOutputAtFrame": 14958.95073240778
+    },
+    {
+      "time": 7.057299270072992,
+      "initiated": 15385.5,
+      "beat": 0,
+      "firstFrame": 15394.899999856949,
+      "estimatedOutputAtFrame": 15396.863603406326
+    },
+    {
+      "time": 7.495255474452554,
+      "initiated": 15991.799999952316,
+      "beat": 1,
+      "firstFrame": 15995,
+      "estimatedOutputAtFrame": 15834.863474309503
+    },
+    {
+      "time": 7.933211678832116,
+      "initiated": 16260.799999952316,
+      "beat": 2,
+      "firstFrame": 16262.5,
+      "estimatedOutputAtFrame": 16272.868012070083
+    },
+    {
+      "time": 8.371167883211678,
+      "initiated": 16697.799999952316,
+      "beat": 3,
+      "firstFrame": 16712.299999952316,
+      "estimatedOutputAtFrame": 16710.844216449645
+    },
+    {
+      "time": 8.80912408759124,
+      "initiated": 17136.299999952316,
+      "beat": 0,
+      "firstFrame": 17144.89999985695,
+      "estimatedOutputAtFrame": 17148.75708744819
+    },
+    {
+      "time": 9.247080291970802,
+      "initiated": 17572.5,
+      "beat": 1,
+      "firstFrame": 17578.200000047684,
+      "estimatedOutputAtFrame": 17586.73129182775
+    },
+    {
+      "time": 9.685036496350364,
+      "initiated": 18008.89999985695,
+      "beat": 2,
+      "firstFrame": 18010.89999985695,
+      "estimatedOutputAtFrame": 18024.65949620731
+    },
+    {
+      "time": 10.122992700729926,
+      "initiated": 18452.799999952316,
+      "beat": 3,
+      "firstFrame": 18462.39999985695,
+      "estimatedOutputAtFrame": 18462.594367444275
+    },
+    {
+      "time": 10.560948905109488,
+      "initiated": 18890.39999985695,
+      "beat": 0,
+      "firstFrame": 18894.89999985695,
+      "estimatedOutputAtFrame": 18900.56857182384
+    },
+    {
+      "time": 10.99890510948905,
+      "initiated": 19327.299999952316,
+      "beat": 1,
+      "firstFrame": 19328.200000047684,
+      "estimatedOutputAtFrame": 19338.588776108034
+    },
+    {
+      "time": 11.436861313868611,
+      "initiated": 19764.799999952316,
+      "beat": 2,
+      "firstFrame": 19778.200000047684,
+      "estimatedOutputAtFrame": 19776.46998058296
+    },
+    {
+      "time": 11.874817518248173,
+      "initiated": 20202.200000047684,
+      "beat": 3,
+      "firstFrame": 20212.39999985695,
+      "estimatedOutputAtFrame": 20214.394851581506
+    },
+    {
+      "time": 12.312773722627735,
+      "initiated": 20639.299999952316,
+      "beat": 0,
+      "firstFrame": 20644.799999952316,
+      "estimatedOutputAtFrame": 20652.35205596107
+    },
+    {
+      "time": 12.750729927007297,
+      "initiated": 21076.599999904633,
+      "beat": 1,
+      "firstFrame": 21078.200000047684,
+      "estimatedOutputAtFrame": 21090.31526034063
+    },
+    {
+      "time": 13.18868613138686,
+      "initiated": 21513.5,
+      "beat": 2,
+      "firstFrame": 21528.299999952316,
+      "estimatedOutputAtFrame": 21528.31813124381
+    },
+    {
+      "time": 13.626642335766421,
+      "initiated": 21991.099999904633,
+      "beat": 3,
+      "firstFrame": 21994.89999985695,
+      "estimatedOutputAtFrame": 21966.14933571874
+    },
+    {
+      "time": 14.064598540145983,
+      "initiated": 22394,
+      "beat": 0,
+      "firstFrame": 22394.099999904633,
+      "estimatedOutputAtFrame": 22404.191540002932
+    },
+    {
+      "time": 14.502554744525545,
+      "initiated": 22831.299999952316,
+      "beat": 1,
+      "firstFrame": 22844.799999952316,
+      "estimatedOutputAtFrame": 22842.20174438249
+    },
+    {
+      "time": 14.940510948905107,
+      "initiated": 23268.099999904633,
+      "beat": 2,
+      "firstFrame": 23278.200000047684,
+      "estimatedOutputAtFrame": 23280.123615619457
+    },
+    {
+      "time": 15.378467153284669,
+      "initiated": 23705.89999985695,
+      "beat": 3,
+      "firstFrame": 23712.5,
+      "estimatedOutputAtFrame": 23717.984819855967
+    },
+    {
+      "time": 15.816423357664231,
+      "initiated": 24142.599999904633,
+      "beat": 0,
+      "firstFrame": 24144.700000047684,
+      "estimatedOutputAtFrame": 24156.04202437858
+    },
+    {
+      "time": 16.254379562043795,
+      "initiated": 24580.700000047684,
+      "beat": 1,
+      "firstFrame": 24594.799999952316,
+      "estimatedOutputAtFrame": 24593.97089537713
+    },
+    {
+      "time": 16.69233576642336,
+      "initiated": 25018.299999952316,
+      "beat": 2,
+      "firstFrame": 25028.299999952316,
+      "estimatedOutputAtFrame": 25031.926099756693
+    },
+    {
+      "time": 17.130291970802922,
+      "initiated": 25455.5,
+      "beat": 3,
+      "firstFrame": 25461,
+      "estimatedOutputAtFrame": 25469.864304136256
+    },
+    {
+      "time": 17.568248175182486,
+      "initiated": 25991,
+      "beat": 0,
+      "firstFrame": 25995,
+      "estimatedOutputAtFrame": 25907.871175039436
+    },
+    {
+      "time": 18.00620437956205,
+      "initiated": 26335.200000047684,
+      "beat": 1,
+      "firstFrame": 26344.89999985695,
+      "estimatedOutputAtFrame": 26345.849379419
+    },
+    {
+      "time": 18.444160583941613,
+      "initiated": 26772.799999952316,
+      "beat": 2,
+      "firstFrame": 26778.200000047684,
+      "estimatedOutputAtFrame": 26783.71458389393
+    },
+    {
+      "time": 18.882116788321177,
+      "initiated": 27210,
+      "beat": 3,
+      "firstFrame": 27212.39999985695,
+      "estimatedOutputAtFrame": 27221.656788273496
+    },
+    {
+      "time": 19.32007299270074,
+      "initiated": 27647.799999952316,
+      "beat": 0,
+      "firstFrame": 27662.39999985695,
+      "estimatedOutputAtFrame": 27659.670659415093
+    },
+    {
+      "time": 19.758029197080305,
+      "initiated": 28083.599999904633,
+      "beat": 1,
+      "firstFrame": 28094.599999904633,
+      "estimatedOutputAtFrame": 28097.545863651605
+    },
+    {
+      "time": 20.19598540145987,
+      "initiated": 28522,
+      "beat": 2,
+      "firstFrame": 28527.200000047684,
+      "estimatedOutputAtFrame": 28535.59706817422
+    },
+    {
+      "time": 20.633941605839432,
+      "initiated": 28959.200000047684,
+      "beat": 3,
+      "firstFrame": 28962.299999952316,
+      "estimatedOutputAtFrame": 28973.457272410727
+    },
+    {
+      "time": 21.071897810218996,
+      "initiated": 29397.200000047684,
+      "beat": 0,
+      "firstFrame": 29412.200000047684,
+      "estimatedOutputAtFrame": 29411.47814355233
+    },
+    {
+      "time": 21.50985401459856,
+      "initiated": 29990.799999952316,
+      "beat": 1,
+      "firstFrame": 29994.89999985695,
+      "estimatedOutputAtFrame": 29849.365014550873
+    },
+    {
+      "time": 21.947810218978123,
+      "initiated": 30276.39999985695,
+      "beat": 2,
+      "firstFrame": 30278.200000047684,
+      "estimatedOutputAtFrame": 30287.37355231146
+    },
+    {
+      "time": 22.385766423357687,
+      "initiated": 30713.700000047684,
+      "beat": 3,
+      "firstFrame": 30728.200000047684,
+      "estimatedOutputAtFrame": 30725.320423310004
+    },
+    {
+      "time": 22.82372262773725,
+      "initiated": 31151.200000047684,
+      "beat": 0,
+      "firstFrame": 31162,
+      "estimatedOutputAtFrame": 31163.270627689566
+    },
+    {
+      "time": 23.261678832116814,
+      "initiated": 31589.099999904633,
+      "beat": 1,
+      "firstFrame": 31594.799999952316,
+      "estimatedOutputAtFrame": 31601.22183206913
+    },
+    {
+      "time": 23.699635036496378,
+      "initiated": 32024.799999952316,
+      "beat": 2,
+      "firstFrame": 32028,
+      "estimatedOutputAtFrame": 32039.169036448693
+    },
+    {
+      "time": 24.137591240875942,
+      "initiated": 32463.39999985695,
+      "beat": 3,
+      "firstFrame": 32478.299999952316,
+      "estimatedOutputAtFrame": 32477.21290759029
+    },
+    {
+      "time": 24.575547445255506,
+      "initiated": 32900.799999952316,
+      "beat": 0,
+      "firstFrame": 32912.59999990463,
+      "estimatedOutputAtFrame": 32915.17311196985
+    },
+    {
+      "time": 25.01350364963507,
+      "initiated": 33343,
+      "beat": 1,
+      "firstFrame": 33344.799999952316,
+      "estimatedOutputAtFrame": 33353.117316349424
+    },
+    {
+      "time": 25.451459854014633,
+      "initiated": 33780.799999952316,
+      "beat": 2,
+      "firstFrame": 33990.09999990463,
+      "estimatedOutputAtFrame": 33791.04318734797
+    },
+    {
+      "time": 25.889416058394197,
+      "initiated": 34217.799999952316,
+      "beat": 3,
+      "firstFrame": 34228.299999952316,
+      "estimatedOutputAtFrame": 34228.895391584476
+    },
+    {
+      "time": 26.32737226277376,
+      "initiated": 34655.5,
+      "beat": 0,
+      "firstFrame": 34662.09999990463,
+      "estimatedOutputAtFrame": 34666.944596107096
+    },
+    {
+      "time": 26.765328467153324,
+      "initiated": 35092.200000047684,
+      "beat": 1,
+      "firstFrame": 35094.799999952316,
+      "estimatedOutputAtFrame": 35104.913800486655
+    },
+    {
+      "time": 27.203284671532888,
+      "initiated": 35530.09999990463,
+      "beat": 2,
+      "firstFrame": 35544.799999952316,
+      "estimatedOutputAtFrame": 35542.8156714852
+    },
+    {
+      "time": 27.64124087591245,
+      "initiated": 35990.39999985695,
+      "beat": 3,
+      "firstFrame": 35993.799999952316,
+      "estimatedOutputAtFrame": 35980.8418757694
+    },
+    {
+      "time": 28.079197080292015,
+      "initiated": 36405,
+      "beat": 0,
+      "firstFrame": 36412.5,
+      "estimatedOutputAtFrame": 36418.726080244334
+    },
+    {
+      "time": 28.51715328467158,
+      "initiated": 36841.799999952316,
+      "beat": 1,
+      "firstFrame": 36844.799999952316,
+      "estimatedOutputAtFrame": 36856.67095124288
+    },
+    {
+      "time": 28.955109489051143,
+      "initiated": 37284.39999985695,
+      "beat": 2,
+      "firstFrame": 37294.799999952316,
+      "estimatedOutputAtFrame": 37294.732155765494
+    },
+    {
+      "time": 29.393065693430707,
+      "initiated": 37722,
+      "beat": 3,
+      "firstFrame": 37728.200000047684,
+      "estimatedOutputAtFrame": 37732.568360002006
+    },
+    {
+      "time": 29.83102189781027,
+      "initiated": 38158.59999990463,
+      "beat": 0,
+      "firstFrame": 38161.59999990463,
+      "estimatedOutputAtFrame": 38170.53556438157
+    }
+  ],
+  "renderedFrames": [
+    2400,
+    23422,
+    44444,
+    65466,
+    86488,
+    107509,
+    128531,
+    149553,
+    170575,
+    191597,
+    212619,
+    233641,
+    254663,
+    275685,
+    296707,
+    317728,
+    338750,
+    359772,
+    380794,
+    401816,
+    422838,
+    443860,
+    464882,
+    485904,
+    506926,
+    527947,
+    548969,
+    569991,
+    591013,
+    612035,
+    633057,
+    654079,
+    675101,
+    696123,
+    717145,
+    738166,
+    759188,
+    780210,
+    801232,
+    822254,
+    843276,
+    864298,
+    885320,
+    906342,
+    927364,
+    948385,
+    969407,
+    990429,
+    1011451,
+    1032473,
+    1053495,
+    1074517,
+    1095539,
+    1116561,
+    1137582,
+    1158604,
+    1179626,
+    1200648,
+    1221670,
+    1242692,
+    1263714,
+    1284736,
+    1305758,
+    1326780,
+    1347801,
+    1368823,
+    1389845,
+    1410867,
+    1431889
+  ],
+  "stalls": [
+    {
+      "start": 9790.399999856949,
+      "duration": 200
+    },
+    {
+      "start": 11789.899999856949,
+      "duration": 200
+    },
+    {
+      "start": 13790.399999856949,
+      "duration": 200
+    },
+    {
+      "start": 15790.5,
+      "duration": 200
+    },
+    {
+      "start": 17789.700000047684,
+      "duration": 200
+    },
+    {
+      "start": 19790,
+      "duration": 200
+    },
+    {
+      "start": 21789.89999985695,
+      "duration": 200
+    },
+    {
+      "start": 23789.599999904633,
+      "duration": 200
+    },
+    {
+      "start": 25789.599999904633,
+      "duration": 200
+    },
+    {
+      "start": 27789.799999952316,
+      "duration": 200
+    },
+    {
+      "start": 29789.299999952316,
+      "duration": 200
+    },
+    {
+      "start": 31789.799999952316,
+      "duration": 200
+    },
+    {
+      "start": 33790.09999990463,
+      "duration": 200
+    },
+    {
+      "start": 35789.09999990463,
+      "duration": 200
+    },
+    {
+      "start": 37789.799999952316,
+      "duration": 200
+    }
+  ]
+}

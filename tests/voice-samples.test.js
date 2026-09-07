@@ -92,6 +92,20 @@ function wavDuration(path) {
   return dataBytes / byteRate
 }
 
+test('both voices include an unclipped and at every tempo tier without changing playback pitch', () => {
+  for (const [voice,target] of [['voice-male',95],['voice-female',137]]) {
+    for (const [i,{prefix}] of tiers.entries()) {
+      const path=`${productionVoiceRoot}/${voice}/${prefix}and.wav`
+      const {samples,sampleRate}=readWav(path)
+      const duration=samples.length/sampleRate
+      assert.ok(duration>=.065 && duration<=30/[110,155,190,250,300][i],`${voice}/${prefix}and: ${duration}`)
+      assert.ok(samples.every(s=>Math.abs(s)<32767),path)
+      const pitches=estimatePitchFrames(path,target).sort((a,b)=>a-b)
+      assert.ok(Math.abs(12*Math.log2(percentile(pitches,.5)/target))<2,`${path}: voice center must match the current voice`)
+    }
+  }
+})
+
 function estimatePitchFrames(path, targetPitch) {
   const { sampleRate, samples } = readWav(path)
   const downsampleFactor = Math.max(1, Math.round(sampleRate / 8000))

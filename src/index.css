@@ -490,6 +490,7 @@ input[type="number"] {
 }
 
 .pulse-orbit-segment-surface.is-active {
+  transition-duration: 0ms;
   opacity: 1;
   filter: brightness(1.42) drop-shadow(0 0 5px color-mix(in srgb, var(--pulse-segment-color) 88%, transparent));
 }
@@ -1241,33 +1242,50 @@ input[type="number"] {
   gap: 10px;
 }
 
+.pulse-settings-toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 10px;
+}
+
 .pulse-flash-card {
   display: grid;
-  gap: 14px;
-  padding: 16px;
+  min-width: 0;
+  gap: 6px;
+  padding: 10px 12px;
 }
 
 .pulse-flash-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 8px;
 }
 
-.pulse-flash-options { display: flex; gap: 6px; }
+.pulse-flash-heading .pulse-panel-copy h2 {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.pulse-setting-description {
+  margin: 0;
+  color: color-mix(in srgb, var(--brand-color-ink) 51%, transparent);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.pulse-flash-options { display: flex; flex-wrap: wrap; gap: 6px; }
 .pulse-flash-options button {
-  flex: 1; min-width: 0; min-height: 44px; padding: 8px;
+  flex: 1 1 72px; min-width: 0; min-height: 44px; padding: 6px 4px;
   border: 1px solid color-mix(in srgb, var(--brand-color-ink) 12%, transparent);
   border-radius: 11px; background: var(--brand-color-surface); color: var(--brand-color-ink);
-  font: inherit; font-size: 14px; cursor: pointer;
+  font: inherit; font-size: 11px; line-height: 1.25; cursor: pointer;
 }
 .pulse-flash-options button[aria-pressed="true"] {
   background: color-mix(in srgb, var(--brand-color-ink) 13%, var(--brand-color-surface));
   border-color: color-mix(in srgb, var(--brand-color-ink) 55%, transparent);
-}
-
-.pulse-flash-card .pulse-panel-copy p {
-  font-size: 14px;
 }
 
 .pulse-training-stack.is-unavailable {
@@ -1579,6 +1597,16 @@ input[type="number"] {
 .pulse-volume-slider {
   width: 100%;
   margin-top: 10px;
+}
+
+input.pulse-volume-slider::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, #fff 0 var(--volume-progress), var(--brand-color-muted, #2A2A2A) var(--volume-progress) 100%);
+}
+
+input.pulse-volume-slider::-moz-range-progress {
+  height: 8px;
+  border-radius: 4px;
+  background: #fff;
 }
 
 .pulse-sound-grid {

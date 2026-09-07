@@ -5,8 +5,7 @@ export default function SoundSelector({ selectedIndex, onSelect, onPreview }) {
     <section className="pulse-panel pulse-sound-card">
       <header className="pulse-panel-header">
         <div className="pulse-panel-copy">
-          <span>Voice</span>
-          <h2>Sound</h2>
+          <h2>Click Sound</h2>
           <p>Tap a sound to select and preview it.</p>
         </div>
       </header>

@@ -88,8 +88,6 @@
   top: 5px;
   width: 30.1px;
   height: 84.7px;
-  opacity: 0.8;
-  transition: opacity 150ms ease-out;
 }
 
 .pulse-throwoff-lever {
@@ -98,20 +96,14 @@
   top: 11.1796px;
   width: 9.408px;
   height: 61.74px;
-  opacity: 0.88;
   transform-origin: 6.0564px 56.3304px;
   transform: rotate(var(--throwoff-angle));
-  transition: transform var(--trainer-disengage-duration) var(--trainer-disengage-ease), opacity 150ms ease-out;
-}
-
-.pulse-trainer-toggle[aria-checked="true"] .pulse-throwoff-body,
-.pulse-trainer-toggle[aria-checked="true"] .pulse-throwoff-lever {
-  opacity: 1;
+  transition: transform var(--trainer-disengage-duration) var(--trainer-disengage-ease);
 }
 
 .pulse-trainer-toggle[aria-checked="true"] .pulse-throwoff-lever {
   --throwoff-angle: 0deg;
-  transition: transform var(--trainer-engage-duration) var(--trainer-engage-ease), opacity 120ms ease-out;
+  transition: transform var(--trainer-engage-duration) var(--trainer-engage-ease);
 }
 
 .pulse-trainer-toggle:not(:disabled):active[aria-checked="false"] .pulse-throwoff-lever {
@@ -123,8 +115,7 @@
 }
 
 .pulse-trainer-toggle:not(:disabled):active .pulse-throwoff-lever {
-  opacity: 1;
-  transition: transform 65ms ease-out, opacity 65ms ease-out;
+  transition: transform 65ms ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {

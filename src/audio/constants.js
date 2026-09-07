@@ -1,5 +1,6 @@
 export const LOOKAHEAD_MS = 25
-export const SCHEDULE_AHEAD_S = 0.05
+export const SCHEDULE_AHEAD_S = 0.15
+export const MAX_SCHEDULER_STEPS = 4096
 export const MIN_BPM = 20
 export const MAX_BPM = 300
 export const JAM_MAX_BPM = 800

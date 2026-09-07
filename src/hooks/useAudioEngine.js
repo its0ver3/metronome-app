@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import AudioEngine from '../audio/AudioEngine'
+import { flushSync } from 'react-dom'
+import AudioEngine from '../audio/BrowserAudioEngine'
 import { restoreEngineSettings } from '../audio/engineSettings'
 import { nextFlashPulse } from '../components/layout/flashPulse'
 
@@ -38,19 +39,20 @@ export default function useAudioEngine(initialSettings) {
     engine.onSessionChange(setSession)
     engine.onBarChange((bar) => setCurrentBar(bar))
     engine.onGapChange((gap) => setInGap(gap))
-    engine.onBeat(({ beat, subdivision, displaySubdivision, rhythm, downbeat, time, visualPulse, inGap, gapPattern, gapBar, gapBars, gapEnabled, trainerPlayback }) => {
-      setFlashPulse(previous => nextFlashPulse(previous, { downbeat, rhythm, time, visualPulse }))
+    engine.onBeat(({ beat, subdivision, displaySubdivision, rhythm, downbeat, time, visualPulse, visualLate, outputTime, presentationFrame, inGap, gapPattern, gapBar, gapBars, gapEnabled, trainerPlayback }) => {
+      setFlashPulse(previous => nextFlashPulse(previous, { downbeat, rhythm, time, visualPulse, visualLate, outputTime, presentationFrame }))
+      const indicatorBeat = visualLate ? -1 : beat
       if (rhythm) {
-        if (rhythm === 1) setPolyBeat1(beat)
-        else setPolyBeat2(beat)
+        if (rhythm === 1) setPolyBeat1(indicatorBeat)
+        else setPolyBeat2(indicatorBeat)
       } else {
-        setCurrentBeat(beat)
-        setCurrentSubdivision(displaySubdivision ?? subdivision)
+        setCurrentBeat(indicatorBeat)
+        setCurrentSubdivision(visualLate ? -1 : displaySubdivision ?? subdivision)
         setInGap(inGap)
         setGapPlayback({ pattern: gapPattern, bar: gapBar, bars: gapBars, enabled: gapEnabled })
         if (beat === 0 && subdivision === 0) setTrainerPlayback(trainerPlayback)
       }
-    })
+    }, flushSync)
 
     return () => {
       engine.stop()

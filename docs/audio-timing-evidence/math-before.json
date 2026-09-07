@@ -1,0 +1,92 @@
+[
+  {
+    "bpm": 20,
+    "subdivision": 1,
+    "seconds": 600,
+    "clicks": 200,
+    "expectedClicks": 200,
+    "endPhaseErrorMs": 0,
+    "maxAbsPhaseErrorMs": 0
+  },
+  {
+    "bpm": 20,
+    "subdivision": 13,
+    "seconds": 600,
+    "clicks": 2600,
+    "expectedClicks": 2600,
+    "endPhaseErrorMs": 1.1823431123048067e-8,
+    "maxAbsPhaseErrorMs": 1.1823431123048067e-8
+  },
+  {
+    "bpm": 120,
+    "subdivision": 1,
+    "seconds": 600,
+    "clicks": 1200,
+    "expectedClicks": 1200,
+    "endPhaseErrorMs": 0,
+    "maxAbsPhaseErrorMs": 0
+  },
+  {
+    "bpm": 120,
+    "subdivision": 13,
+    "seconds": 600,
+    "clicks": 15600,
+    "expectedClicks": 15600,
+    "endPhaseErrorMs": 1.0027179087046534e-7,
+    "maxAbsPhaseErrorMs": 1.0027179087046534e-7
+  },
+  {
+    "bpm": 137,
+    "subdivision": 1,
+    "seconds": 600,
+    "clicks": 1370,
+    "expectedClicks": 1370,
+    "endPhaseErrorMs": 2.000888343900442e-8,
+    "maxAbsPhaseErrorMs": 2.000888343900442e-8
+  },
+  {
+    "bpm": 137,
+    "subdivision": 13,
+    "seconds": 600,
+    "clicks": 17810,
+    "expectedClicks": 17810,
+    "endPhaseErrorMs": -4.75210981676355e-8,
+    "maxAbsPhaseErrorMs": 8.412825991399586e-8
+  },
+  {
+    "bpm": 300,
+    "subdivision": 1,
+    "seconds": 600,
+    "clicks": 3000,
+    "expectedClicks": 3000,
+    "endPhaseErrorMs": -5.684341886080801e-10,
+    "maxAbsPhaseErrorMs": 2.05773176276125e-8
+  },
+  {
+    "bpm": 300,
+    "subdivision": 13,
+    "seconds": 600,
+    "clicks": 39000,
+    "expectedClicks": 39000,
+    "endPhaseErrorMs": 1.290345608140342e-7,
+    "maxAbsPhaseErrorMs": 1.290345608140342e-7
+  },
+  {
+    "bpm": 800,
+    "subdivision": 1,
+    "seconds": 600,
+    "clicks": 8000,
+    "expectedClicks": 8000,
+    "endPhaseErrorMs": -1.3642420526593924e-9,
+    "maxAbsPhaseErrorMs": 5.4797055781818926e-8
+  },
+  {
+    "bpm": 800,
+    "subdivision": 13,
+    "seconds": 600,
+    "clicks": 104000,
+    "expectedClicks": 104000,
+    "endPhaseErrorMs": -6.949676389922388e-7,
+    "maxAbsPhaseErrorMs": 0.0000011486918083392084
+  }
+]

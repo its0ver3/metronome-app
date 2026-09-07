@@ -1,0 +1,13 @@
+{
+  "label":"after", "backend":"audio-worklet", "bpm":137, "durationSeconds":600,
+  "sampleRate":48000, "renderedClicks":1370, "expectedClicks":1370,
+  "firstFrame":2400, "lastFrame":28781378,
+  "endPhaseErrorMs":-0.0021289537244228995,
+  "maxAbsPhaseErrorMs":0.010340632684346929,
+  "intervalErrorMs":{"min":-0.018704379562084483,"max":0.002128953771274311,"mean":-0.000001555115993936609},
+  "lateScheduledClicks":null, "scheduledClicks":null,
+  "elapsedAudioSeconds":600.112, "elapsedWallSeconds":600.2556000001431,
+  "states":[], "stalls":[], "completed":true,
+  "compiledRendererSha256":"23765e2e2678139865043438394293b7eae61ecb02bea455cca5644548c97c30",
+  "notes":"Completed isolated static-build run; renderer byte-identical to final Sites production build. Main-thread scheduling counters are not applicable to this backend. Digital onsets relative to first click and nominal sample clock, not physical output or external-clock calibration."
+}

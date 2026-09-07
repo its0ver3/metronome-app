@@ -70,3 +70,9 @@ Sources:
 Piper and the piper-voices repository are distributed under the MIT License.
 Generated voice masters receive gentle whole-word pitch balancing before the
 pitch-preserving tempo variants are rendered.
+
+The added “and” takes use those same John/Kristin models, generated offline with
+OHF-Voice Piper 1.8.0 (GPL-3.0; engine and models are not distributed with the app).
+They retain natural inflection, with gentle whole-word pitch balancing and level
+matching to the existing counts. Sources are retained in `scripts/audio-sources/`;
+`scripts/prepare-and-voices.py` renders the five pitch-preserving tempo variants.

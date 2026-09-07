@@ -65,7 +65,7 @@ export default function AccentPie({
               : `ring-2 ${activeRingClass} ring-offset-2 scale-125`
             : ''
         }`}
-        style={{ width: size, height: size }}
+        style={{ width: size, height: size, transitionDuration: isActive ? '0ms' : undefined }}
       >
         <svg
           aria-hidden="true"

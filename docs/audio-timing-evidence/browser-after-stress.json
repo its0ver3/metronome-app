@@ -1,0 +1,22 @@
+{
+  "label":"after-stress", "backend":"audio-worklet", "bpm":137, "durationSeconds":30,
+  "sampleRate":48000, "renderedClicks":69, "expectedClicks":69,
+  "firstFrame":2656, "lastFrame":1432145,
+  "endPhaseErrorMs":-0.0010644768870804455,
+  "maxAbsPhaseErrorMs":0.010340632602634514,
+  "intervalErrorMs":{"min":-0.018704379562084483,"max":0.002128953771274311,"mean":-0.00001565407186556472},
+  "lateScheduledClicks":null, "scheduledClicks":null,
+  "elapsedAudioSeconds":30.186666666666667, "elapsedWallSeconds":31.251900000095368,
+  "states":[], "completed":true,
+  "stalls":[
+    {"audio":0.944,"durationMs":200},{"audio":2.944,"durationMs":200},
+    {"audio":4.944,"durationMs":200},{"audio":6.944,"durationMs":200},
+    {"audio":8.944,"durationMs":200},{"audio":10.944,"durationMs":200},
+    {"audio":12.944,"durationMs":200},{"audio":14.944,"durationMs":200},
+    {"audio":16.944,"durationMs":200},{"audio":18.944,"durationMs":200},
+    {"audio":20.944,"durationMs":200},{"audio":22.944,"durationMs":200},
+    {"audio":24.944,"durationMs":200},{"audio":26.944,"durationMs":200},
+    {"audio":28.944,"durationMs":200}
+  ],
+  "notes":"Completed static-build run with 15 deliberate main-thread stalls. Digital onsets relative to first click and nominal sample clock, not physical output or external-clock calibration."
+}

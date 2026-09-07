@@ -1,0 +1,11 @@
+{
+  "label":"before-stress", "backend":"buffer-source", "bpm":137, "durationSeconds":30,
+  "sampleRate":48000, "renderedClicks":69, "expectedClicks":69,
+  "endPhaseErrorMs":0.019768856446944483,
+  "maxAbsPhaseErrorMs":125.45498783454968,
+  "intervalErrorMs":{"min":-125.43537104622872,"max":125.43962895377123,"mean":0.00029071847715441757},
+  "lateScheduledClicks":4, "scheduledClicks":69,
+  "injectedStalls":15, "stallDurationMs":200, "stallEveryMs":2000,
+  "states":[],
+  "notes":"Real-time browser run before production source edits. Digital onsets; no physical-speaker measurement."
+}

@@ -1,0 +1,35 @@
+{
+  "scope": "Native desktop Safari and Chrome; no mobile emulation or physical phone testing",
+  "measurement": "30 seconds at 137 BPM with a 200 ms main-thread stall requested every two seconds",
+  "capture": "Selected result fields transcribed from native browser accessibility output after status Complete. Full frame arrays and full stall logs were not captured.",
+  "runs": [
+    {
+      "browser": "Safari", "version": "26.4", "label": "safari-stress", "completed": true,
+      "backend": "audio-worklet", "sampleRate": 48000,
+      "renderedClicks": 69, "expectedClicks": 69,
+      "firstFrame": 3296, "lastFrame": 1432785,
+      "endPhaseErrorMs": -0.0010644768870804455,
+      "maxAbsPhaseErrorMs": 0.010340632602634514,
+      "intervalErrorMs": {"min": -0.018704379562084483, "max": 0.002128953771274311, "mean": -0.00001565407186556472}
+    },
+    {
+      "browser": "Google Chrome", "version": "152.0.7977.76", "label": "chrome-stress", "completed": true,
+      "backend": "audio-worklet", "sampleRate": 48000,
+      "renderedClicks": 69, "expectedClicks": 69,
+      "firstFrame": 2400, "lastFrame": 1431889,
+      "endPhaseErrorMs": -0.0010644768870804455,
+      "maxAbsPhaseErrorMs": 0.010340632602634514,
+      "intervalErrorMs": {"min": -0.018704379562084483, "max": 0.002128953771274311, "mean": -0.00001565407186556472}
+    }
+  ],
+  "productionSmokeChecksPassedInBoth": [
+    "Start and stop through user interaction",
+    "Settings and Training navigation during playback",
+    "Select Female Count during playback",
+    "Enable Gap, Tempo, and Subdivision trainers together",
+    "Observe subdivision stage progression and trainer BPM changes",
+    "Kit View renders and Escape restores the prior screen and focus"
+  ],
+  "notExecuted": ["Firefox", "Edge", "Samsung Internet", "Physical iPhone Safari or Chrome", "Physical Android browsers", "Oldest proposed supported browser versions"],
+  "testSuite": {"passed": 172, "failed": 0}
+}

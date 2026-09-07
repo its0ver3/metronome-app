@@ -20,6 +20,7 @@ The production app uses the selected **Pulse Core** direction across Metronome, 
 - Optional stop timer in “Shape the click”: 1–180 minutes or 1–999 complete bars, adjusted with the shared trainer wheel, with remaining-time/bar pills in Metronome, the mini transport, and Kit View. The count-in is excluded; silent bars count and each polyrhythm cycle is one bar. Settings persist locally and can be edited while stopped. Every new start resets the count-in and timer; audio is cut off at the timer deadline.
 - Kit View: the top-right expand button opens a viewport-filling start/stop tap surface, large live tempo orbit, and BPM slider. Orbit slices cycle Off / On / Accent in standard and polyrhythm modes. Slices, slider, and exit button never toggle playback; Escape exits and restores focus. Entering or leaving preserves playback and returns to the previous tab. Tempo Trainer retains control of BPM while active.
 - Three lightweight synthesized sounds plus recorded cowbell, hi-hat, shaker, tambourine, and male/female spoken counts from 1–16
+- Counting voices speak “and” on an exact halfway subdivision: eighths count “1 and 2 and”; sixteenths use “1 click and click”. Other positions retain quiet clicks, and odd tuplets without a halfway position remain clicks. The existing 1–16 samples are unchanged.
 - Gap, tempo, and subdivision trainers that can run together in standard metronome mode
 - Side-mounted throw-off switches on all three trainer cards, with subtle lever/slide feedback and accessible native switch behavior
 - Two-voice polyrhythm mode with independent counts, accents, and sounds
@@ -53,11 +54,20 @@ The Vite base path is `/metronome-app/` for GitHub Pages-style project hosting.
 ## Architecture and persistence
 
 - React 19, Vite 6, Tailwind CSS 4
-- Web Audio API with a short lookahead scheduler; visual beat events are delivered at the matching audible timestamp
+- Web Audio API with an AudioWorklet renderer: the audio thread runs the shared meter/trainer timeline and mixes decoded samples at sample-frame positions, independently of UI timers. Browsers unable to load the worklet use a 25 ms polling / 150 ms lookahead BufferSource fallback.
+- Live polyrhythm tempo changes take effect at the next uncommitted shared cycle; an already-started cycle keeps its pulse spacing. The fallback skips expired clicks after a stall while advancing trainer/bar state, rather than replaying a backlog. Audio-thread rendering owns session cutoffs; UI messages only report playback.
 - Metronome, trainer, polyrhythm, sound, and volume settings persist in `localStorage`
 - Persisted settings hydrate the audio engine before the first interactive render, so playback cannot start on stale defaults
 - The PWA plugin supplies the manifest and offline cache, including the production sound library, at build time
 - `src/brand/` owns the visible shop identity; feature components remain independent of shop logos and palettes
+
+The playback rules remain in `src/audio/AudioEngine.js`. `BrowserAudioEngine.js` bridges controls and audio-thread events; `AudioRenderTimeline.js` reuses those rules with a PCM mixer; `metronome.worklet.js` supplies the browser render callback. Samples are decoded on the main thread before playback and copied when sound banks load, not once per click. The worklet is bundled and precached in both hosting builds. Screen-off/background playback is not a supported guarantee in this browser beta.
+
+Read the [before/after timing report](docs/audio-timing-verification.md), or repeat the digital timing checks with the [isolated harness](scripts/timing-lab/README.md). The retained baseline source and measurements are in `docs/audio-timing-evidence/`. These checks measure click spacing against the audio sample clock, not physical output latency or device-clock accuracy against an external reference.
+
+The [browser compatibility report](docs/browser-compatibility.md) records native Safari and Chrome checks, browser support expectations, and remaining phone tests. Share an HTTPS link for phone testing so the AudioWorklet renderer is available; an ordinary HTTP LAN development address does not have the same secure-context exception as localhost.
+
+The [visual/audio synchronization update](docs/visual-audio-sync-update.md) records immediate highlight attacks, output-clock-aligned visual presentation, late-pulse suppression, and Safari/Chrome measurements. The [baseline report](docs/visual-audio-sync.md) retains the earlier findings. The isolated harness observes production components without changing playback behavior.
 
 See [metronome-app-prd.md](metronome-app-prd.md) for the current product specification and [theme.md](theme.md) for the implemented design tokens.
 

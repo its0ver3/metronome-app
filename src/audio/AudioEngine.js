@@ -1,6 +1,7 @@
 import {
   LOOKAHEAD_MS,
   SCHEDULE_AHEAD_S,
+  MAX_SCHEDULER_STEPS,
   DEFAULT_BPM,
   MAX_BPM,
   JAM_MAX_BPM,
@@ -151,6 +152,8 @@ export default class AudioEngine {
     this._polyBeat1 = 0
     this._polyBeat2 = 0
     this._polyCycleStart = 0
+    this._polyCycleDuration = null
+    this._scheduleAheadS = SCHEDULE_AHEAD_S
 
     // Callbacks
     this._onBeat = null
@@ -203,7 +206,7 @@ export default class AudioEngine {
 
   async _unlockAudio() {
     if (!this._ensureContext()) return false
-    if (this.ctx.state === 'suspended') {
+    if (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted') {
       try {
         await this.ctx.resume()
       } catch {
@@ -306,6 +309,9 @@ export default class AudioEngine {
     if (session.countInBars) activeSoundIndexes.push(COUNT_IN_SOUND)
     await Promise.all(activeSoundIndexes.map((index) => this.soundBank.prepareSound(index)))
 
+    if (generation !== this._startGeneration) return
+    await this._preparePlayback(generation)
+
     if (this.ctx.state === 'interrupted') {
       await this.ctx.resume().catch(() => {})
       if (this.ctx.state !== 'running') return
@@ -313,6 +319,22 @@ export default class AudioEngine {
 
     if (this.isPlaying || generation !== this._startGeneration) return
 
+    this._resetPlayback(this.ctx.currentTime + 0.05, session)
+    this._startScheduler()
+    this._onStateChange?.(true)
+    this._publishSession()
+  }
+
+  // BrowserAudioEngine supplies an audio-thread renderer; the core also retains
+  // a timestamped BufferSource fallback and is shared by deterministic tests.
+  async _preparePlayback() {}
+
+  _startScheduler() {
+    this._scheduler()
+    this._timerId = setInterval(() => this._scheduler(), LOOKAHEAD_MS)
+  }
+
+  _resetPlayback(startTime, session = { ...this.sessionSettings }) {
     this._applyGapConfig()
     this.isPlaying = true
     this._tempoPreviewBpm = null
@@ -350,17 +372,14 @@ export default class AudioEngine {
       this._onBpmChange?.(this.bpm)
     }
 
-    this._nextNoteTime = this.ctx.currentTime + 0.05
+    this._nextNoteTime = startTime
+    this._polyCycleDuration = null
     if (!this._countInRemaining) this._beginSessionPlayback(this._nextNoteTime)
     if (this.polyrhythmMode) {
       this._polyBeat1 = 0
       this._polyBeat2 = 0
-      this._polyCycleStart = this.ctx.currentTime + 0.05
+      this._polyCycleStart = startTime
     }
-    this._scheduler()
-    this._timerId = setInterval(() => this._scheduler(), LOOKAHEAD_MS)
-    this._onStateChange?.(true)
-    this._publishSession()
   }
 
   stop(completed = false) {
@@ -630,7 +649,7 @@ export default class AudioEngine {
   // Polyrhythm config
   setPolyrhythmMode(enabled) {
     if (this.polyrhythmMode === enabled) return
-    if (this.isPlaying) this.stop()
+    this.stop()
     this.polyrhythmMode = enabled
     this._gapBarCount = 0
     this._inGap = false
@@ -653,13 +672,13 @@ export default class AudioEngine {
   }
 
   setPolyRhythm1(value) {
-    if (this.isPlaying) this.stop()
+    this.stop()
     this.polyRhythm1 = Math.max(1, Math.min(16, value))
     this.polyAccents1 = buildDefaultPolyAccents(this.polyRhythm1)
   }
 
   setPolyRhythm2(value) {
-    if (this.isPlaying) this.stop()
+    this.stop()
     this.polyRhythm2 = Math.max(1, Math.min(16, value))
     this.polyAccents2 = buildDefaultPolyAccents(this.polyRhythm2)
   }
@@ -686,6 +705,7 @@ export default class AudioEngine {
   }
 
   _notifyAtAudioTime(time, callback) {
+    if (time < this.ctx.currentTime - 0.000001) return
     const delayMs = Math.max(0, (time - this.ctx.currentTime) * 1000)
     const timerId = setTimeout(() => {
       this._visualTimerIds.delete(timerId)
@@ -722,7 +742,8 @@ export default class AudioEngine {
     const groups = this.polyrhythmMode
       ? Array.from({ length: this.polyRhythm1 }, (_, start) => ({ start, length: 1 }))
       : this._meterGroups
-    while (this._countInRemaining && this._nextNoteTime < this.ctx.currentTime + SCHEDULE_AHEAD_S) {
+    let steps = 0
+    while (this._countInRemaining && this._nextNoteTime < this.ctx.currentTime + this._scheduleAheadS && steps++ < MAX_SCHEDULER_STEPS) {
       const group = groups[this._countInBeat]
       const time = this._nextNoteTime
       const duration = this.polyrhythmMode ? 60 / this.bpm : writtenNoteSeconds(this.meter, this.bpm) * group.length
@@ -751,9 +772,12 @@ export default class AudioEngine {
   }
 
   _schedulerStandard() {
-    while (this._nextNoteTime < this.ctx.currentTime + SCHEDULE_AHEAD_S) {
+    let steps = 0
+    while (this._nextNoteTime < this.ctx.currentTime + this._scheduleAheadS && steps++ < MAX_SCHEDULER_STEPS) {
       if (this._nextNoteTime >= this._sessionEndTime - 0.000001) break
-      this._scheduleNote(this._nextNoteTime)
+      // Advance missed musical state, including trainer and timer boundaries,
+      // without replaying old clicks or queuing old animation callbacks.
+      if (this._nextNoteTime >= this.ctx.currentTime - 0.000001) this._scheduleNote(this._nextNoteTime)
       this._advanceBeat()
     }
   }
@@ -762,12 +786,18 @@ export default class AudioEngine {
     // BPM defines quarter-note speed for Rhythm 1 (the primary rhythm).
     // e.g. 3:4 at 120 BPM → R1 plays 3 beats at 120 BPM (cycle = 1.5s),
     // R2 plays 4 beats evenly across that same 1.5s.
-    const cycleDuration = (60.0 / this.bpm) * this.polyRhythm1
-    const now = this.ctx.currentTime + SCHEDULE_AHEAD_S
+    const now = this.ctx.currentTime + this._scheduleAheadS
 
     // Outer loop: handle fast BPMs where multiple cycles fit in one tick
     // eslint-disable-next-line no-constant-condition
-    while (true) {
+    let steps = 0
+    while (steps++ < MAX_SCHEDULER_STEPS) {
+      // Once any pulse of a cycle is committed, its duration is immutable.
+      // A live BPM edit takes effect at the next uncommitted shared cycle.
+      if (this._polyCycleDuration === null || (this._polyBeat1 === 0 && this._polyBeat2 === 0)) {
+        this._polyCycleDuration = (60 / this.bpm) * this.polyRhythm1
+      }
+      const cycleDuration = this._polyCycleDuration
       let scheduled = false
 
       // Schedule rhythm 1 beats within lookahead window
@@ -775,7 +805,7 @@ export default class AudioEngine {
         const t = this._polyCycleStart + this._polyBeat1 * (cycleDuration / this.polyRhythm1)
         if (t >= now) break
         if (t >= this._sessionEndTime - 0.000001) break
-        this._scheduleNotePoly(t, 1, this._polyBeat1)
+        if (t >= this.ctx.currentTime - 0.000001) this._scheduleNotePoly(t, 1, this._polyBeat1)
         this._polyBeat1++
         scheduled = true
       }
@@ -785,7 +815,7 @@ export default class AudioEngine {
         const t = this._polyCycleStart + this._polyBeat2 * (cycleDuration / this.polyRhythm2)
         if (t >= now) break
         if (t >= this._sessionEndTime - 0.000001) break
-        this._scheduleNotePoly(t, 2, this._polyBeat2)
+        if (t >= this.ctx.currentTime - 0.000001) this._scheduleNotePoly(t, 2, this._polyBeat2)
         this._polyBeat2++
         scheduled = true
       }
@@ -793,6 +823,7 @@ export default class AudioEngine {
       // Advance cycle only when BOTH rhythms have exhausted their beats
       if (this._polyBeat1 >= this.polyRhythm1 && this._polyBeat2 >= this.polyRhythm2) {
         this._polyCycleStart += cycleDuration
+        this._polyCycleDuration = null
         this._currentBar++
         if (this._sessionBarFinished(this._polyCycleStart)) break
         this._polyBeat1 = 0
@@ -813,9 +844,10 @@ export default class AudioEngine {
     const accentLevel = normalizeAccentLevel(accentArr[beatIndex])
     const vol = ACCENT_LEVELS[accentLevel]?.volume ?? 0.4
     const isCycleDownbeat = beatIndex === 0
+    const cycleBpm = this._polyCycleDuration ? 60 * this.polyRhythm1 / this._polyCycleDuration : this.bpm
     const effectiveBpm = rhythmIndex === 1
-      ? this.bpm
-      : this.bpm * (this.polyRhythm2 / this.polyRhythm1)
+      ? cycleBpm
+      : cycleBpm * (this.polyRhythm2 / this.polyRhythm1)
     const soundOptions = {
       beatNumber: beatIndex + 1,
       bpm: effectiveBpm,
@@ -871,9 +903,17 @@ export default class AudioEngine {
     // Determine if in gap
     const groupOnly = this.meter.groupOnly && !this.subdivTrainerEnabled
     const shouldPlay = accentVolume > 0 && (inGap || !groupOnly || isMainBeat)
+    const groupTicks = group.length * this.subdivision
+    const groupTick = (beatIndex - group.start) * this.subdivision + subIndex
+    // Only an exact halfway subdivision is “and”; odd tuplets keep their clicks.
+    // Group-only playback and gap overrides keep their existing behavior.
+    const hasSpokenOffbeat = !groupOnly && !inGap && groupTicks > 1 && groupTicks % 2 === 0
+    const countBpm = 60 / (writtenNoteSeconds(this.meter, this.bpm) * group.length)
     const soundOptions = {
       beatNumber: group.index + 1,
-      bpm: 60 / (writtenNoteSeconds(this.meter, this.bpm) * group.length),
+      bpm: countBpm,
+      voiceBpm: hasSpokenOffbeat ? countBpm * 2 : countBpm,
+      spokenAnd: hasSpokenOffbeat && groupTick === groupTicks / 2,
       sequenceIndex: this._soundSequence++,
     }
 
@@ -934,6 +974,7 @@ export default class AudioEngine {
   }
 
   _playSound(buffer, time, volume, stopTime = this._sessionEndTime) {
+    if (!buffer || time < this.ctx.currentTime - 0.000001) return
     const source = this.ctx.createBufferSource()
     source.buffer = buffer
     const gain = this.ctx.createGain()

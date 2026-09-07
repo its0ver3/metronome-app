@@ -1,0 +1,21 @@
+{
+  "label": "before",
+  "engineSha256": "b0dcd3661e35486037f5c995fa4a77ea701aefbbb426f6b21ba3a18a2a8decb5",
+  "backend": "buffer-source",
+  "bpm": 137,
+  "durationSeconds": 600,
+  "sampleRate": 48000,
+  "renderedClicks": 1370,
+  "expectedClicks": 1370,
+  "firstFrame": 2400,
+  "lastFrame": 28781379,
+  "endPhaseErrorMs": 0.018704379613154742,
+  "maxAbsPhaseErrorMs": 0.020681265205269028,
+  "intervalErrorMs": {"min": -0.018704379562084483, "max": 0.002128953771274311, "mean": 0.000013662804629408018},
+  "lateScheduledClicks": 0,
+  "scheduledClicks": 1371,
+  "elapsedAudioSeconds": 600.1173333333334,
+  "elapsedWallSeconds": 600.2532999999523,
+  "states": [],
+  "notes": "Digital renderer onsets relative to the first click and nominal sample clock. 1371 scheduled includes a click just outside the 600-second measurement window. Does not measure physical output or oscillator accuracy against an independent clock."
+}
