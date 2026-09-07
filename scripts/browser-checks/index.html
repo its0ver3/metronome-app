@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Metronome browser checks</title>
+<style>body{font:17px system-ui;margin:24px;max-width:900px;background:#151515;color:#eee}button{font:inherit;padding:14px}pre{white-space:pre-wrap;overflow-wrap:anywhere}li{margin:8px 0}</style>
+<h1>Metronome browser checks</h1>
+<p>Checks the production audio engine at low volume. Keep this page visible. The first test takes 30 seconds; the complete run takes about a minute. Results measure digital audio, not speaker or Bluetooth output.</p>
+<button id="run">Run browser checks</button>
+<button id="recover" disabled>Restart after closed audio context</button>
+<p id="status" role="status">Ready</p><ol id="checks"></ol><pre id="result"></pre>
+<script type="module" src="./run.js"></script></html>

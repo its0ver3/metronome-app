@@ -1,0 +1,75 @@
+{
+  "label": "safari-recovery",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Safari/605.1.15",
+  "checks": [
+    {
+      "name": "30-second worklet timing with 200 ms UI stalls",
+      "passed": true,
+      "details": {
+        "clicks": 69,
+        "expected": 69,
+        "maxErrorMs": 0.010340632602634514,
+        "sampleRate": 48000
+      }
+    },
+    {
+      "name": "All meter presets restart with rendered audio",
+      "passed": true
+    },
+    {
+      "name": "All nine sounds load, decode and render",
+      "passed": true,
+      "details": [
+        "classic-click",
+        "woodblock",
+        "soft-tone",
+        "cowbell",
+        "hi-hat",
+        "shaker",
+        "tambourine",
+        "male-count",
+        "female-count"
+      ]
+    },
+    {
+      "name": "Live subdivisions and trainers keep playing",
+      "passed": true
+    },
+    {
+      "name": "Polyrhythm renders after mode and tempo edits",
+      "passed": true
+    },
+    {
+      "name": "A one-bar session stops and releases playback",
+      "passed": true
+    },
+    {
+      "name": "Spoken count-in transitions into click playback",
+      "passed": true
+    },
+    {
+      "name": "Suspending real browser audio stops the transport; Start resumes",
+      "passed": true
+    },
+    {
+      "name": "Rejected worklet module uses audible BufferSource fallback",
+      "passed": true
+    },
+    {
+      "name": "Play rebuilds a closed context and re-registers its worklet",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "completed": true,
+  "capabilities": {
+    "secureContext": true,
+    "sampleRate": 48000,
+    "audioWorklet": true,
+    "outputTimestamp": "function",
+    "audioSession": true,
+    "inert": true,
+    "colorMix": true,
+    "containerUnits": true
+  }
+}

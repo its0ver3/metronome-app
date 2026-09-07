@@ -1,6 +1,24 @@
 # Browser compatibility verification
 
-The current build passed direct checks in native desktop Safari and Chrome. No browser-specific production code change was needed from these checks. Firefox, Edge, Samsung Internet, and physical phones have not been directly tested here, so this is not an all-browser certification.
+## Supported beta browsers
+
+The release test target is **Safari on iPhone and macOS**, and **Chrome on Android and desktop**, using up-to-date browser versions. Prioritize real iPhone Safari and Android Chrome test sessions. Other browsers remain accessible but are outside the current support/test commitment. Keep the implementation standards-based; do not add browser-detection gates or separate interfaces merely to enforce this target.
+
+Suggested tester instruction: “Please use Safari on iPhone, or Chrome on Android/computer. Open the app directly in that browser and keep it visible while practising. Report your phone/computer model, OS/browser version, and speaker/headphone type with any issue.”
+
+## Recovery follow-up — 2026-09-07
+
+The [Safari audio recovery fixes](safari-audio-recovery.md) were checked using a new [repeatable native-browser harness](../scripts/browser-checks/README.md). This harness imports the production engine and audio files, and runs outside the production app.
+
+Chrome 152.0.7977.76 on macOS passed all ten checks with no recorded runtime errors: 30-second timing stress, all eight meter presets, all nine sounds, live subdivisions/trainers, polyrhythm tempo edits, session completion, count-in, real AudioContext suspension/resume, rejected-module BufferSource fallback, and replacement of a closed context with a newly registered worklet. The timing run rendered all 69 expected clicks at 48 kHz with maximum phase error 0.010341 ms, within one audio sample. [Saved Chrome evidence](browser-check-evidence/chrome-recovery.json).
+
+Safari 26.4 on macOS also passed the same ten checks with no recorded runtime errors, including a new Play gesture after closing the original context. Its timing run likewise rendered 69/69 clicks at 48 kHz with maximum phase error 0.010341 ms. [Saved Safari evidence](browser-check-evidence/safari-recovery.json). Both browsers also reported support for the app's `inert`, CSS `color-mix`, container units and audio output timestamps. Safari exposed `navigator.audioSession`; Chrome did not, and playback worked on both.
+
+No additional production change was required by this follow-up. These checks exercise actual browser audio APIs through the isolated harness; they are not a fresh UI audit or a physical-output measurement. Physical iPhone/Android checks remain pending. The existing 197-test deterministic suite passed after the recovery fixes; browser tests add native API coverage rather than replacing those tests. Use the [beta tester checklist](beta-test-checklist.md) for the remaining device sessions. Nothing was published as part of these checks.
+
+## Earlier verification
+
+The earlier build passed direct checks in native desktop Safari and Chrome. No browser-specific production code change was needed from those checks. Firefox, Edge, Samsung Internet, and physical phones were not directly tested.
 
 ## Directly tested
 
@@ -13,7 +31,7 @@ Each timing run lasted thirty real seconds at 137 BPM and 48 kHz, using the exis
 
 Both browsers passed user-initiated start/stop, navigation to Settings and Training while playing, selection of Female Count, all three trainers enabled together, observed subdivision stage and tempo progression, Kit View rendering, and Escape dismissal with focus restoration. Native screenshots showed the Kit View layout rendering correctly. These are focused integration smoke checks, not exhaustive testing of every configuration, every sound, or every screen size.
 
-The Node suite now has **172 passing tests**, including four new compatibility cases: absent AudioWorklet support, rejected worklet-module loading, legacy prefixed AudioContext construction, and rejected audio resume. Those cases verify fallback/error behavior; they do not simulate the full behavior of another browser engine.
+The Node suite at that earlier checkpoint had **172 passing tests**, including four new compatibility cases: absent AudioWorklet support, rejected worklet-module loading, legacy prefixed AudioContext construction, and rejected audio resume. Those cases verify fallback/error behavior; they do not simulate the full behavior of another browser engine.
 
 ## Browser support expectations
 

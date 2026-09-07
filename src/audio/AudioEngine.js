@@ -297,11 +297,13 @@ export default class AudioEngine {
   // --- Controls ---
   async start() {
     if (this.isPlaying) return
+    if (!this._ensureContext()) return
     const generation = ++this._startGeneration
     const session = { ...this.sessionSettings }
-    if (!this._ensureContext()) return
     if (!(await this._unlockAudio())) return
+    if (generation !== this._startGeneration) return
     if (!(await this.init())) return
+    if (generation !== this._startGeneration) return
 
     const activeSoundIndexes = this.polyrhythmMode
       ? [this.polySoundIndex1, this.polySoundIndex2]
@@ -312,9 +314,12 @@ export default class AudioEngine {
     if (generation !== this._startGeneration) return
     await this._preparePlayback(generation)
 
-    if (this.ctx.state === 'interrupted') {
-      await this.ctx.resume().catch(() => {})
-      if (this.ctx.state !== 'running') return
+    if (generation !== this._startGeneration) return
+    // Loading samples/the renderer can outlive a browser audio interruption.
+    // Recheck every non-running state before publishing a successful start.
+    if (this.ctx.state !== 'running' && !(await this._unlockAudio())) {
+      if (generation === this._startGeneration) this.stop()
+      return
     }
 
     if (this.isPlaying || generation !== this._startGeneration) return

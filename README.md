@@ -30,6 +30,12 @@ The production app uses the selected **Pulse Core** direction across Metronome, 
 
 Setlists, Journal, and Groove are intentionally absent from the current app. They were removed so any of these features can be reconsidered from a clean product design later.
 
+## Browser support target
+
+The beta targets **Safari on iPhone and macOS**, and **Chrome on Android and desktop**, using up-to-date browser versions. Prioritize iPhone Safari and Android Chrome for tester coverage. Other browsers may work but are outside the current release test target; the app does not block them.
+
+See the [browser compatibility report](docs/browser-compatibility.md) for verified versions and the reusable Chrome/Safari audio harness. Use the [beta tester checklist](docs/beta-test-checklist.md) for real-phone checks. A desktop pass does not certify mobile audio interruption or Bluetooth behavior.
+
 ## Run locally
 
 ```bash
@@ -66,6 +72,8 @@ The playback rules remain in `src/audio/AudioEngine.js`. `BrowserAudioEngine.js`
 Read the [before/after timing report](docs/audio-timing-verification.md), or repeat the digital timing checks with the [isolated harness](scripts/timing-lab/README.md). The retained baseline source and measurements are in `docs/audio-timing-evidence/`. These checks measure click spacing against the audio sample clock, not physical output latency or device-clock accuracy against an external reference.
 
 The [browser compatibility report](docs/browser-compatibility.md) records native Safari and Chrome checks, browser support expectations, and remaining phone tests. Share an HTTPS link for phone testing so the AudioWorklet renderer is available; an ordinary HTTP LAN development address does not have the same secure-context exception as localhost.
+
+The [iPhone Safari recovery investigation](docs/safari-audio-recovery.md) documents recovery defects found after a reported audio freeze around a meter change. Playback now returns to stopped after a browser interruption or detected frozen audio clock; Play rebuilds an unusable context while preserving settings. Startup and retired-renderer races have regression coverage. The original incident still needs confirmation on the affected iPhone.
 
 The [visual/audio synchronization update](docs/visual-audio-sync-update.md) records immediate highlight attacks, output-clock-aligned visual presentation, late-pulse suppression, and Safari/Chrome measurements. The [baseline report](docs/visual-audio-sync.md) retains the earlier findings. The isolated harness observes production components without changing playback behavior.
 
