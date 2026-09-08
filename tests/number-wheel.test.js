@@ -179,7 +179,7 @@ test('trainer spinbuttons are excluded from global tempo/playback shortcuts', as
   assert.ok(keyboard.includes('[role="spinbutton"]'))
 })
 
-test('grip fading never flattens the 3D parent and production has no mockup dependency', async () => {
+test('grip activation has no parent opacity change and production has no mockup dependency', async () => {
   const css = await readFile(new URL('../src/components/training/numberWheel.css', import.meta.url), 'utf8')
   const source = await readFile(new URL('../src/components/training/NumberWheel.jsx', import.meta.url), 'utf8')
   const textureRules = [...css.matchAll(/[^{}]*\.wheel-texture[^{}]*\{([^}]+)\}/g)]

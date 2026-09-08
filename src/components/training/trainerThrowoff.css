@@ -2,10 +2,10 @@
   --throwoff-target-width: 64px;
   --throwoff-gutter: 45px;
   --throwoff-clearance: 27px;
-  --trainer-engage-duration: 210ms;
+  --trainer-engage-duration: 180ms;
   --trainer-engage-ease: cubic-bezier(0.2, 0.74, 0.24, 1);
-  --trainer-disengage-duration: 270ms;
-  --trainer-disengage-ease: cubic-bezier(0.32, 0.06, 0.24, 1);
+  --trainer-disengage-duration: 180ms;
+  --trainer-disengage-ease: cubic-bezier(0.2, 0.74, 0.24, 1);
   padding-right: var(--throwoff-gutter);
 }
 

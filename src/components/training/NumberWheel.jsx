@@ -14,7 +14,7 @@ const CylinderFace = memo(function CylinderFace({ value, offset, min, max, disab
           const angle = rib * 7 + offset * 42
           return <i key={rib} className="wheel-rib" style={{
             transform: `translateZ(calc(-1 * var(--wheel-radius))) rotateY(${angle}deg) translateZ(var(--wheel-radius))`,
-            // Never fade the preserve-3d parent: that would flatten it mid-transition.
+            // Change the disabled appearance once; only rotation animates.
             opacity: Math.max(0, Math.cos(angle * Math.PI / 180)) * (disabled ? 0.25 : 1),
           }} />
         })}

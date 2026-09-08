@@ -424,8 +424,8 @@ test('the complete lever arc and 3px slide fit inside the stationary touch targe
       assert.ok(screenY >= 0 && screenY + slide <= height)
     }
   }
-  assert.match(css, /--trainer-engage-duration: 210ms/)
-  assert.match(css, /--trainer-disengage-duration: 270ms/)
+  assert.match(css, /--trainer-engage-duration: 180ms/)
+  assert.match(css, /--trainer-disengage-duration: 180ms/)
   assert.match(css, /transform var\(--trainer-engage-duration\) var\(--trainer-engage-ease\)/)
   assert.match(css, /transform var\(--trainer-disengage-duration\) var\(--trainer-disengage-ease\)/)
   assert.match(css, /:not\(:disabled\):active/)

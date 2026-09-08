@@ -2,9 +2,11 @@
 .number-wheel:focus { outline: 1px solid var(--trainer-accent, #3D8790); outline-offset: 1px; border-color: color-mix(in srgb, var(--trainer-accent, #3D8790) 70%, #d3dce1); }
 .number-wheel[aria-disabled='true'] { --trainer-accent: #a4a4a4; border-color: color-mix(in srgb, var(--brand-color-ink, #F5F0E8) 6%, transparent); background: linear-gradient(to right, #0003, transparent 46%, #0003), var(--pulse-surface-raised, #202020); box-shadow: inset 0 1px 2px #0006; cursor: default; touch-action: auto; }
 .wheel-window { --wheel-radius: 54cqw; position: absolute; inset: 0; overflow: hidden; perspective: 320px; }
-/* Keep grouping effects off this parent so perspective stays constant during fades. */
-.wheel-texture { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
-.wheel-rib { position: absolute; top: 3px; bottom: 3px; left: calc(50% - 1px); width: 2px; background: linear-gradient(to right, color-mix(in srgb, var(--trainer-accent, #3D8790) 24%, #c5cdd052), #0009); mask-image: linear-gradient(#000b, #000 14%, transparent 32%, transparent 68%, #000 86%, #000b); backface-visibility: hidden; }
+/* Project the ridges here, then mask the complete grip once. Keeping perspective
+   on their direct parent preserves rotation when the shared mask flattens it.
+   The number faces remain in the separate wheel-window perspective. */
+.wheel-texture { position: absolute; inset: 0; perspective: 320px; pointer-events: none; mask-image: linear-gradient(#000b, #000 14%, transparent 32%, transparent 68%, #000 86%, #000b); }
+.wheel-rib { position: absolute; top: 3px; bottom: 3px; left: calc(50% - 1px); width: 2px; background: linear-gradient(to right, color-mix(in srgb, var(--trainer-accent, #3D8790) 24%, #c5cdd052), #0009); backface-visibility: hidden; }
 .wheel-surface { position: absolute; inset: 1px; border-radius: 7px; pointer-events: none; background: linear-gradient(to right, #0005, transparent 22%, #d6e1d708 43%, transparent 62%, #0005); box-shadow: inset 0 1px 0 #d5dfd71a, inset 0 -1px 0 #000a; }
 /* A fixed square drum-key head marks the selected number; the cylinder turns below it. */
 .wheel-index { position: absolute; top: 3px; left: calc(50% - 3px); width: 6px; height: 6px; border: 1px solid color-mix(in srgb, var(--trainer-accent, #3D8790) 45%, #cbd2d6); border-radius: 1px; background: linear-gradient(135deg, #ccd3d7, color-mix(in srgb, var(--trainer-accent, #3D8790) 40%, #52616b) 48%, #83949c); box-shadow: 0 1px 2px #000a, inset 0 0 0 1px #1118; pointer-events: none; }
