@@ -1,125 +1,171 @@
 export const clampWheelValue = (value, min, max) => Math.max(min, Math.min(max, value))
 
-// A shallow detent holds the cylinder at a number when the finger is close.
-// Keep the raw gesture position intact so small movements accumulate and the
-// wheel never gets stuck. The eased shoulder makes entering/leaving it continuous.
-export function wheelDetentOffset(position) {
-  const offset = Math.round(position) - position
-  const distance = Math.abs(offset)
-  const capture = 0.14
-  if (distance <= capture) return 0
-  const t = (distance - capture) / (0.5 - capture)
-  return Math.sign(offset) * 0.5 * t * t * (2 - t)
+export function parseWheelEntry(text, min, max) {
+  if (!/^\d+$/.test(text.trim())) return null
+  const value = Number(text)
+  return Number.isSafeInteger(value) ? clampWheelValue(value, min, max) : null
 }
 
-// One frame at a time; engine/settings updates happen only at the end of a gesture.
-// Injected scheduling also lets tests exercise cancellation without a browser.
+// One scale for every wheel. Pixel trackpads already supply their own momentum.
+export const WHEEL_DRAG_PIXELS = 24
+export function normalizeWheelDelta(delta, mode = 0) {
+  if (!Number.isFinite(delta)) return 0
+  return mode === 1 ? delta / 3 : mode === 2 ? Math.sign(delta) : delta / 48
+}
+
+// A single continuous position drives the cylinder AND the saved integer.
+// Parent echoes of our own updates must never interrupt a drag or its momentum.
 export function createWheelMotion({ read, paint, commit, raf, caf, delay, cancelDelay, now = () => performance.now() }) {
   let position = read().value
-  let gesture = null
-  let x = 0
+  let published = position
+  let mode = 'idle'
+  let pointer = null
+  let velocity = 0
+  let lastMovement = 0
+  let lastFrame = 0
   let frame = null
   let timer = null
-  let lastMotionTime = now()
-  let snapStrength = 1
-  let sampledSpeed = false
-  const startSpeed = () => { lastMotionTime = now(); snapStrength = 1; sampledSpeed = false }
-  const trackSpeed = delta => {
-    const time = now()
-    const elapsed = Math.max(4, time - lastMotionTime)
-    const speed = Math.abs(delta) * 1000 / elapsed // number steps per second
-    const t = clampWheelValue((speed - 2) / 6, 0, 1)
-    const target = 1 - t * t * (3 - 2 * t)
-    // Release the detent immediately at speed; restore it gently as motion slows.
-    snapStrength = !sampledSpeed || target < snapStrength
-      ? target
-      : snapStrength + (target - snapStrength) * (1 - Math.exp(-elapsed / 90))
-    sampledSpeed = true
-    lastMotionTime = time
-  }
+  let target = position
+  const bounded = value => clampWheelValue(value, read().min, read().max)
   const clear = () => {
     if (frame !== null) caf(frame)
     if (timer !== null) cancelDelay(timer)
     frame = timer = null
   }
-  const display = (moving) => {
-    const value = Math.round(position)
-    const rawOffset = value - position
-    const offset = rawOffset + (wheelDetentOffset(position) - rawOffset) * snapStrength
-    paint({ value, offset: moving ? offset : 0, moving })
-  }
-  const schedule = () => {
-    if (frame !== null) return
-    frame = raf(() => {
-      frame = null
-      if (read().disabled) { reset(); return }
-      display(true)
-    })
+  function display() {
+    const value = bounded(Math.round(position))
+    paint({ value, offset: value - position, moving: mode !== 'idle' })
+    if (value !== published) {
+      published = value // Record before commit: the parent may acknowledge synchronously.
+      commit(value)
+    }
   }
   function reset() {
     clear()
-    gesture = null
-    position = read().value
-    display(false)
+    pointer = null
+    mode = 'idle'
+    velocity = 0
+    position = published = bounded(read().value)
+    paint({ value: published, offset: 0, moving: false })
+  }
+  function sync() {
+    if (read().disabled || read().value !== published || bounded(position) !== position) {
+      reset()
+      return true
+    }
+    return false
+  }
+  function schedule() {
+    if (frame === null) frame = raf(tick)
+  }
+  function settle() {
+    clear()
+    pointer = null
+    velocity = 0
+    target = bounded(Math.round(position))
+    if (read().reducedMotion || Math.abs(target - position) < .001) {
+      position = target
+      mode = 'idle'
+    } else {
+      mode = 'snap'
+      lastFrame = now()
+      schedule()
+    }
+    display()
+  }
+  function tick() {
+    frame = null
+    if (read().disabled) { reset(); return }
+    const time = now()
+    const dt = Math.max(0, time - lastFrame)
+    lastFrame = time
+    if (mode === 'coast') {
+      // Exponential friction: frame-rate independent, no bounce at the bounds.
+      const decay = Math.exp(-dt / 180)
+      const next = position + velocity * 180 * (1 - decay)
+      position = bounded(next)
+      velocity *= decay
+      if (next !== position || Math.abs(velocity) < .001) { settle(); return }
+    } else if (mode === 'snap') {
+      position += (target - position) * (1 - Math.exp(-dt / 45))
+      if (Math.abs(target - position) < .001) { position = target; mode = 'idle' }
+    }
+    display()
+    if (mode === 'coast' || mode === 'snap') schedule()
+  }
+  function begin(clientX, clientY = 0) {
+    if (read().disabled || pointer) return
+    clear() // Catch the moving cylinder exactly where it is; never round on grab.
+    mode = 'drag'
+    pointer = { x: clientX, startX: clientX, startY: clientY, time: now(), dragged: false }
+    velocity = 0
+    lastMovement = now()
+  }
+  function move(clientX, clientY = 0) {
+    if (!pointer || read().disabled) return
+    const time = now()
+    const dx = pointer.x - clientX
+    pointer.dragged ||= Math.hypot(pointer.startX - clientX, pointer.startY - clientY) > 3
+    if (dx !== 0) {
+      const previous = position
+      position = bounded(position + dx / WHEEL_DRAG_PIXELS)
+      const dt = clampWheelValue(time - pointer.time, 8, 40)
+      const instantaneous = (position - previous) / dt
+      // Reversing your hand immediately reverses the wheel and its momentum.
+      if (Math.sign(instantaneous) !== Math.sign(velocity)) velocity = instantaneous
+      else velocity += (instantaneous - velocity) * (1 - Math.exp(-dt / 30))
+      velocity = clampWheelValue(velocity, -.025, .025)
+      lastMovement = time
+      pointer.x = clientX
+      schedule()
+    }
+    pointer.time = time
+  }
+  function end(clientX, clientY = 0) {
+    if (!pointer || read().disabled) return false
+    move(clientX, clientY) // Include travel delivered only with pointerup.
+    const tapped = !pointer.dragged
+    pointer = null
+    clear()
+    velocity *= Math.exp(-(now() - lastMovement) / 60)
+    if (tapped || read().reducedMotion || Math.abs(velocity) < .001) settle()
+    else {
+      mode = 'coast'
+      lastFrame = now()
+      display() // Flush release before the first inertia frame.
+      schedule()
+    }
+    return tapped
   }
   function finish() {
-    if (!gesture) return
     if (read().disabled) { reset(); return }
-    clear()
-    gesture = null
-    const { min, max, value } = read()
-    position = clampWheelValue(Math.round(position), min, max)
-    display(false)
-    if (position !== value) commit(position)
+    settle() // Blur/capture loss preserves the current selection, not the starting value.
   }
   return {
-    reset,
-    finish,
-    begin(clientX) {
-      if (read().disabled) return
-      const start = gesture ? Math.round(position) : read().value
-      finish()
-      gesture = 'drag'
-      x = clientX
-      position = start
-      startSpeed()
-    },
-    move(clientX) {
-      if (gesture !== 'drag' || read().disabled) return
-      const { min, max } = read()
-      const delta = (x - clientX) / 18
-      trackSpeed(delta)
-      position = clampWheelValue(position + delta, min, max)
-      x = clientX
+    begin, move, end, finish, reset, sync,
+    isActive: () => mode !== 'idle',
+    scroll(delta, deltaMode = 0) {
+      if (read().disabled || pointer || !Number.isFinite(delta) || !delta) return
+      clear()
+      velocity = 0
+      mode = 'scroll'
+      position = bounded(position + normalizeWheelDelta(delta, deltaMode))
       schedule()
-    },
-    scroll(delta) {
-      if (read().disabled || gesture === 'drag') return
-      if (gesture !== 'scroll') {
-        position = read().value
-        startSpeed()
-        // The first wheel event has no prior timestamp; use one display frame.
-        lastMotionTime -= 16
-      }
-      gesture = 'scroll'
-      const { min, max } = read()
-      trackSpeed(delta / 30)
-      position = clampWheelValue(position + delta / 30, min, max)
-      schedule()
-      if (timer !== null) cancelDelay(timer)
-      timer = delay(finish, 120)
+      // Keep all native trackpad events, including their natural momentum tail.
+      timer = delay(settle, 140)
     },
     key(key) {
       if (read().disabled) return false
       const steps = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1, PageUp: 10, PageDown: -10 }
       if (!(key in steps) && key !== 'Home' && key !== 'End') return false
-      reset()
-      const { min, max, value } = read()
-      position = key === 'Home' ? min : key === 'End' ? max : clampWheelValue(value + steps[key], min, max)
-      display(false)
-      if (position !== value) commit(position)
+      clear()
+      pointer = null
+      mode = 'idle'
+      velocity = 0
+      position = key === 'Home' ? read().min : key === 'End' ? read().max : bounded(Math.round(position) + steps[key])
+      display()
       return true
     },
-    dispose() { clear(); gesture = null },
+    dispose() { clear(); pointer = null; mode = 'idle' },
   }
 }

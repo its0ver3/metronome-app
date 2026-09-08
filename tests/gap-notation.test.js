@@ -44,7 +44,10 @@ test('the gap card keeps two bar wheels and reveals one accessible notation pick
   for (const enabled of [false, true]) for (const disabled of [false, true]) {
     const html = render(Card, { enabled, disabled, clickBars: 2, silentBars: 3, pattern: 'offbeat', onChange() {} })
     assert.equal((html.match(/role="spinbutton"/g) || []).length, 2)
-    assert.equal(html.includes('aria-haspopup="listbox"'), enabled)
+    assert.equal(html.includes('aria-haspopup="listbox"'), true)
+    assert.match(html, new RegExp(`id="gap-trainer-settings" aria-hidden="${!enabled}"`))
+    assert.equal(/id="gap-trainer-settings"[^>]*inert=""/.test(html), !enabled)
+    assert.equal(/class="pulse-subdivision-dropdown[^>]*disabled=""/.test(html), !enabled || disabled)
     assert.match(html, /Gap bars/)
     if (enabled) {
       assert.match(html, /aria-label="Gap pattern: Offbeat &amp;"/)

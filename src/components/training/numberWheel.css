@@ -1,5 +1,5 @@
-.number-wheel { position: relative; container-type: inline-size; width: 100%; min-width: 44px; height: 52px; border-radius: 9px; border: 1px solid color-mix(in srgb, var(--trainer-accent, #3D8790) 18%, #30383f); background: linear-gradient(to right, #0b1014, #23292e 26%, color-mix(in srgb, var(--trainer-accent, #3D8790) 10%, #30373d) 46%, #252c31 64%, #0b1014); box-shadow: inset 0 1px 3px #0008, inset 0 -1px 2px #0006; cursor: ew-resize; touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
-.number-wheel:focus { outline: 1px solid var(--trainer-accent, #3D8790); outline-offset: 1px; border-color: color-mix(in srgb, var(--trainer-accent, #3D8790) 70%, #d3dce1); }
+.number-wheel { position: relative; container-type: inline-size; width: 100%; min-width: 44px; height: 44.2px; border-radius: 9px; border: 1px solid color-mix(in srgb, var(--trainer-accent, #3D8790) 18%, #30383f); background: linear-gradient(to right, #0b1014, #23292e 26%, color-mix(in srgb, var(--trainer-accent, #3D8790) 10%, #30373d) 46%, #252c31 64%, #0b1014); box-shadow: inset 0 1px 3px #0008, inset 0 -1px 2px #0006; cursor: ew-resize; touch-action: auto; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+.number-wheel:focus-within { outline: 1px solid var(--trainer-accent, #3D8790); outline-offset: 1px; border-color: color-mix(in srgb, var(--trainer-accent, #3D8790) 70%, #d3dce1); }
 .number-wheel[aria-disabled='true'] { --trainer-accent: #a4a4a4; border-color: color-mix(in srgb, var(--brand-color-ink, #F5F0E8) 6%, transparent); background: linear-gradient(to right, #0003, transparent 46%, #0003), var(--pulse-surface-raised, #202020); box-shadow: inset 0 1px 2px #0006; cursor: default; touch-action: auto; }
 .wheel-window { --wheel-radius: 54cqw; position: absolute; inset: 0; overflow: hidden; perspective: 320px; }
 /* Project the ridges here, then mask the complete grip once. Keeping perspective
@@ -15,15 +15,32 @@
 /* Equal angular steps around one cylinder: the side numbers naturally recede. */
 .wheel-digit { position: absolute; left: 33.333333%; width: 33.333333%; top: calc(50% - 11px); height: 22px; line-height: 22px; text-align: center; font-size: min(1.125rem, 24cqw); font-weight: 400; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--trainer-accent, #3D8790) 50%, #e7ebed); white-space: nowrap; backface-visibility: hidden; text-shadow: 0 1px 1px #0008; }
 .number-wheel[data-long-range='true'] .wheel-digit { font-size: min(1.125rem, 20cqw); }
-/* Enable/disable paints the resting appearance once, rather than fading dozens
-   of 3D ribs per wheel while the card unfolds. Only actual rotation settles. */
-.number-wheel:not(.is-moving) .wheel-digit, .number-wheel:not(.is-moving) .wheel-rib { transition: transform 170ms cubic-bezier(.2,.8,.25,1); }
+/* One animation clock owns drag, momentum and settling. CSS must not replay a
+   number's old transform after React recycles it at the end of a gesture. */
+.wheel-digit, .wheel-rib { transition: none; }
 .number-wheel[aria-disabled='true'] .wheel-digit:not(.current) { opacity: 0 !important; }
 .number-wheel[aria-disabled='true'] .wheel-index { opacity: .35; filter: grayscale(1); }
 .number-wheel[aria-disabled='true'] .wheel-digit.current { color: #adadad; }
-.compact-wheel { height: 44px; }
+.compact-wheel { height: 37.4px; }
 .compact-wheel .wheel-digit { font-size: min(1rem, 24cqw); }
 
 .number-wheel { letter-spacing: normal; }
 .pulse-wheel-help { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .number-wheel, .number-wheel *, .number-wheel *::after { transition: none !important; } }
+
+/* All three targets stay inside the existing grid/flex item. */
+.number-wheel { --wheel-step-width: 22px; box-sizing: border-box; min-width: 0; }
+.wheel-window { pointer-events: none; }
+.wheel-drag-area { position: absolute; inset: 0 var(--wheel-step-width); z-index: 1; cursor: grab; touch-action: pan-y pinch-zoom; outline: none; border-radius: 4px; }
+.number-wheel.is-moving { border-color: var(--trainer-accent, #3D8790); box-shadow: inset 0 1px 3px #0008, 0 0 0 1px var(--trainer-accent, #3D8790); }
+.number-wheel.is-moving .wheel-drag-area { cursor: grabbing; }
+.number-wheel[aria-disabled='true'] .wheel-drag-area { cursor: default; touch-action: auto; }
+.wheel-step { position: absolute; z-index: 2; top: 0; bottom: 0; width: var(--wheel-step-width); min-width: 0; min-height: 0; padding: 0; display: grid; place-items: center; border: 0; border-radius: 0; background: #10161beb; color: color-mix(in srgb, var(--trainer-accent, #3D8790) 40%, #e7ebed); font: 400 15px/1 system-ui, sans-serif; cursor: pointer; touch-action: manipulation; }
+.wheel-step-minus { left: 0; border-radius: 8px 0 0 8px; border-right: 1px solid #ffffff0b; }
+.wheel-step-plus { right: 0; border-radius: 0 8px 8px 0; border-left: 1px solid #ffffff0b; }
+.wheel-step:disabled { color: #858c92; cursor: default; }
+.wheel-step:focus-visible { outline: 1px solid var(--trainer-accent, #3D8790); outline-offset: -3px; }
+.wheel-step:not(:disabled):active { background: color-mix(in srgb, var(--trainer-accent, #3D8790) 28%, #10161b); }
+@media (hover: hover) { .wheel-step:not(:disabled):hover { background: color-mix(in srgb, var(--trainer-accent, #3D8790) 16%, #10161b); } }
+.wheel-entry { position: absolute; z-index: 3; inset: 0 var(--wheel-step-width); width: calc(100% - 2 * var(--wheel-step-width)); min-width: 0; height: 100%; box-sizing: border-box; border: 0; border-radius: 0; padding: 0; outline: none; background: #182126; color: #f5f0e8; font: 400 16px/1 system-ui, sans-serif; font-variant-numeric: tabular-nums; text-align: center; user-select: text; -webkit-user-select: text; }
+.is-editing .wheel-drag-area { visibility: hidden; }

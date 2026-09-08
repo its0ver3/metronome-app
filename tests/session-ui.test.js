@@ -32,7 +32,8 @@ test('count-in and timer controls expose saved selections and custom durations',
     else assert.match(html, new RegExp(`role="spinbutton" aria-label="Playback timer ${mode}" aria-valuenow="${mode === 'minutes' ? 7 : 123}"`))
   }
   const running = render(Settings, { settings: { mode: 'bars' }, isPlaying: true })
-  assert.equal((running.match(/disabled=""/g) || []).length, 4)
+  assert.equal((running.match(/disabled=""/g) || []).length, 6)
+  for (const action of ['Decrease', 'Increase']) assert.match(running, new RegExp(`aria-label="${action} Playback timer bars"[^>]*disabled=""`))
   assert.match(running, /role="spinbutton"[^>]*aria-disabled="true"/)
   assert.match(running, /Stop playback to change/)
 })
