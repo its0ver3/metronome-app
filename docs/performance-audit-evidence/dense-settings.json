@@ -1,0 +1,106 @@
+{
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "visibility": "visible",
+  "viewport": [
+    1280,
+    720
+  ],
+  "label": "dense-settings",
+  "bpm": 300,
+  "subdivision": 13,
+  "elapsedMs": 10000.599999904633,
+  "backend": "audio-worklet",
+  "playing": true,
+  "counts": {
+    "AppShell": 612,
+    "SettingsScreen": 612,
+    "RhythmArc": 612
+  },
+  "commitMs": {
+    "count": 612,
+    "total": 148.8,
+    "p50": 0.20000004768371582,
+    "p95": 0.40000009536743164,
+    "max": 2.200000047683716
+  },
+  "visualBatchMs": {
+    "count": 600,
+    "total": 280.6,
+    "p50": 0.40000009536743164,
+    "p95": 0.7999999523162842,
+    "max": 3.5
+  },
+  "frameIntervalMs": {
+    "count": 599,
+    "total": 9983.3,
+    "p50": 16.69999999999709,
+    "p95": 17.5,
+    "max": 17.70000000001164
+  },
+  "framesOver25ms": 0,
+  "longTaskMs": {
+    "count": 0,
+    "total": 0,
+    "p50": null,
+    "p95": null,
+    "max": null
+  },
+  "startup": [
+    {
+      "ms": 30.200000047683716,
+      "backend": "audio-worklet",
+      "playing": true
+    }
+  ],
+  "domElements": 128,
+  "resources": [
+    {
+      "name": "http://127.0.0.1:4190/assets/index-BRwbUP-I.js",
+      "duration": 6.299999952316284,
+      "bytes": 367710,
+      "transfer": 368010
+    },
+    {
+      "name": "http://127.0.0.1:4190/assets/index-DJNTaUuf.css",
+      "duration": 5.8999998569488525,
+      "bytes": 101683,
+      "transfer": 101983
+    },
+    {
+      "name": "http://127.0.0.1:4190/logo.png",
+      "duration": 3.299999952316284,
+      "bytes": 152453,
+      "transfer": 152753
+    },
+    {
+      "name": "http://127.0.0.1:4190/assets/metronome.worklet-DBrrjn_u.js",
+      "duration": 3.8999998569488525,
+      "bytes": 70,
+      "transfer": 370
+    },
+    {
+      "name": "http://127.0.0.1:4190/audit-result",
+      "duration": 5.800000190734863,
+      "bytes": 0,
+      "transfer": 300
+    },
+    {
+      "name": "http://127.0.0.1:4190/assets/trainer-throwoff-body-DpFEP6o5.png",
+      "duration": 8.600000143051147,
+      "bytes": 27001,
+      "transfer": 27301
+    },
+    {
+      "name": "http://127.0.0.1:4190/assets/trainer-throwoff-lever-Cdm37Flr.png",
+      "duration": 8.5,
+      "bytes": 7242,
+      "transfer": 7542
+    },
+    {
+      "name": "http://127.0.0.1:4190/audit-result",
+      "duration": 3.299999952316284,
+      "bytes": 0,
+      "transfer": 300
+    }
+  ]
+}

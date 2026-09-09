@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react'
 import {
   getOrbitAccentLevel,
   getStandardOrbitAccentIndex,
@@ -40,17 +41,9 @@ function RhythmArc({
   const gapAngle = Math.min(3.5, stepAngle * 0.18)
   const gapDistance = getGapDistance(gapAngle, HIT_RADIUS)
 
-  return Array.from({ length: count }, (_, beat) => {
+  const geometry = useMemo(() => Array.from({ length: count }, (_, beat) => {
     const segmentStart = spans?.[beat]?.startAngle ?? startAngle + beat * stepAngle
     const segmentEnd = spans?.[beat]?.endAngle ?? startAngle + (beat + 1) * stepAngle
-    const isActive = isPlaying && activeBeat === beat
-    const accentIndex = accentIndexForBeat(beat)
-    const controlIndex = controlIndexForBeat(beat)
-    const accent = getOrbitAccentLevel(accents, accentIndex)
-    const stateClass = `accent-${accent.toLowerCase()}`
-    const description = rhythm === 'standard'
-      ? `${spans ? 'Group' : 'Beat'} ${beat + 1}`
-      : `Rhythm ${rhythm === 'one' ? '1' : '2'}, pulse ${beat + 1}`
     const trackPath = parallelSegmentPath(
       segmentStart,
       segmentEnd,
@@ -72,12 +65,21 @@ function RhythmArc({
       ON_OUTER_RADIUS,
       INNER_RADIUS,
     )
-    const facePath = accent === 'ACCENT'
-      ? trackPath
-      : accent === 'ON'
-        ? onPath
-        : surfacePath
     const hitPath = parallelArcPath(segmentStart, segmentEnd, gapDistance, HIT_RADIUS)
+    return { trackPath, surfacePath, onPath, hitPath }
+  }), [count, spans, startAngle, stepAngle, gapDistance])
+
+  return Array.from({ length: count }, (_, beat) => {
+    const isActive = isPlaying && activeBeat === beat
+    const accentIndex = accentIndexForBeat(beat)
+    const controlIndex = controlIndexForBeat(beat)
+    const accent = getOrbitAccentLevel(accents, accentIndex)
+    const stateClass = `accent-${accent.toLowerCase()}`
+    const description = rhythm === 'standard'
+      ? `${spans ? 'Group' : 'Beat'} ${beat + 1}`
+      : `Rhythm ${rhythm === 'one' ? '1' : '2'}, pulse ${beat + 1}`
+    const { trackPath, surfacePath, onPath, hitPath } = geometry[beat]
+    const facePath = accent === 'ACCENT' ? trackPath : accent === 'ON' ? onPath : surfacePath
     const activate = () => onCycleAccent(controlIndex)
 
     return (
@@ -116,7 +118,7 @@ function RhythmArc({
   })
 }
 
-export function StandardRhythmOrbit({
+export const StandardRhythmOrbit = memo(function StandardRhythmOrbit({
   beatCount,
   subdivision,
   accents,
@@ -126,7 +128,8 @@ export function StandardRhythmOrbit({
   interactive = true,
   meter,
 }) {
-  const groups = meter ? meterGroups(meter) : null
+  const groups = useMemo(() => meter ? meterGroups(meter) : null, [meter])
+  const spans = useMemo(() => groups?.map(group => ({ startAngle: -90 + group.start / beatCount * 360, endAngle: -90 + group.end / beatCount * 360 })), [groups, beatCount])
   const activeGroup = groups ? groups.findIndex(group => activeBeat >= group.start && activeBeat < group.end) : activeBeat
   return (
     <svg
@@ -139,7 +142,7 @@ export function StandardRhythmOrbit({
       <RhythmArc
         rhythm="standard"
         count={groups?.length ?? beatCount}
-        spans={groups?.map(group => ({ startAngle: -90 + group.start / beatCount * 360, endAngle: -90 + group.end / beatCount * 360 }))}
+        spans={spans}
         startAngle={-90}
         sweepAngle={360}
         activeBeat={activeGroup}
@@ -152,9 +155,9 @@ export function StandardRhythmOrbit({
       />
     </svg>
   )
-}
+})
 
-export default function PolyrhythmOrbit({
+export default memo(function PolyrhythmOrbit({
   rhythm1,
   rhythm2,
   activeBeat1,
@@ -201,4 +204,4 @@ export default function PolyrhythmOrbit({
       />
     </svg>
   )
-}
+})

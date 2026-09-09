@@ -1,9 +1,10 @@
+import { memo } from 'react'
 import GapTraining from './GapTraining'
 import TempoTrainer from './TempoTrainer'
 import SubdivisionTrainer from './SubdivisionTrainer'
 import { getTempoColor } from '../metronome/tempoHeat'
 
-export default function TrainingScreen({
+export default memo(function TrainingScreen({
   bpm = 120,
   maxBpm,
   meter,
@@ -73,4 +74,4 @@ export default function TrainingScreen({
       </div>
     </section>
   )
-}
+})

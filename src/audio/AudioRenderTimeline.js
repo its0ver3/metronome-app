@@ -29,9 +29,13 @@ export default class AudioRenderTimeline extends AudioEngine {
   }
 
   setBank(entries) {
-    this.soundBank.entries = entries.map(entry => ({ ...entry,
-      voiceBuffers: entry.voiceBuffers ? new Map(entry.voiceBuffers) : undefined,
-    }))
+    entries.forEach((entry, index) => {
+      if (!entry) return
+      const previous = this.soundBank.entries[index]
+      this.soundBank.entries[index] = { ...previous, ...entry,
+        voiceBuffers: entry.voiceBuffers ? new Map([...(previous?.voiceBuffers || []), ...entry.voiceBuffers]) : previous?.voiceBuffers,
+      }
+    })
     this.soundBank.ready = true
   }
 
@@ -39,6 +43,7 @@ export default class AudioRenderTimeline extends AudioEngine {
     this.revision = 0
     for (const key of PLAYBACK_CONFIG_KEYS) this[key] = settings[key]
     this._meterGroups = meterGroups(this.meter)
+    this.soundBank.entries = []
     this.setBank(entries)
     this.voices.length = 0
     this.notifications.length = 0

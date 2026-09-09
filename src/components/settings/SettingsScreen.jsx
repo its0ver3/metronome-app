@@ -1,7 +1,8 @@
+import { memo } from 'react'
 import SoundSelector from './SoundSelector'
 import VolumeControl from './VolumeControl'
 
-export default function SettingsScreen({
+export default memo(function SettingsScreen({
   soundIndex,
   volume,
   pumpTheJam,
@@ -76,4 +77,4 @@ export default function SettingsScreen({
       </div>
     </section>
   )
-}
+})

@@ -102,7 +102,8 @@ export default class AudioEngine {
     this._sessionEndTime = Infinity
     this._sessionEndTimer = null
     this._sessionPhase = 'idle'
-    this._sessionStatusKey = ''
+    this._lastSessionState = null
+    this._nextSessionStatusTime = Infinity
     this._audibleSessionBar = 1
     this._audibleCountInBar = 1
     this._audibleCountInBeat = 0
@@ -249,10 +250,22 @@ export default class AudioEngine {
 
   _publishSession() {
     const state = this.getSessionState()
-    const key = JSON.stringify(state)
-    if (key === this._sessionStatusKey) return
-    this._sessionStatusKey = key
+    const config = this._activeSession || this.sessionSettings
+    this._nextSessionStatusTime = this.isPlaying && config.mode === 'minutes' && this._sessionStartTime !== null
+      ? this._sessionStartTime + Math.floor(Math.max(0, this.ctx.currentTime - this._sessionStartTime)) + 1
+      : Infinity
+    const previous = this._lastSessionState
+    if (previous && Object.keys(state).every(key => state[key] === previous[key])) return
+    this._lastSessionState = state
     this._onSessionChange?.(state)
+  }
+
+  soundRequirements(index, { countIn = false } = {}) {
+    if (countIn) return { count: this.polyrhythmMode ? this.polyRhythm1 : this._meterGroups.length, includeAnd: false }
+    const count = this.polyrhythmMode
+      ? Math.max(this.polySoundIndex1 === index ? this.polyRhythm1 : 0, this.polySoundIndex2 === index ? this.polyRhythm2 : 0, 1)
+      : this._meterGroups.length
+    return { count, includeAnd: !this.polyrhythmMode }
   }
 
   _beginSessionPlayback(time) {
@@ -309,7 +322,15 @@ export default class AudioEngine {
       ? [this.polySoundIndex1, this.polySoundIndex2]
       : [this.soundIndex]
     if (session.countInBars) activeSoundIndexes.push(COUNT_IN_SOUND)
-    await Promise.all(activeSoundIndexes.map((index) => this.soundBank.prepareSound(index)))
+    await Promise.all([...new Set(activeSoundIndexes)].map((index) => {
+      const requirements = this.soundRequirements(index, { countIn: index === COUNT_IN_SOUND && !(
+        this.polyrhythmMode ? [this.polySoundIndex1, this.polySoundIndex2].includes(index) : this.soundIndex === index
+      ) })
+      if (session.countInBars && index === COUNT_IN_SOUND) {
+        requirements.count = Math.max(requirements.count, this.soundRequirements(index, { countIn: true }).count)
+      }
+      return this.soundBank.prepareSound(index, requirements)
+    }))
 
     if (generation !== this._startGeneration) return
     await this._preparePlayback(generation)
@@ -404,7 +425,7 @@ export default class AudioEngine {
   }
 
   toggle() {
-    if (this.isPlaying) this.stop()
+    if (this.isPlaying || this.loadState?.starting) this.stop()
     else this.start().catch(() => {})
   }
 
@@ -453,21 +474,26 @@ export default class AudioEngine {
 
   setSound(index) {
     this.soundIndex = normalizeSoundIndex(index)
-    this.soundBank?.prepareSound(this.soundIndex).catch(() => {})
+    this.soundBank?.prepareSound(this.soundIndex, this.soundRequirements(this.soundIndex)).catch(() => {})
   }
 
   async preview(soundIndex) {
+    const generation = this._previewGeneration = (this._previewGeneration || 0) + 1
     if (!(await this._unlockAudio())) return
     if (!(await this.init())) return
+    const context = this.ctx, bank = this.soundBank
     const normalizedIndex = normalizeSoundIndex(soundIndex)
-    await this.soundBank.prepareSound(normalizedIndex)
+    await bank.prepareSound(normalizedIndex, { count: 1, includeAnd: false })
+    if (generation !== this._previewGeneration || context !== this.ctx) return
 
     const buffer = this.soundBank.getBuffer(normalizedIndex, {
       beatNumber: 1,
       bpm: this.bpm,
       sequenceIndex: 0,
     })
+    try { this._previewSource?.stop() } catch { /* Already ended. */ }
     const source = this.ctx.createBufferSource()
+    this._previewSource = source
     source.buffer = buffer
     source.connect(this._gainNode)
     source.start()
@@ -701,12 +727,12 @@ export default class AudioEngine {
 
   setPolySoundIndex1(index) {
     this.polySoundIndex1 = normalizeSoundIndex(index)
-    this.soundBank?.prepareSound(this.polySoundIndex1).catch(() => {})
+    this.soundBank?.prepareSound(this.polySoundIndex1, this.soundRequirements(this.polySoundIndex1)).catch(() => {})
   }
 
   setPolySoundIndex2(index) {
     this.polySoundIndex2 = normalizeSoundIndex(index)
-    this.soundBank?.prepareSound(this.polySoundIndex2).catch(() => {})
+    this.soundBank?.prepareSound(this.polySoundIndex2, this.soundRequirements(this.polySoundIndex2)).catch(() => {})
   }
 
   _notifyAtAudioTime(time, callback) {
@@ -730,7 +756,7 @@ export default class AudioEngine {
       this.stop(true)
       return
     }
-    this._publishSession()
+    if (this.ctx.currentTime >= this._nextSessionStatusTime) this._publishSession()
     if (this._sessionSchedulingDone) return
     if (this._countInRemaining) {
       this._schedulerCountIn()

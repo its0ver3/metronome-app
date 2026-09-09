@@ -1,3 +1,4 @@
+import { writtenNoteName } from './meter.js'
 // Each pattern spans one written denominator note, just like the subdivision picker.
 export const GAP_PATTERNS = [
   { id: 'silence', divisions: 1, hits: [] },
@@ -13,7 +14,7 @@ export function getGapPattern(id) {
 }
 
 export function getGapPatternLabel(id, denominator = 4) {
-  const note = denominator === 8 ? '32nd' : '16th'
+  const note = ({ 2: '8th', 4: '16th', 8: '32nd', 16: '64th' })[denominator]
   return {
     silence: 'Silence',
     offbeat: 'Offbeat &',
@@ -25,7 +26,7 @@ export function getGapPatternLabel(id, denominator = 4) {
 }
 
 export function getGapPatternDescription(id, denominator = 4) {
-  const unit = denominator === 8 ? 'eighth note' : 'beat'
+  const unit = denominator === 4 ? 'beat' : writtenNoteName(denominator)
   return {
     silence: 'Rest for the whole bar',
     offbeat: `Click halfway through each ${unit}`,

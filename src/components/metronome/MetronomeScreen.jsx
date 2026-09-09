@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import BpmDisplay from './BpmDisplay'
 import BpmControls from './BpmControls'
 import TapTempoButton from './TapTempoButton'
-import BeatIndicators from './BeatIndicators'
+import BeatIndicators from './LiveBeatIndicators'
 import MeterPicker from './MeterPicker.jsx'
 import { normalizeMeter, meterGroups, TEMPO_UNITS } from '../../audio/meter.js'
 import SubdivisionPicker from './SubdivisionPicker'
@@ -26,7 +26,7 @@ const FOCUSABLE = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(',')
 
-const RHYTHM_SHEET_MOTION_MS = 440
+const RHYTHM_SHEET_MOTION_MS = 220
 
 function TransportIcon({ isPlaying }) {
   if (isPlaying) {
@@ -49,8 +49,9 @@ export default function MetronomeScreen({
   bpm,
   maxBpm,
   isPlaying,
+  isStarting = false,
   currentBeat,
-  currentSubdivision,
+  visualStore,
   inGap,
   beatsPerBar,
   subdivision,
@@ -283,12 +284,13 @@ export default function MetronomeScreen({
               type="button"
               onClick={onToggle}
               className="pulse-transport"
-              aria-label={isPlaying ? 'Stop metronome' : 'Start metronome'}
+              aria-label={isPlaying ? 'Stop metronome' : isStarting ? 'Cancel metronome startup' : 'Start metronome'}
+              aria-busy={isStarting}
               aria-pressed={isPlaying}
               aria-keyshortcuts="Space"
             >
               <TransportIcon isPlaying={isPlaying} />
-              <span>{isPlaying ? 'Stop' : 'Start'}</span>
+              <span>{isPlaying ? 'Stop' : isStarting ? 'Loading…' : 'Start'}</span>
             </button>
             <button
               type="button"
@@ -420,7 +422,7 @@ export default function MetronomeScreen({
                     subdivision={subdivision}
                     subdivisionAccents={subdivisionAccents}
                     currentBeat={currentBeat}
-                    currentSubdivision={currentSubdivision}
+                    visualStore={visualStore}
                     onCycleSubdivisionAccent={onCycleSubdivisionAccent}
                     isPlaying={isPlaying}
                     inGap={inGap}

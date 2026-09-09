@@ -8,7 +8,7 @@ import useKeyboard from '../../hooks/useKeyboard'
 import './kitView.css'
 
 export default function KitView({
-  bpm, maxBpm, isPlaying, currentBeat, beatsPerBar, meter, inGap,
+  bpm, maxBpm, isPlaying, isStarting = false, currentBeat, beatsPerBar, meter, inGap,
   subdivision, subdivisionAccents, polyrhythmMode,
   polyRhythm1, polyRhythm2, polyBeat1, polyBeat2, polyAccents1, polyAccents2,
   onCycleBeatAccent, onCyclePolyAccent,
@@ -57,7 +57,8 @@ export default function KitView({
         type="button"
         className="pulse-kit-tap-surface"
         onClick={onToggle}
-        aria-label={isPlaying ? 'Stop metronome' : 'Start metronome'}
+        aria-label={isPlaying ? 'Stop metronome' : isStarting ? 'Cancel metronome startup' : 'Start metronome'}
+        aria-busy={isStarting}
         aria-pressed={isPlaying}
         aria-keyshortcuts="Space"
       />
@@ -91,7 +92,7 @@ export default function KitView({
             </div>
           </div>
           <div className="pulse-kit-playback">
-            <span>Tap anywhere to {isPlaying ? 'stop' : 'start'}</span>
+            <span>Tap anywhere to {isPlaying ? 'stop' : isStarting ? 'cancel' : 'start'}</span>
           </div>
         </div>
         <div className="pulse-kit-tempo">

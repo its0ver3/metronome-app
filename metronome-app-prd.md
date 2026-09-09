@@ -83,7 +83,7 @@ Keyboard shortcuts work while focus is not inside an interactive control:
 - Visual state continues during Gap Trainer silence.
 - Beats, subdivision, standard accents, polyrhythm voices, sounds, and polyrhythm accents are edited in the scrollable Rhythm sheet. The primary screen remains uncluttered without removing those controls.
 
-The meter model stores numerator, denominator, grouping, tempo unit, and group-only preference. Presets cover 4/4, 3/4, 2/4, then 5/8, 6/8, 7/8, 9/8 and 12/8. BPM always counts quarter notes in every meter, including restored preferences. There is no More section, custom-meter editor, or tempo-unit selector. 5/8 and 7/8 retain their grouping choices; previously saved custom signatures remain supported. Groups must be positive integers summing to the numerator. Changing meter keeps the numeric BPM and stops playback; starting restarts bar 1. Saved legacy beat counts migrate to N/4. Polyrhythm preserves but does not use this standard-meter configuration.
+The meter model stores numerator, denominator, grouping, tempo unit, and group-only preference. Presets cover 4/4, 3/4, 2/4, then 5/8, 6/8, 7/8, 9/8 and 12/8. BPM always counts quarter notes in every meter, including restored preferences. Custom meters support numerators 1–16, denominators 2/4/8/16, and editable positive integer groupings. Invalid or incomplete drafts cannot be applied; Cancel/Escape discard edits, and applying retains the numeric BPM and stops playback. 5/8 and 7/8 retain their quick grouping choices, also available for 5/16 and 7/16. There is no tempo-unit selector. Groups must be positive integers summing to the numerator. Changing meter keeps the numeric BPM and stops playback; starting restarts bar 1. Saved legacy beat counts migrate to N/4. Polyrhythm preserves but does not use this standard-meter configuration.
 
 ### 4.3 Sounds
 
@@ -113,7 +113,7 @@ Each trainer uses the selected Hoop Dial card with a slim steel hoop around an o
 
 Subdivision values are represented by musical note groups in the rhythm sheet,
 rhythm pill, trainer preview, and stage controls. Each group occupies one
-written quarter or eighth note, with 1–13 evenly spaced clicks represented by notes and
+written half, quarter, eighth, or sixteenth note, with 1–13 evenly spaced clicks represented by notes and
 tuplets. Select a group from a compact dropdown with a scrollable note list.
 The same dropdown is used in trainer stages and closes on selection; bars retain numeric
 wheels. Labels announce both the musical name and click count. This changes

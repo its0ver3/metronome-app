@@ -1,10 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import AudioEngine from '../src/audio/AudioEngine.js'
-import { METER_PRESETS, normalizeMeter, meterGroups, writtenNoteSeconds } from '../src/audio/meter.js'
+import { METER_PRESETS, normalizeMeter, meterGroups, writtenNoteSeconds, parseCustomMeter } from '../src/audio/meter.js'
 import { restoreEngineSettings } from '../src/audio/engineSettings.js'
 import { getSubdivisionNotation, getSubdivisionLabel } from '../src/components/metronome/subdivisionMusic.js'
 import { getRhythmReadoutLabel } from '../src/components/metronome/rhythmReadoutLabel.js'
+
+const CUSTOM_METERS = [normalizeMeter({ numerator: 15, denominator: 16, groups: [4, 4, 4, 3] }), normalizeMeter({ numerator: 16, denominator: 16, groups: Array(16).fill(1) }), normalizeMeter({ numerator: 2, denominator: 2 }), normalizeMeter({ numerator: 5, denominator: 4, groups: [3, 2] })]
+const ALL_METERS = [...METER_PRESETS, ...CUSTOM_METERS]
 
 const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-8, `${a} != ${b}`)
 function instrument(meter) {
@@ -29,7 +32,7 @@ function runBar(engine) {
 }
 
 test('production timing uses quarter-note BPM for every preset and subdivisions 1–13', () => {
-  for (const meter of METER_PRESETS) for (const bpm of [20, 120, 300]) for (const tempoUnit of ['quarter', 'dotted', 'eighth']) for (let subdivision = 1; subdivision <= 13; subdivision++) {
+  for (const meter of ALL_METERS) for (const bpm of [20, 120, 300]) for (const tempoUnit of ['quarter', 'dotted', 'eighth']) for (let subdivision = 1; subdivision <= 13; subdivision++) {
     const { engine } = instrument({ ...meter, tempoUnit })
     engine.setBpm(bpm)
     engine.setSubdivision(subdivision)
@@ -74,8 +77,8 @@ test('muted groups remain muted through subdivision-stage changes; Accent retain
   assert.ok(sounds.slice(1).every(sound => sound.volume < 1))
 })
 test('all three production trainers progress on full meter bars and return group-only mode when disabled', () => {
-  for (const meter of METER_PRESETS) {
-    const { engine, sounds } = instrument({ ...meter, groupOnly: meter.denominator === 8 })
+  for (const meter of ALL_METERS) {
+    const { engine, sounds } = instrument({ ...meter, groupOnly: true })
     engine.setGapTraining(true, 2, 1)
     engine.setTempoTrainer(true, 100, 120, 5, 2)
     engine.setSubdivisionTrainer(true, [{ subdivision: 1, bars: 2 }, { subdivision: 2, bars: 2 }])
@@ -90,7 +93,7 @@ test('all three production trainers progress on full meter bars and return group
       assert.equal(engine.bpm, Math.min(120, 100 + Math.floor((barIndex + 1) / 2) * 5))
     }
     engine.setSubdivisionTrainer(false)
-    assert.equal(engine.meter.groupOnly, meter.denominator === 8)
+    assert.equal(engine.meter.groupOnly, true)
   }
 })
 test('legacy settings migrate to N/4 without losing tempo, detailed accents or stages', () => {
@@ -163,4 +166,25 @@ test('changing meter while audio is still loading cancels the pending start', as
   await starting
   assert.equal(engine.isPlaying, false)
   assert.equal(engine._timerId, null)
+})
+
+
+test('custom editor rejects invalid signatures and incomplete or mismatched grouping', () => {
+  assert.deepEqual(parseCustomMeter('15', 16, ' 4 + 4 + 4 + 3 ').meter, CUSTOM_METERS[0])
+  for (const numerator of ['', '0', '17', '1.5', 'NaN']) assert.ok(parseCustomMeter(numerator, 16, '1').error)
+  for (const grouping of ['', '4+4+4', '4+4+4+0+3', '4+4+4+-3', '4+4+4+3+', '4,4,4,3', '4+4+4+3.0']) assert.ok(parseCustomMeter('15', 16, grouping).error)
+  assert.ok(parseCustomMeter('15', 32, '4+4+4+3').error)
+})
+
+test('15/16 group pulses, voice speed, and saved settings preserve the selected rhythm', () => {
+  const { engine, sounds } = instrument({ ...CUSTOM_METERS[0], groupOnly: true })
+  engine.setBpm(120)
+  near(runBar(engine).duration, 1.875)
+  assert.deepEqual(sounds.map(sound => sound.time), [0, .5, 1, 1.5])
+  assert.deepEqual(sounds.map(sound => sound.beatNumber), [1, 2, 3, 4])
+  assert.deepEqual(sounds.map(sound => sound.bpm), [120, 120, 120, 160])
+  const restored = restoreEngineSettings(new AudioEngine(), engine.getState())
+  assert.deepEqual(restored.meter, engine.meter)
+  assert.equal(restored.bpm, 120)
+  assert.match(getRhythmReadoutLabel({ meter: restored.meter, subdivision: 2 }), /15\/16.*2 clicks per sixteenth note/)
 })

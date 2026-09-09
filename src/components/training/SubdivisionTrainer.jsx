@@ -1,3 +1,4 @@
+import { writtenNoteName } from '../../audio/meter.js'
 import SubdivisionStage from './SubdivisionStage'
 import SubdivisionNotation from '../metronome/SubdivisionNotation.jsx'
 import TrainerCardHeader from './TrainerCardHeader'
@@ -64,13 +65,13 @@ export default function SubdivisionTrainer({
         description="Cycle through subdivisions."
         readout={
           <div className="pulse-trainer-sequence">
-            <ol aria-label={`Subdivision sequence, clicks per ${denominator === 8 ? 'eighth note' : 'beat'}`}>
+            <ol aria-label={`Subdivision sequence, clicks per ${denominator === 4 ? 'beat' : writtenNoteName(denominator)}`}>
               {stages.map((stage, index) => {
                 const isActive = enabled && isPlaying && !disabled && activeStageIndex === index
                 return (
                   <li key={index} aria-current={isActive ? 'step' : undefined}>
                     {index > 0 && <span className="pulse-trainer-sequence-arrow" aria-hidden="true">→</span>}
-                    <span className="pulse-trainer-sequence-value" aria-label={`Stage ${STAGE_LABELS[index]}: ${stage.subdivision} ${stage.subdivision === 1 ? 'click' : 'clicks'} per ${denominator === 8 ? 'eighth note' : 'beat'}`}><SubdivisionNotation count={stage.subdivision} denominator={denominator} /></span>
+                    <span className="pulse-trainer-sequence-value" aria-label={`Stage ${STAGE_LABELS[index]}: ${stage.subdivision} ${stage.subdivision === 1 ? 'click' : 'clicks'} per ${denominator === 4 ? 'beat' : writtenNoteName(denominator)}`}><SubdivisionNotation count={stage.subdivision} denominator={denominator} /></span>
                   </li>
                 )
               })}

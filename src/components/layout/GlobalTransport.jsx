@@ -5,7 +5,7 @@ import { TEMPO_UNITS } from '../../audio/meter.js'
 import SessionStatus from '../metronome/SessionStatus'
 
 export default function GlobalTransport({
-  bpm, maxBpm = MAX_BPM, isPlaying, beatsPerBar, subdivision, subdivisionAccents, currentBeat,
+  bpm, maxBpm = MAX_BPM, isPlaying, isStarting = false, beatsPerBar, subdivision, subdivisionAccents, currentBeat,
   polyrhythmMode, polyRhythm1, polyRhythm2, polyBeat1, polyBeat2, polyAccents1, polyAccents2,
   tempoEnabled, onToggle, onBpmChange, onOpenMetronome,
   collapsed = false, onCollapsedChange,
@@ -35,11 +35,11 @@ export default function GlobalTransport({
       <button type="button" onClick={onOpenMetronome} className="pulse-global-orbit" aria-label={`Open Metronome, ${bpm} BPM${meter && !polyrhythmMode ? `, ${TEMPO_UNITS[meter.tempoUnit].name}, ${meter.numerator}/${meter.denominator}` : ''}`}>
         {polyrhythmMode ? (
           <PolyrhythmOrbit rhythm1={polyRhythm1} rhythm2={polyRhythm2}
-            activeBeat1={polyBeat1} activeBeat2={polyBeat2} isPlaying={isPlaying}
+            activeBeat1={collapsed ? -1 : polyBeat1} activeBeat2={collapsed ? -1 : polyBeat2} isPlaying={isPlaying && !collapsed}
             accents1={polyAccents1} accents2={polyAccents2} interactive={false} />
         ) : (
           <StandardRhythmOrbit beatCount={beatsPerBar} subdivision={subdivision} meter={meter}
-            accents={subdivisionAccents} activeBeat={currentBeat} isPlaying={isPlaying} interactive={false} />
+            accents={subdivisionAccents} activeBeat={collapsed ? -1 : currentBeat} isPlaying={isPlaying && !collapsed} interactive={false} />
         )}
         <span aria-hidden="true">{bpm}</span>
       </button>
@@ -48,7 +48,8 @@ export default function GlobalTransport({
           title={tempoLocked ? 'Tempo is controlled by Tempo Trainer' : 'Decrease tempo'}
           disabled={tempoLocked || bpm <= MIN_BPM} onClick={() => nudge(-1)}>−</button>
         <button type="button" onClick={onToggle} className="pulse-global-play"
-          aria-label={isPlaying ? 'Stop metronome' : 'Start metronome'} aria-pressed={isPlaying}>
+          aria-label={isPlaying ? 'Stop metronome' : isStarting ? 'Cancel metronome startup' : 'Start metronome'}
+          aria-busy={isStarting} aria-pressed={isPlaying}>
           {isPlaying ? (
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <rect x="6" y="4" width="4" height="16" rx="1" />

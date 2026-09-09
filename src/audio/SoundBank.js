@@ -93,6 +93,7 @@ export default class SoundBank {
     this.downbeatBuffers = []
     this.ready = false
     this._loadPromises = new Map()
+    this._bufferPromises = new Map()
   }
 
   async init() {
@@ -126,17 +127,23 @@ export default class SoundBank {
     this.ready = true
   }
 
-  async prepareSound(index) {
+  async prepareSound(index, { count = VOICE_COUNT, includeAnd = true } = {}) {
     if (!this.ready) await this.init()
 
     const soundIndex = normalizeSoundIndex(index)
     const entry = this.entries[soundIndex]
     if (entry.kind === 'synth' || entry.loaded) return
+    if (entry.kind === 'voice') {
+      // Counts cannot change during a run without stopping. Prepare all speed
+      // tiers for the current counts so live tempo/trainer edits never wait.
+      await this._loadVoice(entry, count, includeAnd)
+      entry.loaded = entry.voiceBuffers.size === VOICE_VARIANTS.length * (VOICE_COUNT + 1)
+      this._syncCompatibilityBuffers()
+      return
+    }
     if (this._loadPromises.has(entry.id)) return this._loadPromises.get(entry.id)
 
-    const loadPromise = entry.kind === 'voice'
-      ? this._loadVoice(entry)
-      : this._loadSample(entry)
+    const loadPromise = this._loadSample(entry)
 
     this._loadPromises.set(entry.id, loadPromise)
 
@@ -206,31 +213,36 @@ export default class SoundBank {
     entry.accent = accent
   }
 
-  async _loadVoice(entry) {
+  async _loadVoice(entry, count, includeAnd) {
     const requests = []
-    for (const { prefix } of VOICE_VARIANTS) {
-      requests.push(this._loadBuffer(`${entry.folder}/${prefix}and.wav`).then(buffer => [`${prefix}and`,buffer]))
-      for (let number = 1; number <= VOICE_COUNT; number += 1) {
-        const key = `${prefix}${number}`
-        requests.push(
-          this._loadBuffer(`${entry.folder}/${key}.wav`).then((buffer) => [key, buffer]),
-        )
-      }
+    const load = key => {
+      if (!entry.voiceBuffers.has(key)) requests.push(this._loadBuffer(`${entry.folder}/${key}.wav`)
+        .then(buffer => entry.voiceBuffers.set(key, buffer)))
     }
-
-    const [voiceBuffers, subdivision] = await Promise.all([
-      Promise.all(requests),
-      this._loadBuffer('vcsl/wood-soft.wav'),
-    ])
-    entry.voiceBuffers = new Map(voiceBuffers)
-    entry.subdivision = subdivision
+    for (const { prefix } of VOICE_VARIANTS) {
+      if (includeAnd) load(`${prefix}and`)
+      for (let number = 1; number <= Math.max(1, Math.min(VOICE_COUNT, count)); number++) load(`${prefix}${number}`)
+    }
+    if (!entry.subdivision) requests.push(this._loadBuffer('vcsl/wood-soft.wav').then(buffer => { entry.subdivision = buffer }))
+    await Promise.all(requests)
   }
 
   async _loadBuffers(paths) {
     return Promise.all(paths.map((path) => this._loadBuffer(path)))
   }
 
-  async _loadBuffer(path) {
+  _loadBuffer(path) {
+    if (!this._bufferPromises.has(path)) {
+      const pending = this._fetchBuffer(path).catch(error => {
+        this._bufferPromises.delete(path)
+        throw error
+      })
+      this._bufferPromises.set(path, pending)
+    }
+    return this._bufferPromises.get(path)
+  }
+
+  async _fetchBuffer(path) {
     const response = await fetch(`${AUDIO_BASE}${path}`)
     if (!response.ok) throw new Error(`Could not load metronome sound: ${path}`)
     const bytes = await response.arrayBuffer()

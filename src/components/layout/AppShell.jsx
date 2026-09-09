@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import BottomNav from './BottomNav'
 import GlobalTransport from './GlobalTransport'
-import DownbeatFlash from './DownbeatFlash'
+import DownbeatFlash from './LiveDownbeatFlash'
 import MetronomeScreen from '../metronome/MetronomeScreen'
 import KitView from '../metronome/KitView'
 import TrainingScreen from '../training/TrainingScreen'
@@ -115,47 +115,47 @@ export default function AppShell({ kitOpen = false, onExitKit }) {
   }, [pumpTheJam, sessionSettings, flashOnOne, flashSubdivisions, audio.bpm, soundIndex, volume, beatsPerBar, meter, subdivision, subdivisionAccents, gapEnabled, gapClickBars, gapSilentBars, gapPattern, tempoEnabled, tempoStartBpm, tempoTargetBpm, tempoIncrement, tempoEveryBars, subdivTrainerEnabled, subdivTrainerStages, polyrhythmMode, polyRhythm1, polyRhythm2, polySoundIndex1, polySoundIndex2, polyAccents1, polyAccents2, engine])
 
   // Handlers
-  const handlePumpTheJamChange = (enabled) => {
+  const handlePumpTheJamChange = useCallback((enabled) => {
     engine.setPumpTheJam(enabled)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handleSessionSettingsChange = (next) => {
+  const handleSessionSettingsChange = useCallback((next) => {
     engine.setSessionSettings(next)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handleCycleSubdivisionAccent = (index) => {
-    audio.cycleSubdivisionAccent(index)
+  const handleCycleSubdivisionAccent = useCallback((index) => {
+    engine.cycleSubdivisionAccent(index)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handleCycleBeatAccent = (beatIndex) => {
-    audio.cycleBeatAccent(beatIndex)
+  const handleCycleBeatAccent = useCallback((beatIndex) => {
+    engine.cycleBeatAccent(beatIndex)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handleMeterChange = (nextMeter) => {
+  const handleMeterChange = useCallback((nextMeter) => {
     engine.setMeter(nextMeter)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handleSubdivisionChange = (type) => {
+  const handleSubdivisionChange = useCallback((type) => {
     if (engine.isPlaying) engine.stop()
     engine.setMeter({ ...engine.meter, groupOnly: type === 0 })
-    if (type > 0) audio.setSubdivision(type)
+    if (type > 0) engine.setSubdivision(type)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handleVolumeChange = (v) => {
-    audio.setVolume(v)
+  const handleVolumeChange = useCallback((v) => {
+    engine.setVolume(v)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handleSoundChange = (index) => {
-    audio.setSound(index)
+  const handleSoundChange = useCallback(async (index) => {
+    await engine.setSound(index)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
   const handleSoundPreview = useCallback(async (index) => {
     await engine.preview(index)
@@ -165,15 +165,15 @@ export default function AppShell({ kitOpen = false, onExitKit }) {
     engine.playTapTempoFeedback(stage).catch(() => {})
   }, [engine])
 
-  const handleGapChange = (enabled, clickBars, silentBars, pattern) => {
-    audio.setGapTraining(enabled, clickBars, silentBars, pattern)
+  const handleGapChange = useCallback((enabled, clickBars, silentBars, pattern) => {
+    engine.setGapTraining(enabled, clickBars, silentBars, pattern)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handleTempoChange = (enabled, start, target, inc, bars) => {
-    audio.setTempoTrainer(enabled, start, target, inc, bars)
+  const handleTempoChange = useCallback((enabled, start, target, inc, bars) => {
+    engine.setTempoTrainer(enabled, start, target, inc, bars)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
   // Auto-sync subdivision display when bar changes during subdivision trainer
   useEffect(() => {
@@ -183,46 +183,47 @@ export default function AppShell({ kitOpen = false, onExitKit }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [audio.currentBar])
 
-  const handleSubdivTrainerChange = (enabled, stages) => {
-    audio.setSubdivisionTrainer(enabled, stages)
+  const handleSubdivTrainerChange = useCallback((enabled, stages) => {
+    engine.setSubdivisionTrainer(enabled, stages)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handlePolyrhythmModeToggle = (enabled) => {
-    audio.setPolyrhythmMode(enabled)
+  const handlePolyrhythmModeToggle = useCallback((enabled) => {
+    engine.setPolyrhythmMode(enabled)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handlePolyRhythm1Change = (value) => {
-    audio.setPolyRhythm1(value)
+  const handlePolyRhythm1Change = useCallback((value) => {
+    engine.setPolyRhythm1(value)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handlePolyRhythm2Change = (value) => {
-    audio.setPolyRhythm2(value)
+  const handlePolyRhythm2Change = useCallback((value) => {
+    engine.setPolyRhythm2(value)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handleCyclePolyAccent = (rhythmIndex, beatIndex) => {
-    audio.cyclePolyAccent(rhythmIndex, beatIndex)
+  const handleCyclePolyAccent = useCallback((rhythmIndex, beatIndex) => {
+    engine.cyclePolyAccent(rhythmIndex, beatIndex)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handlePolySoundIndex1Change = (index) => {
-    audio.setPolySoundIndex1(index)
+  const handlePolySoundIndex1Change = useCallback(async (index) => {
+    await engine.setPolySoundIndex1(index)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
-  const handlePolySoundIndex2Change = (index) => {
-    audio.setPolySoundIndex2(index)
+  const handlePolySoundIndex2Change = useCallback(async (index) => {
+    await engine.setPolySoundIndex2(index)
     syncFromEngine()
-  }
+  }, [engine, syncFromEngine])
 
   const playbackStatus = {
     maxBpm,
     session: audio.session,
     bpm: audio.bpm,
     isPlaying: audio.isPlaying,
+    isStarting: audio.loadState.starting,
     currentBar: audio.currentBar,
     currentBeat: audio.currentBeat,
     beatsPerBar,
@@ -245,7 +246,12 @@ export default function AppShell({ kitOpen = false, onExitKit }) {
 
   return (
     <>
-      <DownbeatFlash enabled={flashOnOne} includeSubdivisions={flashSubdivisions} isPlaying={audio.isPlaying} pulse={audio.flashPulse} />
+      {(audio.loadState.starting || audio.loadState.soundLoading || audio.loadState.error) && (
+        <div className="pulse-audio-notice" role="status">
+          {audio.loadState.error || (audio.loadState.starting ? 'Loading sound… Tap again to cancel.' : 'Loading sound…')}
+        </div>
+      )}
+      <DownbeatFlash enabled={flashOnOne} includeSubdivisions={flashSubdivisions} isPlaying={audio.isPlaying} visualStore={audio.visualStore} />
       {kitOpen ? (
         <KitView
           {...playbackStatus}
@@ -271,8 +277,9 @@ export default function AppShell({ kitOpen = false, onExitKit }) {
                   maxBpm={maxBpm}
                   bpm={audio.bpm}
                   isPlaying={audio.isPlaying}
+                  isStarting={audio.loadState.starting}
                   currentBeat={audio.currentBeat}
-                  currentSubdivision={audio.currentSubdivision}
+                  visualStore={audio.visualStore}
                   inGap={audio.inGap}
                   beatsPerBar={beatsPerBar}
                   subdivision={subdivision}

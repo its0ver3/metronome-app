@@ -2,7 +2,7 @@ export const TEMPO_UNITS = {
   quarter: { quarters: 1, name: 'Quarter note', symbol: '♩' },
 }
 export function defaultMeterGroups(n, d) {
-  if (d === 4 || n < 5) return Array(n).fill(1)
+  if (d <= 4 || n < 5) return Array(n).fill(1)
   if (n % 3 === 0) return Array(n / 3).fill(3)
   if (n % 2 === 0) return Array(n / 2).fill(2)
   return [...Array((n - 3) / 2).fill(2), 3]
@@ -10,12 +10,12 @@ export function defaultMeterGroups(n, d) {
 export function normalizeMeter(value, legacyBeats = 4) {
   const candidate = Number(value?.numerator ?? legacyBeats)
   const numerator = Number.isInteger(candidate) && candidate >= 1 && candidate <= 16 ? candidate : 4
-  const denominator = Number(value?.denominator) === 8 ? 8 : 4
+  const denominator = [2, 4, 8, 16].includes(Number(value?.denominator)) ? Number(value.denominator) : 4
   const supplied = value?.groups
   const groups = Array.isArray(supplied) && supplied.length && supplied.every(n => Number.isInteger(n) && n > 0) && supplied.reduce((a, b) => a + b, 0) === numerator
     ? [...supplied] : defaultMeterGroups(numerator, denominator)
   // Also migrate saved note-value preferences: BPM always means quarter notes.
-  return { numerator, denominator, groups, tempoUnit: 'quarter', groupOnly: denominator === 8 && value?.groupOnly === true }
+  return { numerator, denominator, groups, tempoUnit: 'quarter', groupOnly: value?.groupOnly === true }
 }
 export const METER_PRESETS = [[4, 4], [3, 4], [2, 4], [5, 8], [6, 8], [7, 8], [9, 8], [12, 8]].map(([numerator, denominator]) => normalizeMeter({ numerator, denominator }))
 export function meterGroups(meter) {
@@ -37,4 +37,20 @@ export function meterAccents(meter, subdivision, previous, previousSubdivision =
     else result[group.start * subdivision] = level
   }
   return result
+}
+
+// Editor validation is strict; saved-setting normalization remains forgiving.
+export function parseCustomMeter(numeratorText, denominator, groupingText) {
+  const numerator = Number(numeratorText)
+  if (!Number.isInteger(numerator) || numerator < 1 || numerator > 16) return { error: 'Choose 1–16 beats.' }
+  if (![2, 4, 8, 16].includes(Number(denominator))) return { error: 'Choose a half, quarter, eighth, or sixteenth note.' }
+  if (!/^\s*[1-9]\d*(\s*\+\s*[1-9]\d*)*\s*$/.test(groupingText)) return { error: 'Use positive whole numbers separated by +, such as 4+4+4+3.' }
+  const groups = groupingText.split('+').map(Number)
+  const total = groups.reduce((sum, group) => sum + group, 0)
+  if (total !== numerator) return { error: `Grouping totals ${total}; it must equal ${numerator}.` }
+  return { meter: normalizeMeter({ numerator, denominator, groups }) }
+}
+
+export function writtenNoteName(denominator) {
+  return { 2: 'half note', 4: 'quarter note', 8: 'eighth note', 16: 'sixteenth note' }[denominator] || 'quarter note'
 }

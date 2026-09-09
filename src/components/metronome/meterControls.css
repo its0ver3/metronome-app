@@ -12,3 +12,16 @@
 .pulse-group-pulse-symbol { font-size: 17px; color: inherit; }
 .pulse-subdivision-menu > button > .pulse-group-pulse-option { font-size: 13px; flex: 1; }
 .pulse-meter-unit-mark { display: inline; font-size: 1.2em; margin-right: 5px; }
+.pulse-custom-meter { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; padding: 16px; border: 1px solid #414141; border-radius: 12px; background: var(--pulse-surface-raised); color: var(--brand-color-ink); }
+.pulse-custom-meter-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 12px; }
+.pulse-custom-meter label { display: flex; flex-direction: column; gap: 6px; min-width: 0; font-size: 14px; }
+.pulse-custom-meter input, .pulse-custom-meter select { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; padding: 8px; border: 1px solid #626262; border-radius: 8px; background: var(--pulse-surface-raised); color: inherit; font: inherit; font-size: 16px; }
+.pulse-custom-meter p { margin: 0; font-size: 14px; line-height: 1.4; }
+.pulse-custom-meter-error { min-height: 20px; }
+.pulse-custom-meter input[aria-invalid=true] { border-color: #e5a790; }
+.pulse-custom-meter-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.pulse-custom-meter button, .pulse-custom-meter-edit { min-height: 44px; border: 1px solid #626262; border-radius: 8px; padding: 8px 12px; font-size: 14px; color: var(--brand-color-ink); background: var(--pulse-surface-raised); }
+.pulse-custom-meter button[type=submit] { background: var(--tempo-heat-color); color: #0a0a0a; border-color: var(--tempo-heat-color); }
+.pulse-custom-meter button:disabled { opacity: .4; }
+.pulse-custom-meter-edit { display: block; margin: 12px auto 0; max-width: 100%; overflow-wrap: anywhere; }
+.pulse-custom-meter :focus-visible, .pulse-custom-meter-edit:focus-visible { outline: 2px solid var(--brand-color-ink); outline-offset: 2px; }

@@ -1,0 +1,14 @@
+{
+  "productionBuild": "passed",
+  "sitesBuild": "passed",
+  "automatedTests": {
+    "passed": 212,
+    "failed": 0
+  },
+  "newBehaviorTests": 11,
+  "visualSyncRuns": 2,
+  "expectedAndRenderedClicksPerRun": 69,
+  "productionJsGzipKB": 106.73,
+  "productionCssGzipKB": 17.73,
+  "deploymentPerformed": false
+}

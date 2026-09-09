@@ -20,7 +20,7 @@ export default function BeatIndicators({
 }) {
   const spans = meter ? meterGroups(meter) : Array.from({ length: beatsPerBar }, (_, start) => ({ start, length: 1, end: start + 1, index: start }))
   const useStacked = !groupOnly && (subdivision > 1 || spans.some(group => group.length > 1))
-  const unitLabel = meter?.denominator === 8 ? 'Group' : 'Beat'
+  const unitLabel = spans.some(group => group.length > 1) ? 'Group' : 'Beat'
 
   // Build beat groups
   const groups = spans.map(({ start, length, end, index: beat }) => {

@@ -1,0 +1,105 @@
+{
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "visibility": "visible",
+  "viewport": [
+    1280,
+    720
+  ],
+  "label": "after-dense-settings",
+  "bpm": 300,
+  "subdivision": 13,
+  "elapsedMs": 10000.700000047684,
+  "backend": "audio-worklet",
+  "playing": true,
+  "counts": {
+    "AppShell": 124,
+    "RhythmArc": 50
+  },
+  "commitMs": {
+    "count": 124,
+    "total": 14.2,
+    "p50": 0,
+    "p95": 0.40000009536743164,
+    "max": 0.5
+  },
+  "visualBatchMs": {
+    "count": 600,
+    "total": 35.1,
+    "p50": 0,
+    "p95": 0.40000009536743164,
+    "max": 1
+  },
+  "frameIntervalMs": {
+    "count": 599,
+    "total": 9983.3,
+    "p50": 16.69999999999709,
+    "p95": 17.60000000000582,
+    "max": 17.80000000000291
+  },
+  "framesOver25ms": 0,
+  "longTaskMs": {
+    "count": 0,
+    "total": 0,
+    "p50": null,
+    "p95": null,
+    "max": null
+  },
+  "startup": [
+    {
+      "ms": 31.5,
+      "backend": "audio-worklet",
+      "playing": true
+    }
+  ],
+  "domElements": 128,
+  "resources": [
+    {
+      "name": "http://127.0.0.1:4190/assets/index-Z3ZFJ7x3.js",
+      "duration": 5.5,
+      "bytes": 375335,
+      "transfer": 375635
+    },
+    {
+      "name": "http://127.0.0.1:4190/assets/index-B5uxn_RR.css",
+      "duration": 4.8999998569488525,
+      "bytes": 101967,
+      "transfer": 102267
+    },
+    {
+      "name": "http://127.0.0.1:4190/logo.png",
+      "duration": 2.5999999046325684,
+      "bytes": 152453,
+      "transfer": 152753
+    },
+    {
+      "name": "http://127.0.0.1:4190/assets/metronome.worklet-BfE6Rppg.js",
+      "duration": 2.299999952316284,
+      "bytes": 70,
+      "transfer": 370
+    },
+    {
+      "name": "http://127.0.0.1:4190/audit-result",
+      "duration": 5.799999952316284,
+      "bytes": 0,
+      "transfer": 300
+    },
+    {
+      "name": "http://127.0.0.1:4190/assets/trainer-throwoff-body-DpFEP6o5.png",
+      "duration": 6.5,
+      "bytes": 27001,
+      "transfer": 27301
+    },
+    {
+      "name": "http://127.0.0.1:4190/assets/trainer-throwoff-lever-Cdm37Flr.png",
+      "duration": 6.5,
+      "bytes": 7242,
+      "transfer": 7542
+    },
+    {
+      "name": "http://127.0.0.1:4190/audit-result",
+      "duration": 2.5,
+      "bytes": 0,
+      "transfer": 300
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "commit": "a361247",
+  "productionBuild": "passed",
+  "automatedTests": {
+    "passed": 201,
+    "failed": 0
+  },
+  "productionJsBytes": 344940,
+  "productionJsGzipBytes": 104760,
+  "productionCssBytes": 101680,
+  "productionCssGzipBytes": 17660,
+  "precacheEntries": 211,
+  "precacheKiB": 6150.57,
+  "completedBrowserCaptures": 5,
+  "productionSourceChanged": false
+}

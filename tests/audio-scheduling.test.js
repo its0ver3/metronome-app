@@ -233,3 +233,18 @@ test('fallback recovery publishes a trainer target reached during the missed win
   assert.equal(e._audibleSessionBar, 2)
   e.stop()
 })
+
+
+test('audio-thread renderer honors 15/16 grouping and stops after exactly two bars', () => {
+  const { engine, advance, hits } = renderer(e => {
+    e.setMeter({ numerator: 15, denominator: 16, groups: [4, 4, 4, 3], groupOnly: true })
+    e.setBpm(120)
+    e.setSessionSettings({ mode: 'bars', bars: 2 })
+  })
+  advance(4)
+  assert.equal(engine.isPlaying, false)
+  near(engine._sessionEndTime, 3.8)
+  const expected = [.05, .55, 1.05, 1.55, 1.925, 2.425, 2.925, 3.425]
+  assert.equal(hits.length, expected.length)
+  hits.forEach((hit, i) => near(hit.time, expected[i]))
+})

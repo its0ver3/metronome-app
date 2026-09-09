@@ -82,6 +82,7 @@ for (const countInBars of [0, 1, 2]) {
 test('compound and unequal meters speak group counts with the correct whole-bar duration', async t => {
   for (const [meter, expected] of [
     [{ numerator: 6, denominator: 8 }, [0, .75]],
+    [{ numerator: 15, denominator: 16, groups: [4, 4, 4, 3] }, [0, .5, 1, 1.5]],
     [{ numerator: 7, denominator: 8, groups: [2, 2, 3] }, [0, .5, 1]],
   ]) {
     const { engine, notes, advance } = instrument(t)
@@ -93,8 +94,8 @@ test('compound and unequal meters speak group counts with the correct whole-bar 
     const voice = notes.filter(n => n.buffer.sound === female)
     assert.deepEqual(voice.map(n => n.buffer.beatNumber), expected.map((_, i) => i + 1))
     voice.forEach((note, i) => near(note.time, .05 + expected[i]))
-    near(notes.find(n => n.buffer.sound !== female).time, .05 + meter.numerator * .25)
-    assert.ok(voice.every(n => n.stopTime <= .05 + meter.numerator * .25 + 1e-8))
+    near(notes.find(n => n.buffer.sound !== female).time, .05 + meter.numerator * 4 / meter.denominator * .5)
+    assert.ok(voice.every(n => n.stopTime <= .05 + meter.numerator * 4 / meter.denominator * .5 + 1e-8))
   }
 })
 

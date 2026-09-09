@@ -22,9 +22,9 @@ const { Notation, Card, getPlaybackSummary } = module.exports
 const render = (Component, props) => renderToStaticMarkup(createElement(Component, props))
 
 test('notation describes a complete denominator note with the correct rests and flags', () => {
-  for (const denominator of [4, 8]) {
-    const eighth = denominator === 4 ? 8 : 16
-    const sixteenth = denominator === 4 ? 16 : 32
+  for (const denominator of [2, 4, 8, 16]) {
+    const eighth = denominator * 2
+    const sixteenth = denominator * 4
     for (const pattern of ['offbeat', 'second', 'fourth']) {
       const html = render(Notation, { pattern, denominator })
       const durations = [...html.matchAll(/data-(rest|note)="(\d+)"/g)].map(([, kind, duration]) => [kind, Number(duration)])
@@ -68,7 +68,7 @@ test('playback status uses the sounding pattern until a queued edit reaches its 
 
 test('triplet notation places one note and two rests under a 3:2 bracket', () => {
   assert.equal(GAP_PATTERNS.some(pattern => pattern.id === 'all'), false)
-  for (const denominator of [4, 8]) for (const pattern of ['triplet-second', 'triplet-third']) {
+  for (const denominator of [2, 4, 8, 16]) for (const pattern of ['triplet-second', 'triplet-third']) {
     const html = render(Notation, { pattern, denominator })
     assert.match(html, /data-tuplet="3:2"/)
     assert.match(html, />3<\/text>/)

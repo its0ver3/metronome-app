@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react'
+import { memo, useState, useRef } from 'react'
 import { MIN_BPM, MAX_BPM } from '../../audio/constants'
 import { TEMPO_UNITS } from '../../audio/meter.js'
 
-export default function BpmDisplay({ bpm, maxBpm = MAX_BPM, onBpmChange, disabled, tempoUnit }) {
+export default memo(function BpmDisplay({ bpm, maxBpm = MAX_BPM, onBpmChange, disabled, tempoUnit }) {
   const [editing, setEditing] = useState(false)
   const inputRef = useRef(null)
 
@@ -58,4 +58,4 @@ export default function BpmDisplay({ bpm, maxBpm = MAX_BPM, onBpmChange, disable
       </p>
     </div>
   )
-}
+})

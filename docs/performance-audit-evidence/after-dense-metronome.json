@@ -1,0 +1,82 @@
+{
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "visibility": "visible",
+  "viewport": [
+    1280,
+    720
+  ],
+  "label": "after-dense-metronome",
+  "bpm": 300,
+  "subdivision": 13,
+  "elapsedMs": 10001.5,
+  "backend": "audio-worklet",
+  "playing": true,
+  "counts": {
+    "AppShell": 125,
+    "MetronomeScreen": 64,
+    "RhythmArc": 51
+  },
+  "commitMs": {
+    "count": 125,
+    "total": 33.1,
+    "p50": 0.10000014305114746,
+    "p95": 0.7000000476837158,
+    "max": 1.0999999046325684
+  },
+  "visualBatchMs": {
+    "count": 589,
+    "total": 74.6,
+    "p50": 0,
+    "p95": 1,
+    "max": 1.7000000476837158
+  },
+  "frameIntervalMs": {
+    "count": 599,
+    "total": 9982.3,
+    "p50": 16.69999999999891,
+    "p95": 17.69999999999891,
+    "max": 17.80000000000109
+  },
+  "framesOver25ms": 0,
+  "longTaskMs": {
+    "count": 0,
+    "total": 0,
+    "p50": null,
+    "p95": null,
+    "max": null
+  },
+  "startup": [
+    {
+      "ms": 31.5,
+      "backend": "audio-worklet",
+      "playing": true
+    }
+  ],
+  "domElements": 136,
+  "resources": [
+    {
+      "name": "http://127.0.0.1:4190/assets/index-Z3ZFJ7x3.js",
+      "duration": 5.5,
+      "bytes": 375335,
+      "transfer": 375635
+    },
+    {
+      "name": "http://127.0.0.1:4190/assets/index-B5uxn_RR.css",
+      "duration": 4.8999998569488525,
+      "bytes": 101967,
+      "transfer": 102267
+    },
+    {
+      "name": "http://127.0.0.1:4190/logo.png",
+      "duration": 2.5999999046325684,
+      "bytes": 152453,
+      "transfer": 152753
+    },
+    {
+      "name": "http://127.0.0.1:4190/assets/metronome.worklet-BfE6Rppg.js",
+      "duration": 2.299999952316284,
+      "bytes": 70,
+      "transfer": 370
+    }
+  ]
+}

@@ -29,7 +29,7 @@ export function playbackRuntime(engine) {
 
 // AudioBuffers aren't structured-cloneable. Copy PCM only when sounds load,
 // never once per click. Reused buffers remain shared within each message.
-export function serializeSoundBank(bank) {
+export function serializeSoundBank(bank, { indexes, known } = {}) {
   const buffers = new Map()
   const pcm = buffer => {
     if (!buffer) return null
@@ -39,10 +39,22 @@ export function serializeSoundBank(bank) {
     })
     return buffers.get(buffer)
   }
-  return bank.entries.map(entry => ({
-    ...entry,
-    soft: entry.soft?.map(pcm), main: entry.main?.map(pcm), accent: entry.accent?.map(pcm),
-    subdivision: pcm(entry.subdivision),
-    voiceBuffers: entry.voiceBuffers ? [...entry.voiceBuffers].map(([key, buffer]) => [key, pcm(buffer)]) : undefined,
-  }))
+  return bank.entries.map((entry, index) => {
+    if (indexes && !indexes.includes(index)) return null
+    const previous = known?.get(index)
+    const voiceBuffers = entry.voiceBuffers ? [...entry.voiceBuffers]
+      .filter(([key, buffer]) => previous?.voices?.get(key) !== buffer) : undefined
+    const samplesChanged = !previous || previous.main !== entry.main || previous.soft !== entry.soft || previous.accent !== entry.accent
+    const subdivisionChanged = !previous || previous.subdivision !== entry.subdivision
+    if (previous && !samplesChanged && !subdivisionChanged && !voiceBuffers?.length) return null
+    const result = {
+      id: entry.id, kind: entry.kind,
+      ...(samplesChanged ? { soft: entry.soft?.map(pcm), main: entry.main?.map(pcm), accent: entry.accent?.map(pcm) } : {}),
+      ...(subdivisionChanged ? { subdivision: pcm(entry.subdivision) } : {}),
+      ...(voiceBuffers ? { voiceBuffers: voiceBuffers.map(([key, buffer]) => [key, pcm(buffer)]) } : {}),
+    }
+    known?.set(index, { main: entry.main, soft: entry.soft, accent: entry.accent,
+      subdivision: entry.subdivision, voices: entry.voiceBuffers ? new Map(entry.voiceBuffers) : undefined })
+    return result
+  })
 }

@@ -921,7 +921,7 @@ input[type="number"] {
 
 .pulse-sheet-backdrop.is-closing {
   pointer-events: none;
-  animation: pulse-sheet-backdrop-out 300ms ease both;
+  animation: pulse-sheet-backdrop-out 220ms ease both;
 }
 
 .pulse-control-sheet {
@@ -958,7 +958,7 @@ input[type="number"] {
 
 .pulse-control-sheet.is-closing {
   pointer-events: none;
-  animation: pulse-sheet-out 440ms cubic-bezier(0.22, 0.8, 0.28, 1) both;
+  animation: pulse-sheet-out 220ms cubic-bezier(0.22, 0.8, 0.28, 1) both;
 }
 
 .pulse-control-sheet[data-drag-state]:not(.is-closing) {
@@ -1925,4 +1925,11 @@ input.pulse-volume-slider::-moz-range-progress {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+.pulse-audio-notice {
+  position: absolute; z-index: 1100; top: 76px; left: 16px; right: 16px;
+  padding: 10px 14px; border-radius: 10px; background: var(--pulse-surface-raised, #252525); color: var(--brand-color-ink, #f5f0e8);
+  font-size: 14px; text-align: center; pointer-events: none;
+  box-shadow: 0 4px 18px #0005;
 }

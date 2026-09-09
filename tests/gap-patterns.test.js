@@ -37,7 +37,7 @@ for (const [pattern, offsets] of [
   ['fourth', [.75]], ['triplet-second', [1 / 3]], ['triplet-third', [2 / 3]],
 ]) {
   test(`${pattern} sounds only at its written positions, then restores the saved click pattern`, () => {
-    for (const meter of [{ numerator: 4, denominator: 4 }, { numerator: 7, denominator: 8, groups: [2, 2, 3], groupOnly: true }]) {
+    for (const meter of [{ numerator: 2, denominator: 2 }, { numerator: 15, denominator: 16, groups: [4, 4, 4, 3], groupOnly: true }, { numerator: 4, denominator: 4 }, { numerator: 7, denominator: 8, groups: [2, 2, 3], groupOnly: true }]) {
       for (const subdivision of [1, 3, 7]) {
         const { engine, sounds, events } = instrument(pattern, meter, subdivision)
         const saved = [...engine.subdivisionAccents]

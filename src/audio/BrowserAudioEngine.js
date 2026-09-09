@@ -1,6 +1,7 @@
 import AudioEngine from './AudioEngine.js'
 import VisualTimeline from './VisualTimeline.js'
 import { LIVE_COMMANDS, serializeSoundBank } from './workletProtocol.js'
+import { getSoundIndexById, normalizeSoundIndex } from './constants.js'
 
 const AUDIO_HEALTH_INTERVAL_MS = 500
 const AUDIO_STALL_MS = 2000
@@ -16,6 +17,79 @@ export default class BrowserAudioEngine extends AudioEngine {
     this._contextNeedsReset = false
     this.timingBackend = 'buffer-source'
     this._visualTimeline = new VisualTimeline(() => this.ctx)
+    this._sentBank = new Map()
+    this._soundRequests = new Map()
+    this._pendingLoads = new Set()
+    this.loadState = { starting: false, soundLoading: false, error: null }
+  }
+
+  onLoadStateChange(callback) { this._onLoadStateChange = callback }
+  _setLoadState(next) {
+    this.loadState = { ...this.loadState, ...next }
+    this._onLoadStateChange?.(this.loadState)
+  }
+  _beginSoundLoad(token) {
+    this._pendingLoads.add(token)
+    this._setLoadState({ soundLoading: true, error: null })
+  }
+  _endSoundLoad(token) {
+    this._pendingLoads.delete(token)
+    this._setLoadState({ soundLoading: this._pendingLoads.size > 0 })
+  }
+
+  async start() {
+    if (this.isPlaying) return
+    const pending = super.start()
+    const generation = this._startGeneration
+    this._setLoadState({ starting: true, error: null })
+    try {
+      await pending
+      if (generation === this._startGeneration && !this.isPlaying) {
+        this._setLoadState({ error: 'Audio could not start. Tap Start to retry.' })
+      }
+    } catch {
+      if (generation === this._startGeneration) {
+        this.stop()
+        this._setLoadState({ error: 'Sound could not load. Check your connection and tap Start to retry.' })
+      }
+    } finally {
+      if (generation === this._startGeneration) this._setLoadState({ starting: false })
+    }
+  }
+
+  async preview(index) {
+    const token = Symbol('preview')
+    this._latestPreview = token
+    this._beginSoundLoad(token)
+    try { await super.preview(index) }
+    catch {
+      if (this._latestPreview === token) this._setLoadState({ error: 'Sound could not load. Tap the sound to retry.' })
+    } finally { this._endSoundLoad(token) }
+  }
+
+  async _selectSound(method, index) {
+    const token = Symbol(method), bank = this.soundBank, context = this.ctx
+    this._soundRequests.set(method, token)
+    this._beginSoundLoad(token)
+    // Include both poly counts when the same voice serves both rhythms.
+    const count = this.polyrhythmMode ? Math.max(this.polyRhythm1, this.polyRhythm2) : this._meterGroups.length
+    try {
+      await bank.prepareSound(index, { count, includeAnd: !this.polyrhythmMode })
+      if (this._soundRequests.get(method) !== token || context !== this.ctx || bank !== this.soundBank) return
+      AudioEngine.prototype[method].call(this, index)
+      if (this._workletNode && this._workletRunning) {
+        const delta = serializeSoundBank(bank, { indexes: [index], known: this._sentBank })
+        if (delta.some(Boolean)) this._workletNode.port.postMessage({ type: 'bank', bank: delta })
+        // Message-port ordering makes samples available before the selection.
+        this._workletNode.port.postMessage({ type: 'command', method, args: [index], revision: ++this._revision })
+      }
+      return true
+    } catch {
+      if (this._soundRequests.get(method) === token) this._setLoadState({ error: 'Sound could not load. Tap the sound to retry.' })
+    } finally {
+      if (this._soundRequests.get(method) === token) this._soundRequests.delete(method)
+      this._endSoundLoad(token)
+    }
   }
 
   _ensureContext() {
@@ -89,8 +163,11 @@ export default class BrowserAudioEngine extends AudioEngine {
     else {
       this._workletRunning = true
       this._revision = 0
+      this._sentBank.clear()
+      const indexes = [0, ...(this.polyrhythmMode ? [this.polySoundIndex1, this.polySoundIndex2] : [this.soundIndex])]
+      if (this.sessionSettings.countInBars) indexes.push(getSoundIndexById('female-count'))
       this._workletNode.port.postMessage({ type: 'start', generation: this._startGeneration,
-        settings: this.getState(), bank: serializeSoundBank(this.soundBank), startTime: this._nextNoteTime })
+        settings: this.getState(), bank: serializeSoundBank(this.soundBank, { indexes, known: this._sentBank }), startTime: this._nextNoteTime })
     }
     if (!this.isPlaying) return
     this._audioClockTime = this.ctx.currentTime
@@ -194,6 +271,12 @@ export default class BrowserAudioEngine extends AudioEngine {
       return
     }
     clearInterval(this._audioHealthTimer)
+    this._soundRequests.clear()
+    this._pendingLoads.clear()
+    this._latestPreview = null
+    this._previewGeneration = (this._previewGeneration || 0) + 1
+    try { this._previewSource?.stop() } catch { /* Already ended. */ }
+    this._setLoadState({ starting: false, soundLoading: false })
     this._audioHealthTimer = null
     this._visualTimeline.clear()
     this._workletRunning = false
@@ -217,18 +300,16 @@ export default class BrowserAudioEngine extends AudioEngine {
   }
 
   _mutate(method, args) {
+    if (this.loadState.starting && ['setSound', 'setPolySoundIndex1', 'setPolySoundIndex2'].includes(method)) this.stop()
+    if (!this._commandDepth && this.isPlaying && this.soundBank && ['setSound', 'setPolySoundIndex1', 'setPolySoundIndex2'].includes(method)) {
+      return this._selectSound(method, normalizeSoundIndex(args[0]))
+    }
     this._commandDepth++
     let result
     try { result = AudioEngine.prototype[method].apply(this, args) }
     finally { this._commandDepth-- }
     if (this._commandDepth === 0 && this.isPlaying && this._workletRunning && this._workletNode) {
       this._workletNode.port.postMessage({ type: 'command', method, args, revision: ++this._revision })
-      if (['setSound', 'setPolySoundIndex1', 'setPolySoundIndex2'].includes(method)) {
-        const node = this._workletNode
-        this.soundBank.prepareSound(args[0]).then(() => {
-          if (node === this._workletNode) node.port.postMessage({ type: 'bank', bank: serializeSoundBank(this.soundBank) })
-        }).catch(() => {})
-      }
     }
     return result
   }

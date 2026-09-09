@@ -14,24 +14,24 @@ const compiled = await build({
     export { default as Stage } from './src/components/training/SubdivisionStage.jsx'
     export { default as Trainer } from './src/components/training/SubdivisionTrainer.jsx'
     export { default as Readout } from './src/components/metronome/RhythmReadout.jsx'
-    export { default as MeterPicker } from './src/components/metronome/MeterPicker.jsx'
+    export { default as MeterPicker, CustomMeterEditor } from './src/components/metronome/MeterPicker.jsx'
   `, resolveDir: fileURLToPath(new URL('../', import.meta.url)), loader: 'jsx' },
   bundle: true, write: false, platform: 'node', format: 'cjs', jsx: 'automatic',
   external: ['react', 'react/jsx-runtime'], loader: { '.css': 'empty', '.png': 'file' }, outdir: 'in-memory',
 })
 const module = { exports: {} }
 new Function('module', 'exports', 'require', compiled.outputFiles.find(file => file.path.endsWith('.js')).text)(module, module.exports, createRequire(import.meta.url))
-const { Notes, Picker, Stage, Trainer, Readout, MeterPicker } = module.exports
+const { Notes, Picker, Stage, Trainer, Readout, MeterPicker, CustomMeterEditor } = module.exports
 const render = (Component, props) => renderToStaticMarkup(createElement(Component, props))
 
-test('meter picker keeps presets and uneven grouping without advanced controls', () => {
+test('meter picker keeps presets and uneven grouping with a custom entry', () => {
   for (const [numerator, groups, choices] of [[4, [1, 1, 1, 1], []], [5, [2, 3], ['2 + 3', '3 + 2']], [7, [2, 2, 3], ['2 + 2 + 3', '2 + 3 + 2', '3 + 2 + 2']]]) {
     const meter = { numerator, denominator: numerator === 4 ? 4 : 8, groups, tempoUnit: 'quarter' }
     const html = render(MeterPicker, { meter, onChange() {} })
-    assert.doesNotMatch(html, /<details|<form|<input|More|Custom|BPM counts|BPM note value/)
+    assert.doesNotMatch(html, /<details|<form|<input|More|BPM counts|BPM note value/)
     assert.equal((html.match(/<select /g) || []).length, 1)
-    assert.equal((html.match(/<option /g) || []).length, 8)
-    assert.deepEqual([...html.matchAll(/<option[^>]*>([^<]+)<\/option>/g)].map(match => match[1]), ['4/4', '3/4', '2/4', '5/8', '6/8', '7/8', '9/8', '12/8'])
+    assert.equal((html.match(/<option /g) || []).length, 9)
+    assert.deepEqual([...html.matchAll(/<option[^>]*>([^<]+)<\/option>/g)].map(match => match[1]), ['4/4', '3/4', '2/4', '5/8', '6/8', '7/8', '9/8', '12/8', 'Custom…'])
     assert.equal((html.match(/<button /g) || []).length, choices.length)
     for (const label of choices) assert.ok(html.includes(`>${label}</button>`))
     assert.equal((html.match(/aria-pressed="true"/g) || []).length, choices.length ? 1 : 0)
@@ -99,4 +99,25 @@ test('standard pill uses the saved note group while polyrhythm keeps its distinc
   assert.doesNotMatch(poly, /data-subdivision/)
   assert.match(poly, /<small>A<\/small>3/)
   assert.match(poly, /<small>B<\/small>5/)
+})
+
+
+test('custom denominators engrave correct note values and expose matching labels', () => {
+  for (const denominator of [2, 4, 8, 16]) for (let count = 1; count <= 13; count++) {
+    const html = render(Notes, { count, denominator })
+    const beams = Math.max(0, Math.floor(Math.log2(count)) + Math.log2(denominator) - 2)
+    assert.equal((html.match(/stroke-width="3"/g) || []).length, count === 1 ? 0 : beams)
+    if (count === 1 && denominator >= 8) assert.match(html, new RegExp(`data-flags="${beams}"`))
+    assert.doesNotMatch(html, /undefined|NaN/)
+  }
+  assert.equal(getSubdivisionNotation(1, 2).name, 'Half notes')
+  assert.equal(getSubdivisionNotation(1, 2).hollow, true)
+  assert.equal(getSubdivisionNotation(1, 16).name, 'Sixteenth notes')
+  assert.equal(getSubdivisionNotation(3, 16).name, 'Thirty-second-note triplets')
+  assert.equal(getSubdivisionNotation(8, 16).beams, 5)
+  assert.match(getSubdivisionLabel(2, 16), /2 clicks per sixteenth note/)
+  const html = render(CustomMeterEditor, { meter: { numerator: 15, denominator: 16, groups: [4, 4, 4, 3] }, onApply() {}, onCancel() {} })
+  assert.match(html, /value="16" selected/)
+  assert.match(html, /value="4\+4\+4\+3"/)
+  assert.doesNotMatch(html, /disabled=""/)
 })

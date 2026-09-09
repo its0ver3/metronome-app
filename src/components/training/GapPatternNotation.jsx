@@ -2,19 +2,18 @@ import { GAP_GLYPHS } from '../../assets/notation/gapGlyphs'
 import { getGapPattern } from '../../audio/gapPatterns'
 
 // Positions represent one denominator note. Rests preserve the audible click's
-// place within that unit; /8 meters add one flag to each /4 duration.
+// place within that unit for every supported denominator.
 export default function GapPatternNotation({ pattern, denominator = 4 }) {
   const { id } = getGapPattern(pattern)
-  const shorter = denominator === 8
   const rest = (x, duration) => <path key={x} data-rest={duration}
     d={GAP_GLYPHS[`rest${duration}`]} transform={`translate(${x} 30) scale(.032 -.032)`} fill="currentColor" />
   const note = (x, duration) => <g data-note={duration}>
     <path d={GAP_GLYPHS.notehead} transform={`translate(${x} 43) scale(.032 -.032)`} fill="currentColor" />
     <path d={`M${x + 9.2} 42 V13`} stroke="currentColor" strokeWidth="1.2" />
-    <path d={GAP_GLYPHS[`flag${duration}`]} transform={`translate(${x + 8.6} 13) scale(.032 -.032)`} fill="currentColor" />
+    {duration >= 8 && <path d={GAP_GLYPHS[`flag${duration}`]} transform={`translate(${x + 8.6} 13) scale(.032 -.032)`} fill="currentColor" />}
   </g>
-  const eighth = shorter ? 16 : 8
-  const sixteenth = shorter ? 32 : 16
+  const eighth = denominator * 2
+  const sixteenth = denominator * 4
   const triplet = id === 'triplet-second' || id === 'triplet-third'
   return <svg className="pulse-gap-pattern-notation" data-gap-pattern={id}
     width="94" height="54" viewBox="0 0 94 54" aria-hidden="true" focusable="false">

@@ -1,0 +1,8 @@
+{
+  "seconds": 10,
+  "sampleRate": 48000,
+  "quantumFrames": 128,
+  "timerMode": "off",
+  "sessionSnapshotsAndStringifies": 3755,
+  "changedSessionNotifications": 5
+}
